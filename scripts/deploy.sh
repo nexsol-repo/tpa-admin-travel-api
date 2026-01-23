@@ -3,22 +3,21 @@
 # 사용법: ./deploy.sh [dev|prod]
 TARGET_ENV=$1
 APP_NAME="tpa-admin-travel-api"
+ROUTE_PATH="/upstream/travel/"
 
 # [중요] Dev/Prod가 섞이지 않게 Base Path도 분리 (CI/CD에서 넘겨준 경로와 일치해야 함)
 if [ "$TARGET_ENV" == "prod" ]; then
   BASE_PATH="/home/nex3/app/${APP_NAME}"
   ENV_FILE=".env.prod"
   NGINX_CONF="/etc/nginx/conf.d/tpa-admin-api.conf"
-  ROUTE_PATH="/upstream/travel/" # Prod용 Nginx upstream 경로
   DEFAULT_PORT="8203"
   ALT_PORT="8204"
 elif [ "$TARGET_ENV" == "dev" ]; then
   BASE_PATH="/home/nex3/app/${APP_NAME}"
   ENV_FILE=".env.dev"
   NGINX_CONF="/etc/nginx/conf.d/tpa-admin-api-dev.conf" # Dev용 Nginx 설정 파일 별도 필요
-  ROUTE_PATH="/upstream/travel-dev/" # Dev용 Nginx upstream 경로
-  DEFAULT_PORT="8203"
-  ALT_PORT="8204"
+  DEFAULT_PORT="8303"
+  ALT_PORT="8304"
 else
   echo "❌ 잘못된 환경 인자입니다. (dev 또는 prod 사용)"
   exit 1
@@ -89,7 +88,7 @@ if [ ! -f "$NGINX_CONF" ]; then
 else
     # 특정 location 블록 내의 proxy_pass 포트만 변경
     # ROUTE_PATH에 해당하는 블록의 포트를 변경
-    sudo sed -i "/location ${ROUTE_PATH//\//\\/}/,/}/ s/127.0.0.1:[0-9]\{4\}/127.0.0.1:${TARGET_PORT}/" $NGINX_CONF
+    sudo sed -i "/location ${//ROUTE_PATH\//\\/}/,/}/ s/127.0.0.1:[0-9]\{4\}/127.0.0.1:${TARGET_PORT}/" $NGINX_CONF
     sudo nginx -t && sudo nginx -s reload
 fi
 
