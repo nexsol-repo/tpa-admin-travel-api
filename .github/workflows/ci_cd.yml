@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - develop  # develop 브랜치 추가
+      - dev
   workflow_dispatch:
 
 env:
