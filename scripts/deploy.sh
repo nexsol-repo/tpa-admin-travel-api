@@ -88,7 +88,7 @@ if [ ! -f "$NGINX_CONF" ]; then
 else
     # 특정 location 블록 내의 proxy_pass 포트만 변경
     # ROUTE_PATH에 해당하는 블록의 포트를 변경
-    sudo sed -i "/location ${//ROUTE_PATH\//\\/}/,/}/ s/127.0.0.1:[0-9]\{4\}/127.0.0.1:${TARGET_PORT}/" $NGINX_CONF
+    sudo sed -i "/location ${ROUTE_PATH//\//\\/}/,/}/ s/127.0.0.1:[0-9]\{4\}/127.0.0.1:${TARGET_PORT}/" $NGINX_CONF
     sudo nginx -t && sudo nginx -s reload
 fi
 
