@@ -13,7 +13,7 @@ if [ "$TARGET_ENV" == "prod" ]; then
   DEFAULT_PORT="8203"
   ALT_PORT="8204"
 elif [ "$TARGET_ENV" == "dev" ]; then
-  BASE_PATH="/home/nex3/app/${APP_NAME}-dev"
+  BASE_PATH="/home/nex3/app/${APP_NAME}"
   ENV_FILE=".env.dev"
   NGINX_CONF="/etc/nginx/conf.d/tpa-admin-api-dev.conf" # Dev용 Nginx 설정 파일 별도 필요
   ROUTE_PATH="/upstream/travel-dev/" # Dev용 Nginx upstream 경로
