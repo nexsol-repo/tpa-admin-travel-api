@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  # 공통 이미지 이름
+
   IMAGE_NAME: tpa-admin-travel-api
 
 jobs:
