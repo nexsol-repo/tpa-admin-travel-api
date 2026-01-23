@@ -1,15 +1,15 @@
 package com.nexsol.tpa.core.support;
 
-public record SortPage(int page, int size, Sort sort) {
+// int -> Integer로 변경하여 null 입력을 허용
+public record SortPage(Integer page, Integer size, Sort sort) {
 
-    // 정렬 개념 (필드명 + 방향)
+    // ... Sort, Direction 내부 클래스/Enum 코드는 그대로 유지 ...
     public record Sort(String property, Direction direction) {
         public static Sort of(String property, Direction direction) {
             return new Sort(property, direction);
         }
     }
 
-    // 방향 개념 (SortPage 내부로 이동)
     public enum Direction {
 
         ASC, DESC;
@@ -20,15 +20,20 @@ public record SortPage(int page, int size, Sort sort) {
 
     }
 
+    // Compact Constructor 수정
     public SortPage {
-        if (page < 0)
+        // page가 null이거나 0보다 작으면 0으로 초기화
+        if (page == null || page < 0) {
             page = 0;
-        if (size < 1)
+        }
+        // size가 null이거나 1보다 작으면 10으로 초기화
+        if (size == null || size < 1) {
             size = 10;
+        }
     }
 
     public long offset() {
-        return (long) page * size;
+        return (long) page * size; // Integer 자동 언박싱
     }
 
     // 정렬 없이 페이징만 요청할 때

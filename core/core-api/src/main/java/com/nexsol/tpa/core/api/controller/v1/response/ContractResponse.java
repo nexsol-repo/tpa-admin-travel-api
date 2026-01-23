@@ -11,7 +11,7 @@ public record ContractResponse(Long contractId, String contractStatus, String co
         String partnerName, String channelName, String applicantName, String applicantPhone, int insuredCount,
         BigDecimal totalPremium, LocalDateTime applicationDate, LocalDateTime insuranceStartDate,
         LocalDateTime insuranceEndDate) {
-    public static ContractResponse from(InsuranceContract domain) {
+    public static ContractResponse of(InsuranceContract domain) {
         return ContractResponse.builder()
             .contractId(domain.contractId())
             .contractStatus(domain.status().name())

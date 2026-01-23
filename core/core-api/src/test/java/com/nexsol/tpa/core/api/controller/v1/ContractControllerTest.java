@@ -12,7 +12,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -118,14 +117,16 @@ public class ContractControllerTest extends RestDocsTest {
                         .iIndividualPolicyNumber("15540-97222")
                         .build()))
             .build();
-        PageResult<InsuranceContract> mockPage = PageResult.of(List.of(mockContract), 100, 10, 0);
+
+        List<InsuranceContract> content = List.of(mockContract);
+        PageResult<InsuranceContract> pageResult = new PageResult<>(content, 1L, 1, 0, false);
 
         given(contractService.searchContract(any(ContractSearchCriteria.class), any(SortPage.class)))
-            .willReturn(mockPage);
+            .willReturn(pageResult);
 
         // When & Then
         mockMvc
-            .perform(get("/v1/contracts").param("page", "0")
+            .perform(get("/v1/admin/travel/contract").param("page", "0")
                 .param("size", "10")
                 .param("startDate", "2025-01-01")
                 .param("endDate", "2025-01-31")
@@ -142,24 +143,31 @@ public class ContractControllerTest extends RestDocsTest {
                             parameterWithName("status").description("계약 상태 (COMPLETED, CANCELED 등)").optional(),
                             parameterWithName("keywordType").description("검색어 타입 (NAME, PHONE 등)").optional(),
                             parameterWithName("keyword").description("검색어").optional()),
-                    responseFields(fieldWithPath("content").type(JsonFieldType.ARRAY).description("계약 내역 리스트"),
-                            fieldWithPath("content[].contractId").description("계약 ID"),
-                            fieldWithPath("content[].contractStatus").description("계약 상태 (한글/영문)"),
-                            fieldWithPath("content[].contractStatusCode").description("계약 상태 코드"),
-                            fieldWithPath("content[].policyNumber").description("증권 번호"),
-                            fieldWithPath("content[].partnerName").description("제휴사 명"),
-                            fieldWithPath("content[].channelName").description("가입 채널"),
-                            fieldWithPath("content[].applicantName").description("신청자(대표자) 이름"),
-                            fieldWithPath("content[].applicantPhone").description("신청자 연락처"),
-                            fieldWithPath("content[].insuredCount").description("총 가입 인원수"),
-                            fieldWithPath("content[].totalPremium").description("총 보험료"),
-                            fieldWithPath("content[].applicationDate").description("신청 일시"),
-                            fieldWithPath("content[].insuranceStartDate").description("보험 시작 일시"),
-                            fieldWithPath("content[].insuranceEndDate").description("보험 종료 일시"),
-                            fieldWithPath("totalElements").description("총 데이터 수"),
-                            fieldWithPath("totalPages").description("총 페이지 수"),
-                            fieldWithPath("currentPage").description("현재 페이지 번호"),
-                            fieldWithPath("hasNext").description("다음 페이지 존재 여부"))));
+                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+
+                            // 2. data 객체 내부로 경로 변경 (prefix: "data.")
+                            fieldWithPath("data").description("응답 데이터"),
+                            fieldWithPath("data.content").type(JsonFieldType.ARRAY).description("계약 내역 리스트"),
+                            fieldWithPath("data.content[].contractId").description("계약 ID"),
+                            fieldWithPath("data.content[].contractStatus").description("계약 상태 (한글/영문)"),
+                            fieldWithPath("data.content[].contractStatusCode").description("계약 상태 코드"),
+                            fieldWithPath("data.content[].policyNumber").description("증권 번호"),
+                            fieldWithPath("data.content[].partnerName").description("제휴사 명"),
+                            fieldWithPath("data.content[].channelName").description("가입 채널"),
+                            fieldWithPath("data.content[].applicantName").description("신청자(대표자) 이름"),
+                            fieldWithPath("data.content[].applicantPhone").description("신청자 연락처"),
+                            fieldWithPath("data.content[].insuredCount").description("총 가입 인원수"),
+                            fieldWithPath("data.content[].totalPremium").description("총 보험료"),
+                            fieldWithPath("data.content[].applicationDate").description("신청 일시"),
+                            fieldWithPath("data.content[].insuranceStartDate").description("보험 시작 일시"),
+                            fieldWithPath("data.content[].insuranceEndDate").description("보험 종료 일시"),
+
+                            // 3. PageResult 메타 정보 문서화
+                            fieldWithPath("data.totalElements").description("총 데이터 수"),
+                            fieldWithPath("data.totalPages").description("총 페이지 수"),
+                            fieldWithPath("data.currentPage").description("현재 페이지 번호"),
+                            fieldWithPath("data.hasNext").description("다음 페이지 존재 여부"))));
     }
 
 }

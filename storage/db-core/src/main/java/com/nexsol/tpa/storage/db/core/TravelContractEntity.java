@@ -23,8 +23,6 @@ public class TravelContractEntity extends BaseEntity {
 
     private String policyNumber;
 
-    private String contractNumber;
-
     @Column(name = "contract_people_name")
     private String applicantName;
 

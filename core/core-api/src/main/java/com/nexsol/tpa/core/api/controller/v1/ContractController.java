@@ -5,6 +5,8 @@ import com.nexsol.tpa.core.api.controller.v1.response.ContractResponse;
 import com.nexsol.tpa.core.domain.ContractService;
 import com.nexsol.tpa.core.support.PageResult;
 import com.nexsol.tpa.core.support.SortPage;
+import com.nexsol.tpa.core.support.response.ApiResponse;
+import com.nexsol.tpa.core.support.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,17 +23,16 @@ public class ContractController {
     private final ContractService contractService;
 
     @GetMapping("/contract")
-    public PageResult<ContractResponse> getContracts(@ModelAttribute ContractSearchRequest request,
+    public ApiResponse<PageResponse<ContractResponse>> getContracts(@ModelAttribute ContractSearchRequest request,
             @ModelAttribute SortPage sortPage) {
         // 1. 비즈니스 로직 호출 (Service -> Domain Page)
         var domainPage = contractService.searchContract(request.toCriteria(), sortPage);
 
         // 2. Domain -> Response DTO 변환
-        List<ContractResponse> content = domainPage.getContent().stream().map(ContractResponse::from).toList();
+        List<ContractResponse> content = domainPage.getContent().stream().map(ContractResponse::of).toList();
 
         // 3. PageResult 재생성 (DTO 타입으로)
-        return new PageResult<>(content, domainPage.getTotalElements(), domainPage.getTotalPages(),
-                domainPage.getCurrentPage(), domainPage.hasNext());
+        return ApiResponse.success(PageResponse.of(domainPage, content));
     }
 
 }
