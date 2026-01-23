@@ -1,4 +1,7 @@
 package com.nexsol.tpa.storage.db.core;
 
-public interface TravelContractJpaRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TravelContractJpaRepository extends JpaRepository<TravelContractEntity, Long> {
+
 }

@@ -1,4 +1,11 @@
 package com.nexsol.tpa.storage.db.core;
 
-public interface InsuredPersonJpaRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface InsuredPersonJpaRepository extends JpaRepository<TravelInsurePeopleEntity, Long> {
+
+    List<TravelInsurePeopleEntity> findAllByContractId(Long contractId);
+
 }
