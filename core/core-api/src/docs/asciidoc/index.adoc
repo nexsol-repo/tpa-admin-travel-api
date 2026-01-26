@@ -23,3 +23,17 @@ include::{snippets}/contract-list/response-fields.adoc[]
 ==== HTTP 예시
 include::{snippets}/contract-list/http-request.adoc[]
 include::{snippets}/contract-list/http-response.adoc[]
+
+=== 계약 상세 조회
+
+여행자 보험 계약의 상세 정보를 조회합니다.
+
+==== 요청 경로 파라미터
+include::{snippets}/contract-detail/path-parameters.adoc[]
+
+==== 응답 필드
+include::{snippets}/contract-detail/response-fields.adoc[]
+
+==== HTTP 예시
+include::{snippets}/contract-detail/http-request.adoc[]
+include::{snippets}/contract-detail/http-response.adoc[]
