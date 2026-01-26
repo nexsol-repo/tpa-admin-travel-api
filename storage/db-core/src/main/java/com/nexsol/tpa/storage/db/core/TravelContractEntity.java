@@ -26,6 +26,12 @@ public class TravelContractEntity extends BaseEntity {
 
     private String policyNumber;
 
+    private String partnerName;
+
+    private String channelName;
+
+    private String insurerName;
+
     @Column(name = "contract_people_name")
     private String applicantName;
 
@@ -40,13 +46,14 @@ public class TravelContractEntity extends BaseEntity {
 
     private String countryName;
 
+    private String status;
+
     private LocalDateTime applyDate;
 
-    private LocalDateTime insureBeginDate;
+    private LocalDateTime insureStartDate;
 
     private LocalDateTime insureEndDate;
 
-    @Column(name = "total_fee")
     private BigDecimal totalPremium;
 
 }

@@ -6,12 +6,9 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-public record ContractSearchCriteria(LocalDate startDate, LocalDate endDate, String partnerCode, String channelCode,
-        ContractStatus status, String keywordType, String keyword
-
-) {
-
+public record ContractSearchCriteria(LocalDate startDate, LocalDate endDate, String partnerName, String channelName,
+        String insurerName, ContractStatus status, String applicantName) {
     public static ContractSearchCriteria empty() {
-        return new ContractSearchCriteria(null, null, null, null, null, null, null);
+        return ContractSearchCriteria.builder().build();
     }
 }

@@ -74,7 +74,11 @@ public class ContractControllerTest extends RestDocsTest {
             // 1. 계약 메타 정보 (증권번호, 제휴사, 기간)
             .metaInfo(ContractMeta.builder()
                 .policyNumber("15540-97222")
-                .origin(new SubscriptionOrigin("TPA KOREA", "TPA KOREA", "메리츠"))
+                .origin(SubscriptionOrigin.builder()
+                    .partnerName("TPA KOREA")
+                    .channelName("TPA KOREA")
+                    .insurerName("메리츠")
+                    .build())
                 .applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0)) // 2024.02.01
                 .period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), // 2024.03.15
                         // 17:00
@@ -131,8 +135,11 @@ public class ContractControllerTest extends RestDocsTest {
                 .param("size", "10")
                 .param("startDate", "2025-01-01")
                 .param("endDate", "2025-01-31")
-                .param("partnerCode", "TPA")
+                .param("partnerName", "TPA KOREA")
+                .param("channelName", "TPA KOREA")
+                .param("insurerName", "메리츠")
                 .param("status", "COMPLETED")
+                .param("applicantName", "홍길동")
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andDo(document("contract-list",
@@ -140,10 +147,11 @@ public class ContractControllerTest extends RestDocsTest {
                             parameterWithName("size").description("페이지 크기").optional(),
                             parameterWithName("startDate").description("조회 시작일 (yyyy-MM-dd)").optional(),
                             parameterWithName("endDate").description("조회 종료일 (yyyy-MM-dd)").optional(),
-                            parameterWithName("partnerCode").description("제휴사 코드").optional(),
-                            parameterWithName("status").description("계약 상태 (COMPLETED, CANCELED 등)").optional(),
-                            parameterWithName("keywordType").description("검색어 타입 (NAME, PHONE 등)").optional(),
-                            parameterWithName("keyword").description("검색어").optional()),
+                            parameterWithName("partnerName").description("제휴사명 (전체 일치)").optional(),
+                            parameterWithName("channelName").description("채널명 (전체 일치)").optional(),
+                            parameterWithName("insurerName").description("보험사명 (전체 일치)").optional(),
+                            parameterWithName("status").description("계약 상태").optional(),
+                            parameterWithName("applicantName").description("가입자명 (부분 일치)").optional()),
                     responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
                             fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
 
@@ -156,6 +164,7 @@ public class ContractControllerTest extends RestDocsTest {
                             fieldWithPath("data.content[].policyNumber").description("증권 번호"),
                             fieldWithPath("data.content[].partnerName").description("제휴사 명"),
                             fieldWithPath("data.content[].channelName").description("가입 채널"),
+                            fieldWithPath("data.content[].insurerName").description("보험사 명"),
                             fieldWithPath("data.content[].applicantName").description("신청자(대표자) 이름"),
                             fieldWithPath("data.content[].applicantPhone").description("신청자 연락처"),
                             fieldWithPath("data.content[].insuredCount").description("총 가입 인원수"),
@@ -183,7 +192,11 @@ public class ContractControllerTest extends RestDocsTest {
             // 1. 보험 가입 정보
             .metaInfo(ContractMeta.builder()
                 .policyNumber("15540-97222")
-                .origin(new SubscriptionOrigin("TPA KOREA", "TPA KOREA", "메리츠"))
+                .origin(SubscriptionOrigin.builder()
+                    .partnerName("TPA KOREA")
+                    .channelName("TPA KOREA")
+                    .insurerName("메리츠")
+                    .build())
                 .applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0)) // 2024.02.01
                 .period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), // 2024.03.15
                                                                                   // 17:00

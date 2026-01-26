@@ -12,17 +12,17 @@ import java.util.List;
 public class ContractEntityMapper {
 
     /**
-     * Case 1: 모든 정보가 다 있는 경우 (상세 조회용)
+     * Case 1: 모든 정보가 다 있는 경우 (상세 조회용) [Refactored] Name 파라미터 제거 -> Entity 내부 필드 사용
      */
     public InsuranceContract toDomain(TravelContractEntity c, TravelInsurePaymentEntity p,
-            List<TravelInsurePeopleEntity> people, String partnerName, String channelName, String insurerName) {
+            List<TravelInsurePeopleEntity> people) {
         // Null Safety
         List<TravelInsurePeopleEntity> safePeople = (people != null) ? people : Collections.emptyList();
 
         return InsuranceContract.builder()
             .contractId(c.getId())
             .status(determineStatus(c, p))
-            .metaInfo(mapMeta(c, partnerName, channelName, insurerName)) // [수정] 이름 전달
+            .metaInfo(mapMeta(c))
             .productPlan(mapProductPlan(c))
             .applicant(mapApplicant(c))
             .paymentInfo(mapPayment(p, c))
@@ -31,31 +31,30 @@ public class ContractEntityMapper {
     }
 
     /**
-     * Case 2: 계약 정보만 있는 경우 (목록 조회 등 - 이름 정보가 없을 때 ID로 대체)
+     * Case 2: 계약 정보만 있는 경우 (목록 조회 등) [Refactored] Name 파라미터 제거
      */
     public InsuranceContract toDomain(TravelContractEntity c) {
-        // 이름 정보가 없으면 ID를 문자로 변환하여 전달
-        return toDomain(c, null, Collections.emptyList(), String.valueOf(c.getPartnerId()),
-                String.valueOf(c.getChannelId()), String.valueOf(c.getInsurerId()));
+        return toDomain(c, null, Collections.emptyList());
     }
 
-    // [수정] 이름 정보를 파라미터로 받도록 변경
-    private ContractMeta mapMeta(TravelContractEntity c, String partnerName, String channelName, String insurerName) {
+    // [Refactored] Entity의 Name 필드 사용
+    private ContractMeta mapMeta(TravelContractEntity c) {
         return ContractMeta.builder()
             .policyNumber(c.getPolicyNumber())
-            .origin(new SubscriptionOrigin(partnerName, channelName, insurerName)) // [수정]
-                                                                                   // 전달받은
-                                                                                   // 이름
-                                                                                   // 사용
+            .origin(SubscriptionOrigin.builder()
+                .partnerName(c.getPartnerName())
+                .channelName(c.getChannelName())
+                .insurerName(c.getInsurerName())
+                .build())
             .applicationDate(c.getApplyDate())
-            .period(new InsurancePeriod(c.getInsureBeginDate(), c.getInsureEndDate()))
+            .period(new InsurancePeriod(c.getInsureStartDate(), c.getInsureEndDate()))
             .build();
     }
 
     private ProductPlan mapProductPlan(TravelContractEntity c) {
         return ProductPlan.builder()
             .productName("해외여행보험")
-            .planName("알뜰 플랜")
+            .planName("알뜰 플랜") // TODO: Plan Entity 조인 혹은 역정규화 필요 시 추후 개선
             .travelCountry(c.getCountryName())
             .coverageLink(null)
             .build();
@@ -70,7 +69,6 @@ public class ContractEntityMapper {
             .build();
     }
 
-    // [보강] Payment가 null이어도 Contract의 total_fee를 사용할 수 있도록 수정
     private PaymentInfo mapPayment(TravelInsurePaymentEntity p, TravelContractEntity c) {
         if (p == null) {
             // 결제 정보는 없지만 계약에 총액이 있는 경우 처리
@@ -99,6 +97,16 @@ public class ContractEntityMapper {
     }
 
     private ContractStatus determineStatus(TravelContractEntity c, TravelInsurePaymentEntity p) {
+        // Entity status 우선 고려 가능 (c.getStatus())
+        if (c.getStatus() != null) {
+            try {
+                return ContractStatus.valueOf(c.getStatus());
+            }
+            catch (IllegalArgumentException e) {
+                // Fallback
+            }
+        }
+
         if (p != null && "CANCELED".equals(p.getStatus()))
             return ContractStatus.CANCELED;
         return ContractStatus.COMPLETED;

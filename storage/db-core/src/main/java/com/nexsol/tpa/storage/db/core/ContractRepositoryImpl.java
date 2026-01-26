@@ -25,17 +25,13 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     private final TravelContractJpaRepository travelContractJpaRepository;
 
-    private final TravelInsurerJpaRepository insurerJpaRepository;
-
     private final PaymentJpaRepository paymentJpaRepository;
 
     private final InsuredPersonJpaRepository insuredPersonJpaRepository;
 
-    private final PartnerJpaRepository partnerJpaRepository;
-
-    private final ChannelJpaRepository channelJpaRepository;
-
     private final ContractEntityMapper mapper;
+
+    // [Refactored] Partner, Channel, Insurer Repository 제거됨
 
     @Override
     public Optional<InsuranceContract> findById(Long contractId) {
@@ -50,41 +46,40 @@ public class ContractRepositoryImpl implements ContractRepository {
         var payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
         var people = insuredPersonJpaRepository.findAllByContractId(contractId);
 
-        // [수정] 단건 조회 시에도 이름 정보 조회 (조회 실패 시 ID를 문자로 대체)
-        String partnerName = partnerJpaRepository.findById(contract.getPartnerId())
-            .map(TravelPartnerEntity::getPartnerName)
-            .orElse(String.valueOf(contract.getPartnerId()));
-
-        String channelName = channelJpaRepository.findById(contract.getChannelId())
-            .map(TravelChannelEntity::getChannelName)
-            .orElse(String.valueOf(contract.getChannelId()));
-
-        String insurerName = insurerJpaRepository.findById(contract.getInsurerId())
-            .map(TravelInsurerEntity::getInsurerName)
-            .orElse(String.valueOf(contract.getInsurerId()));
-
-        return Optional.of(mapper.toDomain(contract, payment, people, partnerName, channelName, insurerName));
+        // [Refactored] Name 조회를 위한 추가 쿼리 제거
+        return Optional.of(mapper.toDomain(contract, payment, people));
     }
 
     @Override
     public PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage) {
-        // 1. 계약 조회
-        Pageable pageable = PageRequest.of(sortPage.page(), sortPage.size(), Sort.by(Sort.Direction.DESC, "id"));
-        Specification<TravelContractEntity> spec = createSpecification(criteria);
-        Page<TravelContractEntity> contractPage = travelContractJpaRepository.findAll(spec, pageable);
+        Sort sort = Sort.by(Sort.Direction.DESC, "id"); // 기본값: 최신순
+
+        if (sortPage.sort() != null) {
+            String property = sortPage.sort().property();
+            Sort.Direction direction = sortPage.sort().direction().isAscending() ? Sort.Direction.ASC
+                    : Sort.Direction.DESC;
+
+            sort = Sort.by(direction, property);
+        }
+
+        // 2. Pageable 생성
+        Pageable pageable = PageRequest.of(sortPage.page(), sortPage.size(), sort);
+
+        // 3. 쿼리 실행 (Specification + Pageable)
+        // JPA가 알아서 "ORDER BY partner_name ASC" 쿼리를 생성함
+        Page<TravelContractEntity> contractPage = travelContractJpaRepository.findAll(createSpecification(criteria),
+                pageable);
+
         List<TravelContractEntity> contracts = contractPage.getContent();
 
         if (contracts.isEmpty()) {
             return PageResult.of(List.of(), 0, sortPage.size(), sortPage.page());
         }
 
-        // 2. ID 추출
+        // 2. ID 추출 (Payment, People 조회용)
         List<Long> contractIds = contracts.stream().map(TravelContractEntity::getId).toList();
-        List<Long> partnerIds = contracts.stream().map(TravelContractEntity::getPartnerId).distinct().toList();
-        List<Long> channelIds = contracts.stream().map(TravelContractEntity::getChannelId).distinct().toList();
-        List<Long> insurerIds = contracts.stream().map(TravelContractEntity::getInsurerId).distinct().toList();
 
-        // 3. 데이터 별도 조회
+        // 3. 연관 데이터 조회 (Payment, People)
         Map<Long, TravelInsurePaymentEntity> paymentMap = paymentJpaRepository.findByContractIdIn(contractIds)
             .stream()
             .collect(Collectors.toMap(TravelInsurePaymentEntity::getContractId, p -> p, (p1, p2) -> p1));
@@ -94,26 +89,12 @@ public class ContractRepositoryImpl implements ContractRepository {
             .stream()
             .collect(Collectors.groupingBy(TravelInsurePeopleEntity::getContractId));
 
-        Map<Long, String> partnerNameMap = partnerJpaRepository.findAllById(partnerIds)
-            .stream()
-            .collect(Collectors.toMap(TravelPartnerEntity::getId, TravelPartnerEntity::getPartnerName));
-
-        Map<Long, String> channelNameMap = channelJpaRepository.findAllById(channelIds)
-            .stream()
-            .collect(Collectors.toMap(TravelChannelEntity::getId, TravelChannelEntity::getChannelName));
-
-        Map<Long, String> insurerNameMap = insurerJpaRepository.findAllById(insurerIds)
-            .stream()
-            .collect(Collectors.toMap(TravelInsurerEntity::getId, TravelInsurerEntity::getInsurerName));
+        // [Refactored] Partner/Channel/Insurer Map 조회 로직 완전 제거
 
         // 4. 도메인 변환
         List<InsuranceContract> content = contracts.stream()
             .map(c -> mapper.toDomain(c, paymentMap.get(c.getId()),
-                    peopleMap.getOrDefault(c.getId(), Collections.emptyList()),
-                    partnerNameMap.getOrDefault(c.getPartnerId(), String.valueOf(c.getPartnerId())),
-                    channelNameMap.getOrDefault(c.getChannelId(), String.valueOf(c.getChannelId())),
-                    // [수정] 누락되었던 insurerName 인자 추가
-                    insurerNameMap.getOrDefault(c.getInsurerId(), String.valueOf(c.getInsurerId()))))
+                    peopleMap.getOrDefault(c.getId(), Collections.emptyList())))
             .toList();
 
         return new PageResult<>(content, contractPage.getTotalElements(), contractPage.getTotalPages(),
@@ -122,6 +103,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     @Override
     public InsuranceContract save(InsuranceContract contract) {
+        // TODO: 저장 로직 구현 시 Entity의 partnerName, partnerCode 등도 설정 필요
         return null;
     }
 
@@ -129,6 +111,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 1. 기간 검색 (신청일 기준)
             if (criteria.startDate() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("applyDate"), criteria.startDate().atStartOfDay()));
             }
@@ -136,15 +119,30 @@ public class ContractRepositoryImpl implements ContractRepository {
                 predicates.add(cb.lessThanOrEqualTo(root.get("applyDate"), criteria.endDate().atTime(LocalTime.MAX)));
             }
 
-            if (StringUtils.hasText(criteria.keyword()) && StringUtils.hasText(criteria.keywordType())) {
-                String keyword = "%" + criteria.keyword() + "%";
-                if ("NAME".equalsIgnoreCase(criteria.keywordType())) {
-                    predicates.add(cb.like(root.get("applicantName"), keyword));
-                }
-                else if ("PHONE".equalsIgnoreCase(criteria.keywordType())) {
-                    predicates.add(cb.like(root.get("applicantPhone"), keyword));
-                }
+            // 2. 드롭다운 필터 (Name 일치 검색)
+            // [Refactored] Code가 아닌 Name 컬럼 사용
+            if (StringUtils.hasText(criteria.partnerName())) {
+                predicates.add(cb.equal(root.get("partnerName"), criteria.partnerName()));
             }
+            if (StringUtils.hasText(criteria.channelName())) {
+                predicates.add(cb.equal(root.get("channelName"), criteria.channelName()));
+            }
+            if (StringUtils.hasText(criteria.insurerName())) {
+                predicates.add(cb.equal(root.get("insurerName"), criteria.insurerName()));
+            }
+
+            // 3. 상태 검색
+            if (criteria.status() != null) {
+                predicates.add(cb.equal(root.get("status"), criteria.status().name()));
+            }
+
+            // 4. 가입자명 검색 (Like 검색)
+            // [Refactored] keywordType 제거 -> applicantName 고정
+            if (StringUtils.hasText(criteria.applicantName())) {
+                String keyword = "%" + criteria.applicantName() + "%";
+                predicates.add(cb.like(root.get("applicantName"), keyword));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
