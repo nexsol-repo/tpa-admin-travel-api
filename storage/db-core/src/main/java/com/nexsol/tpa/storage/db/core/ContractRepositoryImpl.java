@@ -54,12 +54,15 @@ public class ContractRepositoryImpl implements ContractRepository {
     public PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id"); // 기본값: 최신순
 
-        if (sortPage.sort() != null) {
-            String property = sortPage.sort().property();
-            Sort.Direction direction = sortPage.sort().direction().isAscending() ? Sort.Direction.ASC
+        if (StringUtils.hasText(sortPage.sortBy())) {
+            String property = sortPage.sortBy();
+
+            // direction이 null이면 기본값 DESC 혹은 ASC 설정 (여기선 요청 없으면 DESC로 가정하거나 처리)
+            Sort.Direction dir = (sortPage.direction() != null && sortPage.direction().isAscending())
+                    ? Sort.Direction.ASC
                     : Sort.Direction.DESC;
 
-            sort = Sort.by(direction, property);
+            sort = Sort.by(dir, property);
         }
 
         // 2. Pageable 생성

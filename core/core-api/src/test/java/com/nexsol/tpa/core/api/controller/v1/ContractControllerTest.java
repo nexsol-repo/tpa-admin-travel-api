@@ -133,8 +133,11 @@ public class ContractControllerTest extends RestDocsTest {
         mockMvc
             .perform(get("/v1/admin/travel/contract").param("page", "0")
                 .param("size", "10")
+                    .param("sortBy", "partnerName")  // sort.property -> sortBy
+                    .param("direction", "DESC")
                 .param("startDate", "2025-01-01")
                 .param("endDate", "2025-01-31")
+
                 .param("partnerName", "TPA KOREA")
                 .param("channelName", "TPA KOREA")
                 .param("insurerName", "메리츠")
@@ -145,6 +148,8 @@ public class ContractControllerTest extends RestDocsTest {
             .andDo(document("contract-list",
                     queryParameters(parameterWithName("page").description("페이지 번호 (0부터 시작)").optional(),
                             parameterWithName("size").description("페이지 크기").optional(),
+                            parameterWithName("sortBy").description("정렬 기준 필드 (예: partnerName)").optional(),
+                            parameterWithName("direction").description("정렬 방향 (ASC, DESC)").optional(),
                             parameterWithName("startDate").description("조회 시작일 (yyyy-MM-dd)").optional(),
                             parameterWithName("endDate").description("조회 종료일 (yyyy-MM-dd)").optional(),
                             parameterWithName("partnerName").description("제휴사명 (전체 일치)").optional(),
