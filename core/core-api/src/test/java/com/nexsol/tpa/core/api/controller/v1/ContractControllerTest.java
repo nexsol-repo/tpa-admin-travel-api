@@ -31,8 +31,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ContractControllerTest extends RestDocsTest {
@@ -75,10 +74,12 @@ public class ContractControllerTest extends RestDocsTest {
             // 1. 계약 메타 정보 (증권번호, 제휴사, 기간)
             .metaInfo(ContractMeta.builder()
                 .policyNumber("15540-97222")
-                .partnerName("TPA KOREA")
-                .channelName("TPA WEB")
-                .applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0))
-                .period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), LocalDateTime.of(2025, 3, 14, 19, 0)))
+                .origin(new SubscriptionOrigin("TPA KOREA", "TPA KOREA", "메리츠"))
+                .applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0)) // 2024.02.01
+                .period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), // 2024.03.15
+                        // 17:00
+                        LocalDateTime.of(2025, 3, 14, 19, 0) // 2025.03.14 19:00
+                ))
                 .build())
             // 2. 상품 및 플랜 정보
             .productPlan(ProductPlan.builder().productName("해외여행보험").planName("알뜰 플랜").travelCountry("일본").build())
@@ -168,6 +169,127 @@ public class ContractControllerTest extends RestDocsTest {
                             fieldWithPath("data.totalPages").description("총 페이지 수"),
                             fieldWithPath("data.currentPage").description("현재 페이지 번호"),
                             fieldWithPath("data.hasNext").description("다음 페이지 존재 여부"))));
+    }
+
+    @Test
+    @DisplayName("여행자 보험 계약 상세 조회 API 문서화")
+    void getContractDetail() throws Exception {
+        // Given: UI 이미지 기반 Mock Data 생성
+        Long contractId = 1L;
+
+        InsuranceContract mockContract = InsuranceContract.builder()
+            .contractId(contractId)
+            .status(ContractStatus.COMPLETED)
+            // 1. 보험 가입 정보
+            .metaInfo(ContractMeta.builder()
+                .policyNumber("15540-97222")
+                .origin(new SubscriptionOrigin("TPA KOREA", "TPA KOREA", "메리츠"))
+                .applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0)) // 2024.02.01
+                .period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), // 2024.03.15
+                                                                                  // 17:00
+                        LocalDateTime.of(2025, 3, 14, 19, 0) // 2025.03.14 19:00
+                ))
+                .build())
+            // 2. 상품 정보
+            .productPlan(ProductPlan.builder().productName("해외여행보험").planName("알뜰 플랜").travelCountry("일본").build())
+            // 3. 신청자 정보
+            .applicant(Applicant.builder()
+                .name("홍길동")
+                .residentNumber("910504-1234567") // 변환 시 마스킹 처리됨
+                .phoneNumber("010-0000-0000")
+                .email("contractor@abc.com")
+                .build())
+            // 4. 결제 정보
+            .paymentInfo(PaymentInfo.builder()
+                .method("카드 결제")
+                .totalAmount(BigDecimal.valueOf(17000))
+                .paidAt(LocalDateTime.of(2025, 12, 24, 15, 1, 42))
+                .canceledAt(LocalDateTime.of(2025, 12, 25, 15, 1, 42)) // 해지 일시 존재 시
+                .build())
+            // 5. 동반자 정보 (UI 테이블 참조)
+            .insuredPeople(List.of(InsuredPerson.builder() // 1번
+                .name("홍길동")
+                .englishName("Hong Gildong")
+                .residentNumber("910504-1234567")
+                .passportNumber("M12345678")
+                .gender("남성")
+                .individualPremium(BigDecimal.valueOf(8000))
+                .iIndividualPolicyNumber("15540-97222")
+                .build(),
+                    InsuredPerson.builder() // 2번
+                        .name("김영희")
+                        .englishName("Kim Younghee")
+                        .residentNumber("910504-2111111")
+                        .passportNumber("M87654321")
+                        .gender("여성")
+                        .individualPremium(BigDecimal.valueOf(9000))
+                        .iIndividualPolicyNumber("15540-97222")
+                        .build()))
+            .build();
+
+        given(contractService.getContractDetail(contractId)).willReturn(mockContract);
+
+        // When & Then
+        mockMvc
+            .perform(get("/v1/admin/travel/contract/{contractId}", contractId).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(document("contract-detail", pathParameters(parameterWithName("contractId").description("조회할 계약 ID")),
+                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+
+                            // 1. Root Data (ID, Companions 등)
+                            fieldWithPath("data.contractId").description("계약 ID"),
+
+                            // 2. Insurance Section (보험 가입 정보)
+                            fieldWithPath("data.insuranceSection").description("보험 가입 정보 섹션"),
+
+                            // 2-1. Product (상품)
+                            fieldWithPath("data.insuranceSection.product.name").description("보험 상품명"),
+                            fieldWithPath("data.insuranceSection.product.plan").description("플랜명"),
+                            fieldWithPath("data.insuranceSection.product.country").description("여행 국가"),
+
+                            // 2-2. Subscription (가입 출처)
+                            fieldWithPath("data.insuranceSection.subscription.partner").description("제휴사"),
+                            fieldWithPath("data.insuranceSection.subscription.channel").description("채널"),
+                            fieldWithPath("data.insuranceSection.subscription.insurer").description("보험사"),
+
+                            // 2-3. Term (기간)
+                            fieldWithPath("data.insuranceSection.term.applicationDate").description("신청 일시"),
+                            fieldWithPath("data.insuranceSection.term.startDate").description("보험 시작 일시"),
+                            fieldWithPath("data.insuranceSection.term.endDate").description("보험 종료 일시"),
+
+                            // 2-4. Status (상태 및 통계)
+                            fieldWithPath("data.insuranceSection.status.statusName").description("계약 상태 (한글)"),
+                            fieldWithPath("data.insuranceSection.status.statusCode").description("계약 상태 코드"),
+                            fieldWithPath("data.insuranceSection.status.insuredCount").description("총 가입 인원수"),
+                            fieldWithPath("data.insuranceSection.status.totalPremium").description("총 보험료"),
+
+                            // 2-5. Policy Number
+                            fieldWithPath("data.insuranceSection.policyNumber").description("증권번호"),
+
+                            // 3. Applicant Section (신청자 정보)
+                            fieldWithPath("data.applicantSection").description("신청자 정보 섹션"),
+                            fieldWithPath("data.applicantSection.name").description("신청자 이름"),
+                            fieldWithPath("data.applicantSection.residentNumber").description("주민등록번호 (마스킹)"),
+                            fieldWithPath("data.applicantSection.phoneNumber").description("연락처"),
+                            fieldWithPath("data.applicantSection.email").description("이메일"),
+
+                            // 4. Payment Section (결제 정보)
+                            fieldWithPath("data.paymentSection").description("결제 정보 섹션"),
+                            fieldWithPath("data.paymentSection.method").description("결제 수단"),
+                            fieldWithPath("data.paymentSection.totalAmount").description("결제 총액"),
+                            fieldWithPath("data.paymentSection.paidAt").description("결제 일시"),
+                            fieldWithPath("data.paymentSection.canceledAt").description("결제 취소 일시").optional(),
+
+                            // 5. Companions (동반자 정보)
+                            fieldWithPath("data.companions").description("피보험자(동반자) 목록"),
+                            fieldWithPath("data.companions[].name").description("이름"),
+                            fieldWithPath("data.companions[].englishName").description("영문 이름"),
+                            fieldWithPath("data.companions[].residentNumber").description("주민등록번호 (마스킹)"),
+                            fieldWithPath("data.companions[].passportNumber").description("여권 번호"),
+                            fieldWithPath("data.companions[].gender").description("성별"),
+                            fieldWithPath("data.companions[].premium").description("개별 보험료"),
+                            fieldWithPath("data.companions[].policyNumber").description("개별 증권번호"))));
     }
 
 }
