@@ -8,4 +8,6 @@ public interface InsuredPersonJpaRepository extends JpaRepository<TravelInsurePe
 
     List<TravelInsurePeopleEntity> findAllByContractId(Long contractId);
 
+    List<TravelInsurePeopleEntity> findAllByContractIdIn(List<Long> contractIds);
+
 }

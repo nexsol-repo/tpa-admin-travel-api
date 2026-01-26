@@ -15,6 +15,7 @@ public class PageResult<T> extends SliceResult<T> {
         this.totalElements = totalElements;
         this.totalPages = totalPages;
         this.currentPage = currentPage;
+
     }
 
     public long getTotalElements() {
