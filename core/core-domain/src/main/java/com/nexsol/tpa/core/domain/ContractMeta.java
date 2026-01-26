@@ -5,6 +5,6 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record ContractMeta(String policyNumber, String partnerName, String channelName, LocalDateTime applicationDate,
+public record ContractMeta(String policyNumber, SubscriptionOrigin origin, LocalDateTime applicationDate,
         InsurancePeriod period) {
 }

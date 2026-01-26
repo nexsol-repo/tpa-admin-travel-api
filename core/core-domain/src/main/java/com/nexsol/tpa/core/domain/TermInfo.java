@@ -1,0 +1,9 @@
+package com.nexsol.tpa.core.domain;
+
+import java.time.LocalDateTime;
+
+public record TermInfo(LocalDateTime applicationDate, LocalDateTime startDate, LocalDateTime endDate) {
+    public static TermInfo toTermInfo(ContractMeta meta) {
+        return new TermInfo(meta.applicationDate(), meta.period().startDate(), meta.period().endDate());
+    }
+}
