@@ -9,7 +9,7 @@ public enum CoreErrorType {
 
     // 공통
     NOT_FOUND_DATA(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T1000, "해당 데이터를 찾지 못했습니다.", CoreErrorLevel.INFO),
-
+    INVALID_REQUEST(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T1001, "요청이 올바르지 않습니다.", CoreErrorLevel.INFO),
     // 보험 계약
     INSURANCE_NOT_FOUND_DATA(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T3001, "보험가입데이터를 찾을 수 없습니다.",
             CoreErrorLevel.INFO),
