@@ -40,8 +40,10 @@ public class ContractEntityMapper {
     private ContractMeta mapMeta(TravelContractEntity c) {
         return ContractMeta.builder()
             .policyNumber(c.getPolicyNumber())
-            .partnerName(String.valueOf(c.getPartnerId()))
-            .channelName(String.valueOf(c.getChannelId()))
+            .origin(SubscriptionOrigin.builder()
+                .partnerName(String.valueOf(c.getPartnerId()))
+                .channelName(String.valueOf(c.getChannelId()))
+                .build())
             .applicationDate(c.getApplyDate())
             .period(new InsurancePeriod(c.getInsureBeginDate(), c.getInsureEndDate()))
             .build();
