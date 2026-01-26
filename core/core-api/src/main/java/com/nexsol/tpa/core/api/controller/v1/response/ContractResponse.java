@@ -14,7 +14,7 @@ public record ContractResponse(Long contractId, String contractStatus, String co
     public static ContractResponse of(InsuranceContract domain) {
         return ContractResponse.builder()
             .contractId(domain.contractId())
-            .contractStatus(domain.status().name())
+            .contractStatus(domain.status().getDescription())
             .contractStatusCode(domain.status().name())
             .policyNumber(domain.metaInfo().policyNumber())
             .partnerName(domain.metaInfo().origin().partnerName())

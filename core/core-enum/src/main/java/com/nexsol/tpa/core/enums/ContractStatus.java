@@ -1,5 +1,8 @@
 package com.nexsol.tpa.core.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ContractStatus {
 
     PENDING("가입대기"), COMPLETED("가입완료"), // UI의 '가입완료'
