@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,6 +19,8 @@ public class TravelContractEntity extends BaseEntity {
     private Long partnerId;
 
     private Long channelId;
+
+    private Long insurerId;
 
     private Long planId;
 
@@ -42,5 +45,8 @@ public class TravelContractEntity extends BaseEntity {
     private LocalDateTime insureBeginDate;
 
     private LocalDateTime insureEndDate;
+
+    @Column(name = "total_fee")
+    private BigDecimal totalPremium;
 
 }
