@@ -55,14 +55,12 @@ public class ContractRepositoryImpl implements ContractRepository {
         Sort sort = Sort.by(Sort.Direction.DESC, "id"); // 기본값: 최신순
 
         if (StringUtils.hasText(sortPage.sortBy())) {
-            String property = sortPage.sortBy();
+            String entityProperty = mapSortProperty(sortPage.sortBy());
 
-            // direction이 null이면 기본값 DESC 혹은 ASC 설정 (여기선 요청 없으면 DESC로 가정하거나 처리)
             Sort.Direction dir = (sortPage.direction() != null && sortPage.direction().isAscending())
-                    ? Sort.Direction.ASC
-                    : Sort.Direction.DESC;
+                    ? Sort.Direction.ASC : Sort.Direction.DESC;
 
-            sort = Sort.by(dir, property);
+            sort = Sort.by(dir, entityProperty);
         }
 
         // 2. Pageable 생성
@@ -92,8 +90,6 @@ public class ContractRepositoryImpl implements ContractRepository {
             .stream()
             .collect(Collectors.groupingBy(TravelInsurePeopleEntity::getContractId));
 
-        // [Refactored] Partner/Channel/Insurer Map 조회 로직 완전 제거
-
         // 4. 도메인 변환
         List<InsuranceContract> content = contracts.stream()
             .map(c -> mapper.toDomain(c, paymentMap.get(c.getId()),
@@ -108,6 +104,15 @@ public class ContractRepositoryImpl implements ContractRepository {
     public InsuranceContract save(InsuranceContract contract) {
         // TODO: 저장 로직 구현 시 Entity의 partnerName, partnerCode 등도 설정 필요
         return null;
+    }
+
+    private String mapSortProperty(String requestProperty) {
+        return switch (requestProperty) {
+            case "startDate", "insuranceStartDate" -> "insureStartDate"; // Entity 필드명
+            case "endDate", "insuranceEndDate" -> "insureEndDate"; // Entity 필드명
+            case "applicationDate" -> "applyDate"; // 신청일
+            default -> requestProperty; // 나머지는 이름이 같으므로 그대로 사용 (partnerName 등)
+        };
     }
 
     private Specification<TravelContractEntity> createSpecification(ContractSearchCriteria criteria) {

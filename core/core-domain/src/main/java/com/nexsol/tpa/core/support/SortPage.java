@@ -1,18 +1,18 @@
 package com.nexsol.tpa.core.support;
 
-public record SortPage(
-        Integer page,
-        Integer size,
-        String sortBy,       // [Refactor] property -> sortBy (최상위로 이동)
-        Direction direction  // [Refactor] sort.direction -> direction (최상위로 이동)
+public record SortPage(Integer page, Integer size, String sortBy, // [Refactor] property
+                                                                  // -> sortBy (최상위로 이동)
+        Direction direction // [Refactor] sort.direction -> direction (최상위로 이동)
 ) {
 
     public enum Direction {
+
         ASC, DESC;
 
         public boolean isAscending() {
             return this == ASC;
         }
+
     }
 
     public SortPage {

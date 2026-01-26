@@ -133,8 +133,8 @@ public class ContractControllerTest extends RestDocsTest {
         mockMvc
             .perform(get("/v1/admin/travel/contract").param("page", "0")
                 .param("size", "10")
-                    .param("sortBy", "partnerName")  // sort.property -> sortBy
-                    .param("direction", "DESC")
+                .param("sortBy", "partnerName") // sort.property -> sortBy
+                .param("direction", "DESC")
                 .param("startDate", "2025-01-01")
                 .param("endDate", "2025-01-31")
 
