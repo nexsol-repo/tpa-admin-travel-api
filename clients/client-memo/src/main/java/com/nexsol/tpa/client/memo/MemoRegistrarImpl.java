@@ -2,6 +2,7 @@ package com.nexsol.tpa.client.memo;
 
 import com.nexsol.tpa.client.memo.dto.MemoRequest;
 import com.nexsol.tpa.core.domain.MemoRegistrar;
+import com.nexsol.tpa.core.enums.ServiceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +16,14 @@ public class MemoRegistrarImpl implements MemoRegistrar {
     private final MemoClient memoClient;
 
     @Override
-    public void register(Long contractId, String content) {
+    public void register(Long contractId, String content, ServiceType serviceType) {
         if (content == null || content.isBlank()) {
             return;
         }
 
         MemoRequest request = new MemoRequest();
         request.setContent(content);
+        request.setServiceType(serviceType);
         memoClient.createMemo(contractId, request);
     }
 

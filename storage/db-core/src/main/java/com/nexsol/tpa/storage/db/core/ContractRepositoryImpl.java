@@ -145,20 +145,16 @@ public class ContractRepositoryImpl implements ContractRepository {
             return;
         }
 
-        insuredPersonJpaRepository.deleteAllByContractId(contractId);
+        List<TravelInsurePeopleEntity> existingPeople = insuredPersonJpaRepository.findAllByContractId(contractId);
 
-        List<TravelInsurePeopleEntity> entities = insuredPeople.stream()
-            .map(person -> TravelInsurePeopleEntity.builder()
-                .contractId(contractId)
-                .name(person.name())
-                .englishName(person.englishName())
-                .residentNumber(person.residentNumber())
-                .passportNumber(person.passportNumber())
-                .gender(person.gender())
-                .build())
-            .toList();
+        for (int i = 0; i < insuredPeople.size() && i < existingPeople.size(); i++) {
+            var person = insuredPeople.get(i);
+            var entity = existingPeople.get(i);
+            entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
+                    person.passportNumber(), person.gender());
+        }
 
-        insuredPersonJpaRepository.saveAll(entities);
+        insuredPersonJpaRepository.saveAll(existingPeople);
     }
 
     private InsuranceContract fetchAndMapContract(Long contractId) {

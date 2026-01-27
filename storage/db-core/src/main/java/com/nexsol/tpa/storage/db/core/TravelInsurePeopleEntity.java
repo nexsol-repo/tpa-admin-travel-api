@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "travel_insure_people")
 @Getter
@@ -32,23 +34,42 @@ public class TravelInsurePeopleEntity extends BaseEntity {
     @Column(name = "insure_people_gender")
     private String gender;
 
-    @Column(name = "insure_fee")
-    private Long fee;
+    @Column(name = "insure_premium")
+    private BigDecimal insurePremium;
 
     @Column(name = "insure_number")
     private String insureNumber;
 
     @Builder
     private TravelInsurePeopleEntity(Long contractId, String name, String englishName, String residentNumber,
-            String passportNumber, String gender, Long fee, String insureNumber) {
+            String passportNumber, String gender, BigDecimal insurePremium, String insureNumber) {
         this.contractId = contractId;
         this.name = name;
         this.englishName = englishName;
         this.residentNumber = residentNumber;
         this.passportNumber = passportNumber;
         this.gender = gender;
-        this.fee = fee;
+        this.insurePremium = insurePremium;
         this.insureNumber = insureNumber;
+    }
+
+    public void updatePersonInfo(String name, String englishName, String residentNumber, String passportNumber,
+            String gender) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (englishName != null) {
+            this.englishName = englishName;
+        }
+        if (residentNumber != null) {
+            this.residentNumber = residentNumber;
+        }
+        if (passportNumber != null) {
+            this.passportNumber = passportNumber;
+        }
+        if (gender != null) {
+            this.gender = gender;
+        }
     }
 
 }

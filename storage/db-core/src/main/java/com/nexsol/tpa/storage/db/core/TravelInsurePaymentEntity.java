@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +19,7 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
     private String paymentMethod;
 
-    private Long paidAmount;
+    private BigDecimal paidAmount;
 
     private LocalDateTime paymentDate;
 

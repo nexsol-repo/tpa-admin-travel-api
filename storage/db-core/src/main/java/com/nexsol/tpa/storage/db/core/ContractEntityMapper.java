@@ -78,7 +78,7 @@ public class ContractEntityMapper {
         }
         return PaymentInfo.builder()
             .method(p.getPaymentMethod())
-            .totalAmount(BigDecimal.valueOf(p.getPaidAmount()))
+            .totalAmount(p.getPaidAmount())
             .paidAt(p.getPaymentDate())
             .canceledAt(p.getCancelDate())
             .build();
@@ -91,7 +91,7 @@ public class ContractEntityMapper {
             .residentNumber(p.getResidentNumber())
             .passportNumber(p.getPassportNumber())
             .gender(p.getGender())
-            .individualPremium(BigDecimal.valueOf(p.getFee()))
+            .individualPremium(p.getInsurePremium())
             .iIndividualPolicyNumber(p.getInsureNumber())
             .build();
     }
