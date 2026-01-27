@@ -3,6 +3,7 @@ package com.nexsol.tpa.storage.db.core;
 import com.nexsol.tpa.core.domain.ContractRepository;
 import com.nexsol.tpa.core.domain.ContractSearchCriteria;
 import com.nexsol.tpa.core.domain.InsuranceContract;
+import com.nexsol.tpa.core.domain.PaymentInfo;
 import com.nexsol.tpa.core.support.PageResult;
 import com.nexsol.tpa.core.support.SortPage;
 import lombok.RequiredArgsConstructor;
@@ -123,6 +124,8 @@ public class ContractRepositoryImpl implements ContractRepository {
 
         saveInsuredPeople(contract.contractId(), contract.insuredPeople());
 
+        savePayment(contract.contractId(), contract.paymentInfo());
+
         return fetchAndMapContract(saved.getId());
     }
 
@@ -155,6 +158,18 @@ public class ContractRepositoryImpl implements ContractRepository {
         }
 
         insuredPersonJpaRepository.saveAll(existingPeople);
+    }
+
+    private void savePayment(Long contractId, PaymentInfo paymentInfo) {
+        if (paymentInfo == null) {
+            return;
+        }
+
+        paymentJpaRepository.findByContractId(contractId).ifPresent(entity -> {
+            entity.updatePaymentInfo(paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
+            // Dirty Checking에 의해 트랜잭션 종료 시 업데이트 되지만, 명시적 save도 가능
+            paymentJpaRepository.save(entity);
+        });
     }
 
     private InsuranceContract fetchAndMapContract(Long contractId) {

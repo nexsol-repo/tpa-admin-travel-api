@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
-        List<InsuredPersonRequest> insuredPeople, String memo) {
+        List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, String memo) {
 
     public record ApplicantRequest(String name, String phoneNumber, String email) {
         public ContractUpdateCommand.ApplicantUpdateCommand toCommand() {
@@ -40,6 +40,17 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
         }
     }
 
+    public record PaymentRequest(String method, @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime paidAt,
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime canceledAt) {
+        public ContractUpdateCommand.PaymentUpdateCommand toCommand() {
+            return ContractUpdateCommand.PaymentUpdateCommand.builder()
+                .method(method)
+                .paidAt(paidAt)
+                .canceledAt(canceledAt)
+                .build();
+        }
+    }
+
     public ContractUpdateCommand toCommand(Long contractId) {
         return ContractUpdateCommand.builder()
             .contractId(contractId)
@@ -48,6 +59,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
             .period(period != null ? period.toCommand() : null)
             .insuredPeople(
                     insuredPeople != null ? insuredPeople.stream().map(InsuredPersonRequest::toCommand).toList() : null)
+            .payment(payment != null ? payment.toCommand() : null)
             .memo(memo)
             .build();
     }

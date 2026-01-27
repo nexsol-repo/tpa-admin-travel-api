@@ -27,4 +27,17 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
     private String status;
 
+    public void updatePaymentInfo(String paymentMethod, LocalDateTime paymentDate, LocalDateTime cancelDate) {
+        if (paymentMethod != null) {
+            this.paymentMethod = paymentMethod;
+        }
+        // 날짜는 null 업데이트가 허용될 수 있음 (예: 취소 철회 등)
+        // 비즈니스 요건에 따라 null 체크 여부 결정. 여기서는 입력된 값으로 덮어쓰기 구현
+        if (paymentDate != null) {
+            this.paymentDate = paymentDate;
+        }
+        // 해지일은 값이 들어올 때만 수정하거나, 로직에 따라 null로 초기화가 필요할 수도 있음
+        this.cancelDate = cancelDate;
+    }
+
 }

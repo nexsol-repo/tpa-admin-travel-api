@@ -11,7 +11,8 @@ import java.util.List;
  */
 @Builder
 public record ContractUpdateCommand(Long contractId, ContractStatus status, ApplicantUpdateCommand applicant,
-        PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, String memo) {
+        PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
+        String memo) {
 
     @Builder
     public record ApplicantUpdateCommand(String name, String phoneNumber, String email) {
@@ -24,5 +25,9 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
     @Builder
     public record InsuredPersonUpdateCommand(String name, String englishName, String residentNumber,
             String passportNumber, String gender) {
+    }
+
+    @Builder
+    public record PaymentUpdateCommand(String method, LocalDateTime paidAt, LocalDateTime canceledAt) {
     }
 }

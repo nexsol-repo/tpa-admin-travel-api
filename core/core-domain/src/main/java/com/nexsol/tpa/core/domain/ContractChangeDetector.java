@@ -33,6 +33,8 @@ public class ContractChangeDetector {
         // 피보험자 정보 변경 감지
         detectInsuredPeopleChanges(existing.insuredPeople(), command.insuredPeople(), changedFields);
 
+        detectPaymentChanges(existing.paymentInfo(), command.payment(), changedFields);
+
         if (changedFields.isEmpty()) {
             return null;
         }
@@ -124,6 +126,19 @@ public class ContractChangeDetector {
         }
         if (hasResidentNumberChange) {
             changedFields.add("피보험자 주민번호");
+        }
+    }
+
+    private void detectPaymentChanges(PaymentInfo existing, ContractUpdateCommand.PaymentUpdateCommand command,
+            List<String> changedFields) {
+        if (command == null || existing == null)
+            return;
+
+        if (command.method() != null && !Objects.equals(command.method(), existing.method())) {
+            changedFields.add("결제수단");
+        }
+        if (command.canceledAt() != null && !Objects.equals(command.canceledAt(), existing.canceledAt())) {
+            changedFields.add("결제해지일"); // 혹은 결제취소일
         }
     }
 
