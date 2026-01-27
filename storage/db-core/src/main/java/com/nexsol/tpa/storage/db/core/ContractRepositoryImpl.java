@@ -171,7 +171,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         }
 
         paymentJpaRepository.findByContractId(contractId).ifPresent(entity -> {
-            entity.updatePaymentInfo(paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
+            entity.updatePaymentInfo(contractId,paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
             // Dirty Checking에 의해 트랜잭션 종료 시 업데이트 되지만, 명시적 save도 가능
             paymentJpaRepository.save(entity);
         });

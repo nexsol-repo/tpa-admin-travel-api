@@ -27,7 +27,10 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
     private String status;
 
-    public void updatePaymentInfo(String paymentMethod, LocalDateTime paymentDate, LocalDateTime cancelDate) {
+    public void updatePaymentInfo(Long contractId,String paymentMethod, LocalDateTime paymentDate, LocalDateTime cancelDate) {
+        if(contractId != null) {
+            this.contractId = contractId;
+        }
         if (paymentMethod != null) {
             this.paymentMethod = paymentMethod;
         }
@@ -36,6 +39,7 @@ public class TravelInsurePaymentEntity extends BaseEntity {
         if (paymentDate != null) {
             this.paymentDate = paymentDate;
         }
+
         // 해지일은 값이 들어올 때만 수정하거나, 로직에 따라 null로 초기화가 필요할 수도 있음
         this.cancelDate = cancelDate;
     }
