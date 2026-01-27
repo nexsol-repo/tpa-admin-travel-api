@@ -14,13 +14,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class MemoFeignConfig {
 
     /**
-     * Feign 요청 시 현재 스레드의 HttpServletRequest 헤더(X-User-Id, X-Role)를
-     * 다운스트림 서비스(Memo)로 전파(Propagation)하는 인터셉터
+     * Feign 요청 시 현재 스레드의 HttpServletRequest 헤더(X-User-Id, X-Role)를 다운스트림 서비스(Memo)로
+     * 전파(Propagation)하는 인터셉터
      */
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
 
@@ -38,4 +39,5 @@ public class MemoFeignConfig {
             }
         };
     }
+
 }

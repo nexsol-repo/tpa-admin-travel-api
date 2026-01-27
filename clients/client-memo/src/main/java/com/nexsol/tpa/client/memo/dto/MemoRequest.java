@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 
 @Builder
-public record MemoRequest( String content,
+public record MemoRequest(String content,
 
         ServiceType serviceType) {
-
-
 
 }
