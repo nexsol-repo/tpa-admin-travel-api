@@ -10,4 +10,6 @@ public interface InsuredPersonJpaRepository extends JpaRepository<TravelInsurePe
 
     List<TravelInsurePeopleEntity> findAllByContractIdIn(List<Long> contractIds);
 
+    void deleteAllByContractId(Long contractId);
+
 }

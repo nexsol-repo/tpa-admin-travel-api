@@ -56,4 +56,34 @@ public class TravelContractEntity extends BaseEntity {
 
     private BigDecimal totalPremium;
 
+    @Column(name = "insured_people_number")
+    private Integer insuredPeopleNumber;
+
+    public void updateStatus(String status) {
+        if (status != null) {
+            this.status = status;
+        }
+    }
+
+    public void updateApplicant(String name, String phone, String email) {
+        if (name != null) {
+            this.applicantName = name;
+        }
+        if (phone != null) {
+            this.applicantPhone = phone;
+        }
+        if (email != null) {
+            this.applicantEmail = email;
+        }
+    }
+
+    public void updateInsurancePeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null) {
+            this.insureStartDate = startDate;
+        }
+        if (endDate != null) {
+            this.insureEndDate = endDate;
+        }
+    }
+
 }

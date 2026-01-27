@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelInsurePeopleEntity extends BaseEntity {
 
-    @Column(name = "contract_id") // FK
+    @Column(name = "contract_id")
     private Long contractId;
 
     @Column(name = "insure_people_name")
@@ -36,5 +37,18 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 
     @Column(name = "insure_number")
     private String insureNumber;
+
+    @Builder
+    private TravelInsurePeopleEntity(Long contractId, String name, String englishName, String residentNumber,
+            String passportNumber, String gender, Long fee, String insureNumber) {
+        this.contractId = contractId;
+        this.name = name;
+        this.englishName = englishName;
+        this.residentNumber = residentNumber;
+        this.passportNumber = passportNumber;
+        this.gender = gender;
+        this.fee = fee;
+        this.insureNumber = insureNumber;
+    }
 
 }
