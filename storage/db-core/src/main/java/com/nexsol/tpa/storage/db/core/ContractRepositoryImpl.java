@@ -120,6 +120,11 @@ public class ContractRepositoryImpl implements ContractRepository {
             .orElseThrow(() -> new IllegalArgumentException("Contract not found: " + contract.contractId()));
 
         applyContractChanges(entity, contract);
+
+        if (contract.insuredPeople() != null) {
+            entity.updateInsuredCount(contract.insuredPeople().size());
+        }
+
         TravelContractEntity saved = travelContractJpaRepository.save(entity);
 
         saveInsuredPeople(contract.contractId(), contract.insuredPeople());

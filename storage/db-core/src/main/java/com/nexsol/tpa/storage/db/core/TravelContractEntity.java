@@ -77,6 +77,10 @@ public class TravelContractEntity extends BaseEntity {
         }
     }
 
+    public void updateInsuredCount(int count) {
+        this.insuredPeopleNumber = count;
+    }
+
     public void updateInsurancePeriod(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate != null) {
             this.insureStartDate = startDate;
