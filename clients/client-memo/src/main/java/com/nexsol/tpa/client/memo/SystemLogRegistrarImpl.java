@@ -21,9 +21,10 @@ public class SystemLogRegistrarImpl implements SystemLogRegistrar {
             return;
         }
 
-        SystemLogRequest request = new SystemLogRequest();
-        request.setLogMessage(logMessage);
-        request.setServiceType(serviceType);
+        SystemLogRequest request = SystemLogRequest.builder()
+                .logMessage(logMessage)
+                .serviceType(serviceType)
+                .build();
         memoClient.createSystemLog(contractId, request);
     }
 

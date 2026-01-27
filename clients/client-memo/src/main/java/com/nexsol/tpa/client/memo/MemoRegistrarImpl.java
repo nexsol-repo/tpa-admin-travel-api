@@ -21,9 +21,7 @@ public class MemoRegistrarImpl implements MemoRegistrar {
             return;
         }
 
-        MemoRequest request = new MemoRequest();
-        request.setContent(content);
-        request.setServiceType(serviceType);
+        MemoRequest request =MemoRequest.builder().content(content).serviceType(serviceType).build();
         memoClient.createMemo(contractId, request);
     }
 

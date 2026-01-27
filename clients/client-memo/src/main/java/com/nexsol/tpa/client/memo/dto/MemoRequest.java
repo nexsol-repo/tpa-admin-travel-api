@@ -1,13 +1,14 @@
 package com.nexsol.tpa.client.memo.dto;
 
 import com.nexsol.tpa.core.enums.ServiceType;
+import lombok.Builder;
 import lombok.Data;
 
-@Data
-public class MemoRequest {
+@Builder
+public record MemoRequest( String content,
 
-    private String content;
+        ServiceType serviceType) {
 
-    private ServiceType serviceType;
+
 
 }

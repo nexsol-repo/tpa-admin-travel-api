@@ -1,13 +1,12 @@
 package com.nexsol.tpa.client.memo.dto;
 
 import com.nexsol.tpa.core.enums.ServiceType;
+import lombok.Builder;
 import lombok.Data;
 
-@Data
-public class SystemLogRequest {
+@Builder
+public record SystemLogRequest (String logMessage,ServiceType serviceType){
 
-    private String logMessage;
 
-    private ServiceType serviceType;
 
 }
