@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
-        List<InsuredPersonRequest> insuredPeople) {
+        List<InsuredPersonRequest> insuredPeople, String memo) {
 
     public record ApplicantRequest(String name, String phoneNumber, String email) {
         public ContractUpdateCommand.ApplicantUpdateCommand toCommand() {
@@ -48,6 +48,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
             .period(period != null ? period.toCommand() : null)
             .insuredPeople(
                     insuredPeople != null ? insuredPeople.stream().map(InsuredPersonRequest::toCommand).toList() : null)
+            .memo(memo)
             .build();
     }
 }

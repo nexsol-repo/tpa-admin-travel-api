@@ -396,7 +396,8 @@ public class ContractControllerTest extends RestDocsTest {
                             "passportNumber": "M87654321",
                             "gender": "여성"
                         }
-                    ]
+                    ],
+                    "memo": "계약 상태 변경: 해지 처리"
                 }
                 """;
 
@@ -421,7 +422,8 @@ public class ContractControllerTest extends RestDocsTest {
                             fieldWithPath("insuredPeople[].englishName").description("피보험자 영문 이름"),
                             fieldWithPath("insuredPeople[].residentNumber").description("주민등록번호"),
                             fieldWithPath("insuredPeople[].passportNumber").description("여권번호"),
-                            fieldWithPath("insuredPeople[].gender").description("성별")),
+                            fieldWithPath("insuredPeople[].gender").description("성별"),
+                            fieldWithPath("memo").description("수정 사유 메모 (메모 서비스에 기록됨)").optional()),
                     responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
                             fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
 

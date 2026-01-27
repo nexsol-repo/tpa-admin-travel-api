@@ -7,9 +7,11 @@ dependencies {
     implementation project(":support:monitoring")
     implementation project(":support:logging")
     runtimeOnly project(":storage:db-core")
+    runtimeOnly project(":clients:client-memo")
 
 
     testImplementation project(":tests:api-docs")
-    
+
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework:spring-tx'
 }
