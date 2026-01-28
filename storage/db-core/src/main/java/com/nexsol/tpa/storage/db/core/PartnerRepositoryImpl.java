@@ -15,18 +15,11 @@ public class PartnerRepositoryImpl implements PartnerRepository {
 
     @Override
     public List<Partner> findAllActive() {
-        return partnerJpaRepository.findByIsActiveTrue()
-                .stream()
-                .map(this::toDomain)
-                .toList();
+        return partnerJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
     }
 
     private Partner toDomain(TravelPartnerEntity entity) {
-        return new Partner(
-                entity.getId(),
-                entity.getPartnerCode(),
-                entity.getPartnerName()
-        );
+        return new Partner(entity.getId(), entity.getPartnerCode(), entity.getPartnerName());
     }
 
 }

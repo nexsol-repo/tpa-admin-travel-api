@@ -1,6 +1,6 @@
 package com.nexsol.tpa.storage.db.core;
 
-import com.nexsol.tpa.core.domain.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -28,8 +28,23 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
     private String status;
 
-    public void updatePaymentInfo(Long contractId,String paymentMethod, LocalDateTime paymentDate, LocalDateTime cancelDate) {
-        if(contractId != null) {
+    /**
+     * 도메인 객체로부터 결제 엔티티 생성
+     */
+    public static TravelInsurePaymentEntity create(Long contractId, PaymentInfo payment) {
+        TravelInsurePaymentEntity entity = new TravelInsurePaymentEntity();
+        entity.contractId = contractId;
+        entity.paymentMethod = payment.method();
+        entity.paidAmount = payment.totalAmount();
+        entity.paymentDate = payment.paidAt();
+        entity.cancelDate = payment.canceledAt();
+        entity.status = payment.canceledAt() != null ? "CANCELED" : "COMPLETED";
+        return entity;
+    }
+
+    public void updatePaymentInfo(Long contractId, String paymentMethod, LocalDateTime paymentDate,
+            LocalDateTime cancelDate) {
+        if (contractId != null) {
             this.contractId = contractId;
         }
         if (paymentMethod != null) {

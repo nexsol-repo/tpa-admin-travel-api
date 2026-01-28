@@ -15,18 +15,11 @@ public class InsurerRepositoryImpl implements InsurerRepository {
 
     @Override
     public List<Insurer> findAllActive() {
-        return travelInsurerJpaRepository.findByIsActiveTrue()
-                .stream()
-                .map(this::toDomain)
-                .toList();
+        return travelInsurerJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
     }
 
     private Insurer toDomain(TravelInsurerEntity entity) {
-        return new Insurer(
-                entity.getId(),
-                entity.getInsurerCode(),
-                entity.getInsurerName()
-        );
+        return new Insurer(entity.getId(), entity.getInsurerCode(), entity.getInsurerName());
     }
 
 }

@@ -15,28 +15,17 @@ public class PlanRepositoryImpl implements PlanRepository {
 
     @Override
     public List<Plan> findAllActive() {
-        return planJpaRepository.findByIsActiveTrue()
-                .stream()
-                .map(this::toDomain)
-                .toList();
+        return planJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
     }
 
     @Override
     public List<Plan> findAllActiveByInsurerId(Long insurerId) {
-        return planJpaRepository.findByInsurerIdAndIsActiveTrue(insurerId)
-                .stream()
-                .map(this::toDomain)
-                .toList();
+        return planJpaRepository.findByInsurerIdAndIsActiveTrue(insurerId).stream().map(this::toDomain).toList();
     }
 
     private Plan toDomain(TravelInsurancePlanEntity entity) {
-        return new Plan(
-                entity.getId(),
-                entity.getPlanCode(),
-                entity.getPlanName(),
-                entity.getPlanFullName(),
-                entity.getInsurerId()
-        );
+        return new Plan(entity.getId(), entity.getPlanCode(), entity.getPlanName(), entity.getPlanFullName(),
+                entity.getInsurerId());
     }
 
 }

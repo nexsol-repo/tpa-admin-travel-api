@@ -1,6 +1,6 @@
 package com.nexsol.tpa.storage.db.core;
 
-import com.nexsol.tpa.core.domain.InsuredPerson;
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -52,6 +52,22 @@ public class TravelInsurePeopleEntity extends BaseEntity {
         this.gender = gender;
         this.insurePremium = insurePremium;
         this.insureNumber = insureNumber;
+    }
+
+    /**
+     * 도메인 객체로부터 엔티티 생성
+     */
+    public static TravelInsurePeopleEntity create(Long contractId, InsuredPerson person) {
+        return TravelInsurePeopleEntity.builder()
+            .contractId(contractId)
+            .name(person.name())
+            .englishName(person.englishName())
+            .residentNumber(person.residentNumber())
+            .passportNumber(person.passportNumber())
+            .gender(person.gender())
+            .insurePremium(person.individualPremium())
+            .insureNumber(person.iIndividualPolicyNumber())
+            .build();
     }
 
     public void updatePersonInfo(String name, String englishName, String residentNumber, String passportNumber,

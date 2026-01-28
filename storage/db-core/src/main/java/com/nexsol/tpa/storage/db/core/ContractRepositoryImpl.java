@@ -1,9 +1,12 @@
 package com.nexsol.tpa.storage.db.core;
 
-import com.nexsol.tpa.core.domain.ContractRepository;
-import com.nexsol.tpa.core.domain.ContractSearchCriteria;
-import com.nexsol.tpa.core.domain.InsuranceContract;
-import com.nexsol.tpa.core.domain.PaymentInfo;
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
+import com.nexsol.tpa.core.domain.contract.ContractRepository;
+import com.nexsol.tpa.core.domain.contract.ContractSearchCriteria;
+import com.nexsol.tpa.core.domain.contract.InsuranceContract;
+import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.error.CoreErrorType;
+import com.nexsol.tpa.core.error.CoreException;
 import com.nexsol.tpa.core.support.PageResult;
 import com.nexsol.tpa.core.support.SortPage;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +74,33 @@ public class ContractRepositoryImpl implements ContractRepository {
     }
 
     @Override
+    public InsuranceContract create(InsuranceContract contract) {
+        // 1. 계약 엔티티 생성 및 저장
+        TravelContractEntity contractEntity = TravelContractEntity.create(contract);
+        TravelContractEntity savedContract = travelContractJpaRepository.save(contractEntity);
+        Long contractId = savedContract.getId();
+
+        // 2. 피보험자(동반자) 엔티티 생성 및 저장
+        if (contract.insuredPeople() != null && !contract.insuredPeople().isEmpty()) {
+            List<TravelInsurePeopleEntity> peopleEntities = contract.insuredPeople()
+                .stream()
+                .map(person -> TravelInsurePeopleEntity.create(contractId, person))
+                .toList();
+            insuredPersonJpaRepository.saveAll(peopleEntities);
+        }
+
+        // 3. 결제 정보 엔티티 생성 및 저장
+        if (contract.paymentInfo() != null) {
+            TravelInsurePaymentEntity paymentEntity = TravelInsurePaymentEntity.create(contractId,
+                    contract.paymentInfo());
+            paymentJpaRepository.save(paymentEntity);
+        }
+
+        // 4. 저장된 계약 조회 후 도메인 객체로 반환
+        return fetchAndMapContract(contractId);
+    }
+
+    @Override
     public PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage) {
         Pageable pageable = createPageable(sortPage);
         Page<TravelContractEntity> contractPage = travelContractJpaRepository.findAll(createSpecification(criteria),
@@ -111,9 +141,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
 
         return contracts.stream()
-            .map(c -> c.toDomain(
-                    paymentMap.get(c.getId()),
-                    peopleMap.getOrDefault(c.getId(), Collections.emptyList()),
+            .map(c -> c.toDomain(paymentMap.get(c.getId()), peopleMap.getOrDefault(c.getId(), Collections.emptyList()),
                     planMap.get(c.getPlanId())))
             .toList();
     }
@@ -143,7 +171,7 @@ public class ContractRepositoryImpl implements ContractRepository {
     @Override
     public InsuranceContract save(InsuranceContract contract) {
         TravelContractEntity entity = travelContractJpaRepository.findById(contract.contractId())
-            .orElseThrow(() -> new IllegalArgumentException("Contract not found: " + contract.contractId()));
+            .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
         applyContractChanges(entity, contract);
 
@@ -172,9 +200,19 @@ public class ContractRepositoryImpl implements ContractRepository {
             entity.updateInsurancePeriod(contract.metaInfo().period().startDate(),
                     contract.metaInfo().period().endDate());
         }
+        // 가입 출처 정보 수정 (보험사, 채널, 제휴사 - id와 name 함께 수정)
+        if (contract.metaInfo() != null && contract.metaInfo().origin() != null) {
+            var origin = contract.metaInfo().origin();
+            entity.updateSubscriptionOrigin(origin.insurerId(), origin.insurerName(), origin.channelId(),
+                    origin.channelName(), origin.partnerId(), origin.partnerName());
+        }
+        // 플랜 ID 수정
+        if (contract.productPlan() != null && contract.productPlan().planId() != null) {
+            entity.updatePlanId(contract.productPlan().planId());
+        }
     }
 
-    private void saveInsuredPeople(Long contractId, List<com.nexsol.tpa.core.domain.InsuredPerson> insuredPeople) {
+    private void saveInsuredPeople(Long contractId, List<InsuredPerson> insuredPeople) {
         if (insuredPeople == null || insuredPeople.isEmpty()) {
             return;
         }
@@ -197,7 +235,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         }
 
         paymentJpaRepository.findByContractId(contractId).ifPresent(entity -> {
-            entity.updatePaymentInfo(contractId,paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
+            entity.updatePaymentInfo(contractId, paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
             // Dirty Checking에 의해 트랜잭션 종료 시 업데이트 되지만, 명시적 save도 가능
             paymentJpaRepository.save(entity);
         });
@@ -205,7 +243,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     private InsuranceContract fetchAndMapContract(Long contractId) {
         TravelContractEntity contract = travelContractJpaRepository.findById(contractId)
-            .orElseThrow(() -> new IllegalArgumentException("Contract not found: " + contractId));
+            .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
         TravelInsurePaymentEntity payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
         List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository.findAllByContractId(contractId);
         TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());

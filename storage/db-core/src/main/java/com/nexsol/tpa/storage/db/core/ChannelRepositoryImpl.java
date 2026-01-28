@@ -15,18 +15,11 @@ public class ChannelRepositoryImpl implements ChannelRepository {
 
     @Override
     public List<Channel> findAllActive() {
-        return channelJpaRepository.findByIsActiveTrue()
-                .stream()
-                .map(this::toDomain)
-                .toList();
+        return channelJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
     }
 
     private Channel toDomain(TravelChannelEntity entity) {
-        return new Channel(
-                entity.getId(),
-                entity.getChannelCode(),
-                entity.getChannelName()
-        );
+        return new Channel(entity.getId(), entity.getChannelCode(), entity.getChannelName());
     }
 
 }
