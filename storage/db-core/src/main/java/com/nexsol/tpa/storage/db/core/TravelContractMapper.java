@@ -56,6 +56,9 @@ public class TravelContractMapper {
             entity.updateInsuredCount(contract.insuredPeople().size());
         }
 
+        // 담당자 ID
+        entity.updateEmployeeId(contract.employeeId());
+
         return entity;
     }
 
@@ -78,6 +81,7 @@ public class TravelContractMapper {
             .applicant(toApplicant(entity))
             .paymentInfo(toPaymentInfo(entity, payment))
             .insuredPeople(safePeople.stream().map(TravelInsurePeopleEntity::toDomain).toList())
+            .employeeId(entity.getEmployeeId())
             .build();
     }
 

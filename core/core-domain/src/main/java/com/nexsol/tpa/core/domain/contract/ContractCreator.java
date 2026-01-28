@@ -28,7 +28,7 @@ public class ContractCreator {
 
     private final PlanReader planReader;
 
-    public InsuranceContract create(ContractCreateCommand command) {
+    public Long create(ContractCreateCommand command) {
         InsuranceContract newContract = buildContract(command);
         return contractRepository.create(newContract);
     }
@@ -42,6 +42,7 @@ public class ContractCreator {
             .applicant(buildApplicant(command.applicant()))
             .paymentInfo(buildPaymentInfo(command.payment()))
             .insuredPeople(buildInsuredPeople(command))
+            .employeeId(command.employeeId())
             .build();
     }
 

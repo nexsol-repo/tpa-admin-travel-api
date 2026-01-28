@@ -69,7 +69,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
         }
     }
 
-    public ContractUpdateCommand toCommand(Long contractId) {
+    public ContractUpdateCommand toCommand(Long contractId, Long employeeId) {
         return ContractUpdateCommand.builder()
             .contractId(contractId)
             .status(status)
@@ -81,6 +81,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
             .subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
             .planId(planId)
             .memo(memo)
+            .employeeId(employeeId)
             .build();
     }
 }

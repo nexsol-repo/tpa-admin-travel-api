@@ -5,6 +5,8 @@ import com.nexsol.tpa.core.api.controller.v1.request.ContractSearchRequest;
 import com.nexsol.tpa.core.api.controller.v1.request.ContractUpdateRequest;
 import com.nexsol.tpa.core.api.controller.v1.response.ContractDetailResponse;
 import com.nexsol.tpa.core.api.controller.v1.response.ContractResponse;
+import com.nexsol.tpa.core.domain.admin.AdminUser;
+import com.nexsol.tpa.core.domain.admin.LoginAdmin;
 import com.nexsol.tpa.core.domain.contract.ContractService;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import com.nexsol.tpa.core.support.SortPage;
@@ -43,16 +45,18 @@ public class ContractController {
     }
 
     @PostMapping("/contract")
-    public ApiResponse<Long> createContract(@RequestBody ContractCreateRequest request) {
-        Long contractId = contractService.createContract(request.toCommand());
+    public ApiResponse<Long> createContract(@LoginAdmin AdminUser adminUser,
+            @RequestBody ContractCreateRequest request) {
+        Long contractId = contractService.createContract(request.toCommand(adminUser.userId()));
 
         return ApiResponse.success(contractId);
     }
 
     @PutMapping("/contract/{contractId}")
-    public ApiResponse<Long> updateContract(@PathVariable Long contractId, @RequestBody ContractUpdateRequest request) {
+    public ApiResponse<Long> updateContract(@LoginAdmin AdminUser adminUser, @PathVariable Long contractId,
+            @RequestBody ContractUpdateRequest request) {
 
-        Long updatedContractId = contractService.updateContract(request.toCommand(contractId));
+        Long updatedContractId = contractService.updateContract(request.toCommand(contractId, adminUser.userId()));
 
         return ApiResponse.success(updatedContractId);
     }

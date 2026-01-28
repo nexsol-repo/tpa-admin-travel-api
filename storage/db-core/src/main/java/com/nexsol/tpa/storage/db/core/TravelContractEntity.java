@@ -62,6 +62,8 @@ public class TravelContractEntity extends BaseEntity {
     @Column(name = "insured_people_number")
     private Integer insuredPeopleNumber;
 
+    private Long employeeId;
+
     public void updateStatus(String status) {
         if (status != null) {
             this.status = status;
@@ -125,6 +127,10 @@ public class TravelContractEntity extends BaseEntity {
 
     public void updateApplyDate(LocalDateTime applyDate) {
         this.applyDate = updateIfNotNull(this.applyDate, applyDate);
+    }
+
+    public void updateEmployeeId(Long employeeId) {
+        this.employeeId = updateIfNotNull(this.employeeId, employeeId);
     }
 
     private <T> T updateIfNotNull(T currentValue, T newValue) {

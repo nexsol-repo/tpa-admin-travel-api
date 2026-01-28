@@ -11,8 +11,8 @@ public interface ContractRepository {
 
     PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage);
 
-    InsuranceContract create(InsuranceContract contract);
+    Long create(InsuranceContract contract);
 
-    InsuranceContract save(InsuranceContract contract);
+    Long save(InsuranceContract contract);
 
 }

@@ -49,15 +49,15 @@ public class ContractService {
     @Transactional
     public Long createContract(ContractCreateCommand command) {
         // 1. 계약 생성
-        InsuranceContract created = contractCreator.create(command);
+        Long contractId = contractCreator.create(command);
 
         // 2. 메모 등록
-        memoRegistrar.register(created.contractId(), command.memo(), DEFAULT_SERVICE_TYPE);
+        memoRegistrar.register(contractId, command.memo(), DEFAULT_SERVICE_TYPE);
 
         // 3. 시스템 로그 등록
-        systemLogRegistrar.register(created.contractId(), "계약 직접 등록", DEFAULT_SERVICE_TYPE);
+        systemLogRegistrar.register(contractId, "계약 직접 등록", DEFAULT_SERVICE_TYPE);
 
-        return created.contractId();
+        return contractId;
     }
 
     /**
@@ -73,15 +73,15 @@ public class ContractService {
         String changeLog = contractChangeDetector.detectChanges(existing, command);
 
         // 3. 계약 수정
-        InsuranceContract updated = contractUpdater.update(command);
+        Long contractId = contractUpdater.update(command);
 
         // 4. 메모 등록
-        memoRegistrar.register(updated.contractId(), command.memo(), DEFAULT_SERVICE_TYPE);
+        memoRegistrar.register(contractId, command.memo(), DEFAULT_SERVICE_TYPE);
 
         // 5. 시스템 로그 등록
-        systemLogRegistrar.register(updated.contractId(), changeLog, DEFAULT_SERVICE_TYPE);
+        systemLogRegistrar.register(contractId, changeLog, DEFAULT_SERVICE_TYPE);
 
-        return updated.contractId();
+        return contractId;
     }
 
 }

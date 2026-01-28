@@ -105,7 +105,7 @@ public record ContractCreateRequest(
         }
     }
 
-    public ContractCreateCommand toCommand() {
+    public ContractCreateCommand toCommand(Long employeeId) {
         return ContractCreateCommand.builder()
             .status(status)
             .subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
@@ -118,6 +118,7 @@ public record ContractCreateRequest(
             .payment(payment != null ? payment.toCommand() : null)
             .companions(companions != null ? companions.stream().map(CompanionRequest::toCommand).toList() : null)
             .memo(memo)
+            .employeeId(employeeId)
             .build();
     }
 

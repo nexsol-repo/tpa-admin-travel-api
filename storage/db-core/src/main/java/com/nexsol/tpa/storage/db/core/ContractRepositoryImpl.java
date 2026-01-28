@@ -76,7 +76,7 @@ public class ContractRepositoryImpl implements ContractRepository {
     }
 
     @Override
-    public InsuranceContract create(InsuranceContract contract) {
+    public Long create(InsuranceContract contract) {
         // 1. 계약 엔티티 생성 및 저장
         TravelContractEntity contractEntity = travelContractMapper.toEntity(contract);
         TravelContractEntity savedContract = travelContractJpaRepository.save(contractEntity);
@@ -98,8 +98,7 @@ public class ContractRepositoryImpl implements ContractRepository {
             paymentJpaRepository.save(paymentEntity);
         }
 
-        // 4. 저장된 계약 조회 후 도메인 객체로 반환
-        return fetchAndMapContract(contractId);
+        return contractId;
     }
 
     @Override
@@ -171,7 +170,7 @@ public class ContractRepositoryImpl implements ContractRepository {
     }
 
     @Override
-    public InsuranceContract save(InsuranceContract contract) {
+    public Long save(InsuranceContract contract) {
         TravelContractEntity entity = travelContractJpaRepository.findById(contract.contractId())
             .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
@@ -187,7 +186,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
         savePayment(contract.contractId(), contract.paymentInfo());
 
-        return fetchAndMapContract(saved.getId());
+        return saved.getId();
     }
 
     private void applyContractChanges(TravelContractEntity entity, InsuranceContract contract) {
@@ -204,6 +203,10 @@ public class ContractRepositoryImpl implements ContractRepository {
         // 플랜 ID 수정
         if (contract.productPlan() != null && contract.productPlan().planId() != null) {
             entity.updatePlanId(contract.productPlan().planId());
+        }
+        // 담당자 ID 수정
+        if (contract.employeeId() != null) {
+            entity.updateEmployeeId(contract.employeeId());
         }
     }
 

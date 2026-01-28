@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Builder
 public record InsuranceContract(Long contractId, ContractStatus status, ContractMeta metaInfo, ProductPlan productPlan,
-        Applicant applicant, PaymentInfo paymentInfo, List<InsuredPerson> insuredPeople
+        Applicant applicant, PaymentInfo paymentInfo, List<InsuredPerson> insuredPeople, Long employeeId
 
 ) {
     public InsuranceContract {

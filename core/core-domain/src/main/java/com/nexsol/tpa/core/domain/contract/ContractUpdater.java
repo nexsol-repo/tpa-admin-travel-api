@@ -28,7 +28,7 @@ public class ContractUpdater {
 
     private final PlanReader planReader;
 
-    public InsuranceContract update(ContractUpdateCommand command) {
+    public Long update(ContractUpdateCommand command) {
         InsuranceContract existing = contractRepository.findById(command.contractId())
             .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
@@ -46,6 +46,7 @@ public class ContractUpdater {
             .applicant(updateApplicant(existing.applicant(), command.applicant()))
             .paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
             .insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
+            .employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
             .build();
     }
 
