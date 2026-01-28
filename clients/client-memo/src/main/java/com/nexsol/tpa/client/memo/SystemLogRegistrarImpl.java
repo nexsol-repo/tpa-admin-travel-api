@@ -1,7 +1,7 @@
 package com.nexsol.tpa.client.memo;
 
 import com.nexsol.tpa.client.memo.dto.SystemLogRequest;
-import com.nexsol.tpa.core.domain.SystemLogRegistrar;
+import com.nexsol.tpa.core.domain.admin.SystemLogRegistrar;
 import com.nexsol.tpa.core.enums.ServiceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
