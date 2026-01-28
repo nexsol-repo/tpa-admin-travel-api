@@ -12,7 +12,8 @@ import java.util.List;
 @Builder
 public record ContractUpdateCommand(Long contractId, ContractStatus status, ApplicantUpdateCommand applicant,
         PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
-        SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String memo, Long employeeId) {
+        SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, LocalDateTime applicationDate, String memo,
+        Long employeeId) {
 
     /**
      * 가입 출처 정보 수정 명령 (보험사, 채널, 제휴사 - id와 name 필요)

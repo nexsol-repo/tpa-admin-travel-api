@@ -299,6 +299,15 @@ public class ContractControllerTest extends RestDocsTest {
         String requestBody = """
                 {
                     "status": "CANCELED",
+                    "subscriptionOrigin": {
+                        "insurerId": 2,
+                        "insurerName": "삼성화재",
+                        "channelId": 2,
+                        "channelName": "TPA KOREA 2",
+                        "partnerId": 2,
+                        "partnerName": "TPA KOREA 2"
+                    },
+                    "planId": 2,
                     "applicant": {
                         "name": "홍길동수정",
                         "phoneNumber": "010-1111-2222",
@@ -322,6 +331,7 @@ public class ContractControllerTest extends RestDocsTest {
                         "paidAt": "2025-03-15T15:01:42",
                         "canceledAt": "2025-03-16T15:01:42"
                     },
+                    "applicationDate": "2024-02-01T00:00:00",
                     "memo": "계약 상태 변경: 해지 처리 및 결제 취소"
                 }
                 """;
@@ -459,10 +469,18 @@ public class ContractControllerTest extends RestDocsTest {
         return new FieldDescriptor[] {
                 fieldWithPath("status").description("계약 상태 (PENDING, COMPLETED, CANCELED 등)").optional(),
 
+                fieldWithPath("subscriptionOrigin").description("가입 출처 정보 (보험사, 채널, 제휴사)").optional(),
+                fieldWithPath("subscriptionOrigin.insurerId").description("보험사 ID").optional(),
+                fieldWithPath("subscriptionOrigin.insurerName").description("보험사명").optional(),
+                fieldWithPath("subscriptionOrigin.channelId").description("채널 ID").optional(),
+                fieldWithPath("subscriptionOrigin.channelName").description("채널명").optional(),
+                fieldWithPath("subscriptionOrigin.partnerId").description("제휴사 ID").optional(),
+                fieldWithPath("subscriptionOrigin.partnerName").description("제휴사명").optional(),
+
+                fieldWithPath("planId").description("플랜 ID").optional(),
+
                 fieldWithPath("applicant").description("가입자(피보험자) 정보 (부분 수정 가능)").optional(),
-                fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(), // UI
-                                                                                              // 용어
-                                                                                              // 반영
+                fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(),
                 fieldWithPath("applicant.phoneNumber").description("연락처").optional(),
                 fieldWithPath("applicant.email").description("이메일").optional(),
 
@@ -470,9 +488,7 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("period.startDate").description("보험 시작 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
                 fieldWithPath("period.endDate").description("보험 종료 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
-                fieldWithPath("insuredPeople").description("동반자 목록 (전체 교체)").optional(), // UI
-                                                                                         // 용어
-                                                                                         // 반영
+                fieldWithPath("insuredPeople").description("동반자 목록 (전체 교체)").optional(),
                 fieldWithPath("insuredPeople[].name").description("동반자 이름"),
                 fieldWithPath("insuredPeople[].englishName").description("동반자 영문 이름"),
                 fieldWithPath("insuredPeople[].residentNumber").description("주민등록번호"),
@@ -483,6 +499,8 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("payment.method").description("결제 방법 (카드 결제 등)").optional(),
                 fieldWithPath("payment.paidAt").description("결제 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
                 fieldWithPath("payment.canceledAt").description("해지 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
+
+                fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
                 fieldWithPath("memo").description("수정 사유 메모").optional() };
     }

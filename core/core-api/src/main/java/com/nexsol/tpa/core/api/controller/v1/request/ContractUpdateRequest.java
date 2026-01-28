@@ -9,7 +9,9 @@ import java.util.List;
 
 public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
         List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, SubscriptionOriginRequest subscriptionOrigin,
-        Long planId, String memo) {
+        Long planId,
+        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate,
+        String memo) {
 
     /**
      * 가입 출처 정보 수정 요청 (보험사, 채널, 제휴사 - id와 name 필요)
@@ -80,6 +82,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
             .payment(payment != null ? payment.toCommand() : null)
             .subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
             .planId(planId)
+            .applicationDate(applicationDate)
             .memo(memo)
             .employeeId(employeeId)
             .build();

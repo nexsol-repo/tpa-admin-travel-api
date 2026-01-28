@@ -86,7 +86,7 @@ public class ContractUpdater {
         return ContractMeta.builder()
             .policyNumber(existing.policyNumber())
             .origin(updatedOrigin)
-            .applicationDate(existing.applicationDate())
+            .applicationDate(command.applicationDate() != null ? command.applicationDate() : existing.applicationDate())
             .period(updatedPeriod)
             .build();
     }
