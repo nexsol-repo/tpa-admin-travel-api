@@ -1,5 +1,6 @@
 package com.nexsol.tpa.storage.db.core;
 
+import com.nexsol.tpa.core.domain.InsuredPerson;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -70,6 +71,18 @@ public class TravelInsurePeopleEntity extends BaseEntity {
         if (gender != null) {
             this.gender = gender;
         }
+    }
+
+    public InsuredPerson toDomain() {
+        return InsuredPerson.builder()
+            .name(this.name)
+            .englishName(this.englishName)
+            .residentNumber(this.residentNumber)
+            .passportNumber(this.passportNumber)
+            .gender(this.gender)
+            .individualPremium(this.insurePremium)
+            .iIndividualPolicyNumber(this.insureNumber)
+            .build();
     }
 
 }

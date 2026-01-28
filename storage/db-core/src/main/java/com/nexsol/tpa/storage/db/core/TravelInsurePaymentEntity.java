@@ -1,5 +1,6 @@
 package com.nexsol.tpa.storage.db.core;
 
+import com.nexsol.tpa.core.domain.PaymentInfo;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -42,6 +43,24 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
         // 해지일은 값이 들어올 때만 수정하거나, 로직에 따라 null로 초기화가 필요할 수도 있음
         this.cancelDate = cancelDate;
+    }
+
+    public PaymentInfo toDomain() {
+        return PaymentInfo.builder()
+            .method(this.paymentMethod)
+            .totalAmount(this.paidAmount)
+            .paidAt(this.paymentDate)
+            .canceledAt(this.cancelDate)
+            .build();
+    }
+
+    public PaymentInfo toDomain(BigDecimal fallbackAmount) {
+        return PaymentInfo.builder()
+            .method(this.paymentMethod)
+            .totalAmount(this.paidAmount != null ? this.paidAmount : fallbackAmount)
+            .paidAt(this.paymentDate)
+            .canceledAt(this.cancelDate)
+            .build();
     }
 
 }

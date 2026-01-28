@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
@@ -43,7 +44,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     private final InsuredPersonJpaRepository insuredPersonJpaRepository;
 
-    private final ContractEntityMapper mapper;
+    private final TravelInsurancePlanJpaRepository planJpaRepository;
 
     @Override
     public Optional<InsuranceContract> findById(Long contractId) {
@@ -57,8 +58,16 @@ public class ContractRepositoryImpl implements ContractRepository {
 
         var payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
         var people = insuredPersonJpaRepository.findAllByContractId(contractId);
+        var plan = fetchPlan(contract.getPlanId());
 
-        return Optional.of(mapper.toDomain(contract, payment, people));
+        return Optional.of(contract.toDomain(payment, people, plan));
+    }
+
+    private TravelInsurancePlanEntity fetchPlan(Long planId) {
+        if (planId == null) {
+            return null;
+        }
+        return planJpaRepository.findById(planId).orElse(null);
     }
 
     @Override
@@ -91,13 +100,21 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     private List<InsuranceContract> mapToContracts(List<TravelContractEntity> contracts) {
         List<Long> contractIds = contracts.stream().map(TravelContractEntity::getId).toList();
+        List<Long> planIds = contracts.stream()
+            .map(TravelContractEntity::getPlanId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
 
         Map<Long, TravelInsurePaymentEntity> paymentMap = fetchPaymentMap(contractIds);
         Map<Long, List<TravelInsurePeopleEntity>> peopleMap = fetchPeopleMap(contractIds);
+        Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
 
         return contracts.stream()
-            .map(c -> mapper.toDomain(c, paymentMap.get(c.getId()),
-                    peopleMap.getOrDefault(c.getId(), Collections.emptyList())))
+            .map(c -> c.toDomain(
+                    paymentMap.get(c.getId()),
+                    peopleMap.getOrDefault(c.getId(), Collections.emptyList()),
+                    planMap.get(c.getPlanId())))
             .toList();
     }
 
@@ -112,6 +129,15 @@ public class ContractRepositoryImpl implements ContractRepository {
         return insuredPersonJpaRepository.findAllByContractIdIn(contractIds)
             .stream()
             .collect(Collectors.groupingBy(TravelInsurePeopleEntity::getContractId));
+    }
+
+    private Map<Long, TravelInsurancePlanEntity> fetchPlanMap(List<Long> planIds) {
+        if (planIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return planJpaRepository.findByIdIn(planIds)
+            .stream()
+            .collect(Collectors.toMap(TravelInsurancePlanEntity::getId, plan -> plan));
     }
 
     @Override
@@ -182,8 +208,9 @@ public class ContractRepositoryImpl implements ContractRepository {
             .orElseThrow(() -> new IllegalArgumentException("Contract not found: " + contractId));
         TravelInsurePaymentEntity payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
         List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository.findAllByContractId(contractId);
+        TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
 
-        return mapper.toDomain(contract, payment, people);
+        return contract.toDomain(payment, people, plan);
     }
 
     private String mapSortProperty(String requestProperty) {
