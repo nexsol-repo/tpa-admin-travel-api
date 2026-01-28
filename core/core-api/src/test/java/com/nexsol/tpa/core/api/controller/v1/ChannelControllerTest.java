@@ -33,28 +33,20 @@ public class ChannelControllerTest extends RestDocsTest {
     @DisplayName("채널 목록 조회 API 문서화")
     void getChannels() throws Exception {
         // Given
-        List<Channel> mockChannels = List.of(
-                new Channel(1L, "CH001", "TPA KOREA"),
-                new Channel(2L, "CH002", "모바일앱"),
-                new Channel(3L, "CH003", "제휴몰")
-        );
+        List<Channel> mockChannels = List.of(new Channel(1L, "CH001", "TPA KOREA"), new Channel(2L, "CH002", "모바일앱"),
+                new Channel(3L, "CH003", "제휴몰"));
 
         given(channelService.getActiveChannels()).willReturn(mockChannels);
 
         // When & Then
-        mockMvc.perform(get("/v1/admin/travel/channel")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(document("channel-list",
-                        responseFields(
-                                fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
-                                fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
-                                fieldWithPath("data").description("채널 목록"),
-                                fieldWithPath("data[].id").description("채널 ID"),
-                                fieldWithPath("data[].code").description("채널 코드"),
-                                fieldWithPath("data[].name").description("채널명")
-                        )
-                ));
+        mockMvc.perform(get("/v1/admin/travel/channel").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(document("channel-list",
+                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+                            fieldWithPath("data").description("채널 목록"), fieldWithPath("data[].id").description("채널 ID"),
+                            fieldWithPath("data[].value").description("채널 코드"),
+                            fieldWithPath("data[].label").description("채널명"))));
     }
 
 }

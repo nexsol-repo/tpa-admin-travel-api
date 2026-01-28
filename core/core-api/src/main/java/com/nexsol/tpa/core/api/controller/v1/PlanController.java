@@ -19,21 +19,15 @@ public class PlanController {
     private final PlanService planService;
 
     @GetMapping("/plan")
-    public ApiResponse<List<PlanResponse>> getPlans(
-            @RequestParam(required = false) Long insurerId) {
+    public ApiResponse<List<PlanResponse>> getPlans(@RequestParam(required = false) Long insurerId) {
 
         List<PlanResponse> plans;
 
         if (insurerId != null) {
-            plans = planService.getActivePlansByInsurerId(insurerId)
-                    .stream()
-                    .map(PlanResponse::of)
-                    .toList();
-        } else {
-            plans = planService.getActivePlans()
-                    .stream()
-                    .map(PlanResponse::of)
-                    .toList();
+            plans = planService.getActivePlansByInsurerId(insurerId).stream().map(PlanResponse::of).toList();
+        }
+        else {
+            plans = planService.getActivePlans().stream().map(PlanResponse::of).toList();
         }
 
         return ApiResponse.success(plans);

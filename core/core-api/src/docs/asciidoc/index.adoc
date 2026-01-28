@@ -38,6 +38,20 @@ include::{snippets}/contract-detail/response-fields.adoc[]
 include::{snippets}/contract-detail/http-request.adoc[]
 include::{snippets}/contract-detail/http-response.adoc[]
 
+=== 계약 직접 등록
+
+여행자 보험 계약을 직접 등록합니다.
+
+==== 요청 필드
+include::{snippets}/contract-create/request-fields.adoc[]
+
+==== 응답 필드
+include::{snippets}/contract-create/response-fields.adoc[]
+
+==== HTTP 예시
+include::{snippets}/contract-create/http-request.adoc[]
+include::{snippets}/contract-create/http-response.adoc[]
+
 === 계약 수정
 
 여행자 보험 계약 정보를 수정합니다.

@@ -1,6 +1,6 @@
 package com.nexsol.tpa.core.api.controller.v1.response;
 
-import com.nexsol.tpa.core.domain.InsuranceContract;
+import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import lombok.Builder;
 
 import java.math.BigDecimal;

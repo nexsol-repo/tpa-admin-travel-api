@@ -1,6 +1,14 @@
 package com.nexsol.tpa.core.api.controller.v1;
 
-import com.nexsol.tpa.core.domain.*;
+import com.nexsol.tpa.core.domain.admin.AdminUser;
+import com.nexsol.tpa.core.domain.admin.LoginAdmin;
+import com.nexsol.tpa.core.domain.applicant.Applicant;
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
+import com.nexsol.tpa.core.domain.contract.*;
+import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.product.InsurancePeriod;
+import com.nexsol.tpa.core.domain.product.ProductPlan;
+import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import com.nexsol.tpa.core.support.PageResult;
 import com.nexsol.tpa.core.support.SortPage;
@@ -30,6 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -206,6 +215,79 @@ public class ContractControllerTest extends RestDocsTest {
     }
 
     @Test
+    @DisplayName("여행자 보험 계약 직접등록 API 문서화")
+    void createContract() throws Exception {
+        // Given
+        InsuranceContract createdContract = createMockContract(1L);
+
+        given(contractService.createContract(any())).willReturn(createdContract);
+
+        // 직접 등록 요청 본문
+        String requestBody = """
+                {
+                    "status": "COMPLETED",
+                    "subscriptionOrigin": {
+                        "partnerId": 1,
+                        "partnerName": "TPA KOREA",
+                        "channelId": 1,
+                        "channelName": "TPA KOREA",
+                        "insurerId": 1,
+                        "insurerName": "메리츠"
+                    },
+                    "planId": 1,
+                    "travelCountry": "일본",
+                    "applicationDate": "2024-02-01T00:00:00",
+                    "period": {
+                        "startDate": "2024-03-15T17:00:00",
+                        "endDate": "2025-03-14T19:00:00"
+                    },
+                    "policyNumber": "15540-97222",
+                    "applicant": {
+                        "name": "홍길동",
+                        "residentNumber": "910504-1234567",
+                        "phoneNumber": "010-0000-0000",
+                        "email": "contractor@abc.com"
+                    },
+                    "payment": {
+                        "method": "카드 결제",
+                        "totalAmount": 17000,
+                        "paidAt": "2025-03-15T15:01:42",
+                        "canceledAt": null
+                    },
+                    "companions": [
+                        {
+                            "residentNumber": "910504-1234567",
+                            "gender": "남성",
+                            "name": "홍길동",
+                            "englishName": "Gildong",
+                            "englishLastName": "Hong",
+                            "passportNumber": "M12345678",
+                            "policyNumber": "15540-97222",
+                            "premium": 8000
+                        },
+                        {
+                            "residentNumber": "920101-2111111",
+                            "gender": "여성",
+                            "name": "김영희",
+                            "englishName": "Younghee",
+                            "englishLastName": "Kim",
+                            "passportNumber": "M87654321",
+                            "policyNumber": "15540-97223",
+                            "premium": 9000
+                        }
+                    ],
+                    "memo": "보험 가입 직접 등록"
+                }
+                """;
+
+        // When & Then
+        mockMvc.perform(post("/v1/admin/travel/contract").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+            .andExpect(status().isOk())
+            .andDo(document("contract-create", requestFields(getContractCreateRequestFields()),
+                    responseFields(getContractDetailResponseFields())));
+    }
+
+    @Test
     @DisplayName("여행자 보험 계약 수정 API 문서화")
     void updateContract() throws Exception {
         // Given
@@ -314,11 +396,65 @@ public class ContractControllerTest extends RestDocsTest {
     }
 
     /**
+     * 계약 직접등록 요청 필드 정의
+     */
+    private FieldDescriptor[] getContractCreateRequestFields() {
+        return new FieldDescriptor[] {
+                // 보험 가입 정보
+                fieldWithPath("status").description("가입 상태 (PENDING, COMPLETED, CANCELED 등)"),
+
+                fieldWithPath("subscriptionOrigin").description("가입 출처 정보 (제휴사, 채널, 보험사)"),
+                fieldWithPath("subscriptionOrigin.partnerId").description("제휴사 ID"),
+                fieldWithPath("subscriptionOrigin.partnerName").description("제휴사명"),
+                fieldWithPath("subscriptionOrigin.channelId").description("채널 ID"),
+                fieldWithPath("subscriptionOrigin.channelName").description("채널명"),
+                fieldWithPath("subscriptionOrigin.insurerId").description("보험사 ID"),
+                fieldWithPath("subscriptionOrigin.insurerName").description("보험사명"),
+
+                fieldWithPath("planId").description("가입 플랜 ID"),
+                fieldWithPath("travelCountry").description("여행 국가"),
+                fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)"),
+
+                fieldWithPath("period").description("보험 기간 (출발일/도착일)"),
+                fieldWithPath("period.startDate").description("출발일시 (yyyy-MM-dd'T'HH:mm:ss)"),
+                fieldWithPath("period.endDate").description("도착일시 (yyyy-MM-dd'T'HH:mm:ss)"),
+
+                fieldWithPath("policyNumber").description("증권번호"),
+
+                // 가입자(피보험자) 정보
+                fieldWithPath("applicant").description("가입자(피보험자) 정보"),
+                fieldWithPath("applicant.name").description("대표 계약자명"),
+                fieldWithPath("applicant.residentNumber").description("주민등록번호"),
+                fieldWithPath("applicant.phoneNumber").description("연락처"),
+                fieldWithPath("applicant.email").description("이메일"),
+
+                // 결제 정보
+                fieldWithPath("payment").description("결제 정보"),
+                fieldWithPath("payment.method").description("결제 방법"),
+                fieldWithPath("payment.totalAmount").description("결제 총액"),
+                fieldWithPath("payment.paidAt").description("결제일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
+                fieldWithPath("payment.canceledAt").description("해지일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
+
+                // 동반자 정보
+                fieldWithPath("companions").description("동반자 목록"),
+                fieldWithPath("companions[].residentNumber").description("주민등록번호"),
+                fieldWithPath("companions[].gender").description("성별"),
+                fieldWithPath("companions[].name").description("한글 이름"),
+                fieldWithPath("companions[].englishName").description("영문 이름"),
+                fieldWithPath("companions[].englishLastName").description("영문 성"),
+                fieldWithPath("companions[].passportNumber").description("여권번호/외국인등록번호"),
+                fieldWithPath("companions[].policyNumber").description("증권번호"),
+                fieldWithPath("companions[].premium").description("보험료"),
+
+                fieldWithPath("memo").description("메모").optional() };
+    }
+
+    /**
      * 계약 수정 요청 필드 정의
      */
     private FieldDescriptor[] getContractUpdateRequestFields() {
         return new FieldDescriptor[] {
-                fieldWithPath("status").description("계약 상태 (APPLIED, COMPLETED, CANCELED 등)").optional(),
+                fieldWithPath("status").description("계약 상태 (PENDING, COMPLETED, CANCELED 등)").optional(),
 
                 fieldWithPath("applicant").description("가입자(피보험자) 정보 (부분 수정 가능)").optional(),
                 fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(), // UI

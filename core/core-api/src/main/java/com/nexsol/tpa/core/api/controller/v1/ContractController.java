@@ -1,11 +1,12 @@
 package com.nexsol.tpa.core.api.controller.v1;
 
+import com.nexsol.tpa.core.api.controller.v1.request.ContractCreateRequest;
 import com.nexsol.tpa.core.api.controller.v1.request.ContractSearchRequest;
 import com.nexsol.tpa.core.api.controller.v1.request.ContractUpdateRequest;
 import com.nexsol.tpa.core.api.controller.v1.response.ContractDetailResponse;
 import com.nexsol.tpa.core.api.controller.v1.response.ContractResponse;
-import com.nexsol.tpa.core.domain.ContractService;
-import com.nexsol.tpa.core.domain.InsuranceContract;
+import com.nexsol.tpa.core.domain.contract.ContractService;
+import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import com.nexsol.tpa.core.support.SortPage;
 import com.nexsol.tpa.core.support.response.ApiResponse;
 import com.nexsol.tpa.core.support.response.PageResponse;
@@ -39,6 +40,13 @@ public class ContractController {
         InsuranceContract contract = contractService.getContractDetail(contractId);
 
         return ApiResponse.success(ContractDetailResponse.of(contract));
+    }
+
+    @PostMapping("/contract")
+    public ApiResponse<ContractDetailResponse> createContract(@RequestBody ContractCreateRequest request) {
+        InsuranceContract created = contractService.createContract(request.toCommand());
+
+        return ApiResponse.success(ContractDetailResponse.of(created));
     }
 
     @PutMapping("/contract/{contractId}")

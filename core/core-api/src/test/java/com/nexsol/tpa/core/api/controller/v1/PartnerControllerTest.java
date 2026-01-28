@@ -33,28 +33,21 @@ public class PartnerControllerTest extends RestDocsTest {
     @DisplayName("제휴사 목록 조회 API 문서화")
     void getPartners() throws Exception {
         // Given
-        List<Partner> mockPartners = List.of(
-                new Partner(1L, "TPA001", "TPA KOREA"),
-                new Partner(2L, "TPA002", "여행사A"),
-                new Partner(3L, "TPA003", "여행사B")
-        );
+        List<Partner> mockPartners = List.of(new Partner(1L, "TPA001", "TPA KOREA"), new Partner(2L, "TPA002", "여행사A"),
+                new Partner(3L, "TPA003", "여행사B"));
 
         given(partnerService.getActivePartners()).willReturn(mockPartners);
 
         // When & Then
-        mockMvc.perform(get("/v1/admin/travel/partner")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(document("partner-list",
-                        responseFields(
-                                fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
-                                fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
-                                fieldWithPath("data").description("제휴사 목록"),
-                                fieldWithPath("data[].id").description("제휴사 ID"),
-                                fieldWithPath("data[].code").description("제휴사 코드"),
-                                fieldWithPath("data[].name").description("제휴사명")
-                        )
-                ));
+        mockMvc.perform(get("/v1/admin/travel/partner").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andDo(document("partner-list",
+                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+                            fieldWithPath("data").description("제휴사 목록"),
+                            fieldWithPath("data[].id").description("제휴사 ID"),
+                            fieldWithPath("data[].value").description("제휴사 코드"),
+                            fieldWithPath("data[].label").description("제휴사명"))));
     }
 
 }

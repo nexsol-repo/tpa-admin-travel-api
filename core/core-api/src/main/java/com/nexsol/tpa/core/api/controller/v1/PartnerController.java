@@ -19,10 +19,7 @@ public class PartnerController {
 
     @GetMapping("/partner")
     public ApiResponse<List<PartnerResponse>> getPartners() {
-        List<PartnerResponse> partners = partnerService.getActivePartners()
-                .stream()
-                .map(PartnerResponse::of)
-                .toList();
+        List<PartnerResponse> partners = partnerService.getActivePartners().stream().map(PartnerResponse::of).toList();
 
         return ApiResponse.success(partners);
     }

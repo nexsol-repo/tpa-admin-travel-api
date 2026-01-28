@@ -19,10 +19,7 @@ public class ChannelController {
 
     @GetMapping("/channel")
     public ApiResponse<List<ChannelResponse>> getChannels() {
-        List<ChannelResponse> channels = channelService.getActiveChannels()
-                .stream()
-                .map(ChannelResponse::of)
-                .toList();
+        List<ChannelResponse> channels = channelService.getActiveChannels().stream().map(ChannelResponse::of).toList();
 
         return ApiResponse.success(channels);
     }

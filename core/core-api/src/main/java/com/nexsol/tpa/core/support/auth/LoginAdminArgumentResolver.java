@@ -1,7 +1,7 @@
 package com.nexsol.tpa.core.support.auth;
 
-import com.nexsol.tpa.core.domain.AdminUser;
-import com.nexsol.tpa.core.domain.LoginAdmin;
+import com.nexsol.tpa.core.domain.admin.AdminUser;
+import com.nexsol.tpa.core.domain.admin.LoginAdmin;
 
 import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;

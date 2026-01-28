@@ -1,4 +1,4 @@
-    package com.nexsol.tpa.core.api.controller.v1;
+package com.nexsol.tpa.core.api.controller.v1;
 
 import com.nexsol.tpa.core.api.controller.v1.response.InsurerResponse;
 import com.nexsol.tpa.core.domain.insurer.InsurerService;
@@ -19,10 +19,7 @@ public class InsurerController {
 
     @GetMapping("/insurer")
     public ApiResponse<List<InsurerResponse>> getInsurers() {
-        List<InsurerResponse> insurers = insurerService.getActiveInsurers()
-                .stream()
-                .map(InsurerResponse::of)
-                .toList();
+        List<InsurerResponse> insurers = insurerService.getActiveInsurers().stream().map(InsurerResponse::of).toList();
 
         return ApiResponse.success(insurers);
     }

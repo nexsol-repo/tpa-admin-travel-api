@@ -1,6 +1,6 @@
 package com.nexsol.tpa.core.api.controller.v1.request;
 
-import com.nexsol.tpa.core.domain.ContractSearchCriteria;
+import com.nexsol.tpa.core.domain.contract.ContractSearchCriteria;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 

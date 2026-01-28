@@ -1,6 +1,10 @@
 package com.nexsol.tpa.core.api.controller.v1.response;
 
-import com.nexsol.tpa.core.domain.*;
+import com.nexsol.tpa.core.domain.applicant.ApplicantInfo;
+import com.nexsol.tpa.core.domain.applicant.CompanionInfo;
+import com.nexsol.tpa.core.domain.contract.InsuranceContract;
+import com.nexsol.tpa.core.domain.contract.InsuranceSection;
+import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import lombok.Builder;
 
 import java.util.List;

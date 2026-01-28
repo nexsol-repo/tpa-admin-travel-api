@@ -1,6 +1,6 @@
 package com.nexsol.tpa;
 
-import com.nexsol.tpa.core.domain.MemoRegistrar;
+import com.nexsol.tpa.core.domain.admin.MemoRegistrar;
 import org.junit.jupiter.api.Tag;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
