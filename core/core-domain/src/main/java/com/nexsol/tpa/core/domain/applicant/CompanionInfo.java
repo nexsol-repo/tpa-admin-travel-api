@@ -11,7 +11,7 @@ public record CompanionInfo(String name, String englishName, String residentNumb
         return CompanionInfo.builder()
             .name(person.name())
             .englishName(person.englishName())
-            .residentNumber(masking(person.residentNumber()))
+            .residentNumber(person.residentNumber())
             .passportNumber(person.passportNumber())
             .gender(person.gender())
             .premium(person.individualPremium())
