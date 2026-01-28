@@ -1,5 +1,8 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.contract;
 
+import com.nexsol.tpa.core.domain.product.ProductInfo;
+import com.nexsol.tpa.core.domain.subscription.SubscriptionInfo;
+import com.nexsol.tpa.core.domain.subscription.TermInfo;
 import lombok.Builder;
 
 @Builder

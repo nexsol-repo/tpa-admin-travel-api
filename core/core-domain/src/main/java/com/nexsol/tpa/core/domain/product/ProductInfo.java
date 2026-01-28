@@ -1,4 +1,4 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.product;
 
 public record ProductInfo(String name, String plan, String country) {
     public static ProductInfo toProductInfo(ProductPlan plan) {

@@ -3,8 +3,7 @@ package com.nexsol.tpa.core.domain.partner;
 import java.util.List;
 
 /**
- * 제휴사 Repository 인터페이스
- * - Business Layer에서 정의하고 Data Access Layer에서 구현
+ * 제휴사 Repository 인터페이스 - Business Layer에서 정의하고 Data Access Layer에서 구현
  */
 public interface PartnerRepository {
 

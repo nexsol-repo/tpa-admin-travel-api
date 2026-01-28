@@ -1,5 +1,9 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.contract;
 
+import com.nexsol.tpa.core.domain.applicant.Applicant;
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
+import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;

@@ -1,4 +1,4 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.contract;
 
 import com.nexsol.tpa.core.enums.ContractStatus;
 import lombok.Builder;
@@ -12,7 +12,15 @@ import java.util.List;
 @Builder
 public record ContractUpdateCommand(Long contractId, ContractStatus status, ApplicantUpdateCommand applicant,
         PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
-        String memo) {
+        SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String memo) {
+
+    /**
+     * 가입 출처 정보 수정 명령 (보험사, 채널, 제휴사 - id와 name 필요)
+     */
+    @Builder
+    public record SubscriptionOriginUpdateCommand(Long insurerId, String insurerName, Long channelId, String channelName,
+            Long partnerId, String partnerName) {
+    }
 
     @Builder
     public record ApplicantUpdateCommand(String name, String phoneNumber, String email) {

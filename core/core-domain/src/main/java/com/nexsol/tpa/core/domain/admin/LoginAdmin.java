@@ -1,4 +1,4 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.admin;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.contract;
 
 import com.nexsol.tpa.core.enums.ContractStatus;
 import lombok.Builder;

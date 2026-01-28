@@ -1,5 +1,11 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.contract;
 
+import com.nexsol.tpa.core.domain.applicant.Applicant;
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
+import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.product.InsurancePeriod;
+import com.nexsol.tpa.core.domain.product.ProductPlan;
+import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;
@@ -32,7 +38,7 @@ public class ContractUpdater {
             .contractId(existing.contractId())
             .status(resolveStatus(existing, command))
             .metaInfo(updateMeta(existing.metaInfo(), command))
-            .productPlan(existing.productPlan())
+            .productPlan(updateProductPlan(existing.productPlan(), command.planId()))
             .applicant(updateApplicant(existing.applicant(), command.applicant()))
             .paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
             .insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
@@ -61,21 +67,62 @@ public class ContractUpdater {
     }
 
     private ContractMeta updateMeta(ContractMeta existing, ContractUpdateCommand command) {
-        if (command.period() == null) {
-            return existing;
+        InsurancePeriod updatedPeriod = existing.period();
+        if (command.period() != null) {
+            updatedPeriod = InsurancePeriod.builder()
+                .startDate(command.period().startDate() != null ? command.period().startDate()
+                        : existing.period().startDate())
+                .endDate(
+                        command.period().endDate() != null ? command.period().endDate() : existing.period().endDate())
+                .build();
         }
 
-        InsurancePeriod updatedPeriod = InsurancePeriod.builder()
-            .startDate(
-                    command.period().startDate() != null ? command.period().startDate() : existing.period().startDate())
-            .endDate(command.period().endDate() != null ? command.period().endDate() : existing.period().endDate())
-            .build();
+        SubscriptionOrigin updatedOrigin = updateSubscriptionOrigin(existing.origin(), command.subscriptionOrigin());
 
         return ContractMeta.builder()
             .policyNumber(existing.policyNumber())
-            .origin(existing.origin())
+            .origin(updatedOrigin)
             .applicationDate(existing.applicationDate())
             .period(updatedPeriod)
+            .build();
+    }
+
+    /**
+     * 가입 출처 정보 수정 (보험사, 채널, 제휴사 - id와 name 함께 수정)
+     */
+    private SubscriptionOrigin updateSubscriptionOrigin(SubscriptionOrigin existing,
+            ContractUpdateCommand.SubscriptionOriginUpdateCommand command) {
+        if (command == null) {
+            return existing;
+        }
+
+        return SubscriptionOrigin.builder()
+            .insurerId(command.insurerId() != null ? command.insurerId() : existing.insurerId())
+            .insurerName(command.insurerName() != null ? command.insurerName() : existing.insurerName())
+            .insurerCode(existing.insurerCode())
+            .channelId(command.channelId() != null ? command.channelId() : existing.channelId())
+            .channelName(command.channelName() != null ? command.channelName() : existing.channelName())
+            .channelCode(existing.channelCode())
+            .partnerId(command.partnerId() != null ? command.partnerId() : existing.partnerId())
+            .partnerName(command.partnerName() != null ? command.partnerName() : existing.partnerName())
+            .partnerCode(existing.partnerCode())
+            .build();
+    }
+
+    /**
+     * 플랜 정보 수정 (planId만 수정, 나머지는 조회 시 planId로 재조회)
+     */
+    private ProductPlan updateProductPlan(ProductPlan existing, Long planId) {
+        if (planId == null) {
+            return existing;
+        }
+
+        return ProductPlan.builder()
+            .planId(planId)
+            .productName(existing.productName())
+            .planName(existing.planName())
+            .travelCountry(existing.travelCountry())
+            .coverageLink(existing.coverageLink())
             .build();
     }
 

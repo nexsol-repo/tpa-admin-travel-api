@@ -1,4 +1,6 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.subscription;
+
+import com.nexsol.tpa.core.domain.contract.ContractMeta;
 
 import java.time.LocalDateTime;
 

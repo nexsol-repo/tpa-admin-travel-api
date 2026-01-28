@@ -1,4 +1,4 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.admin;
 
 import com.nexsol.tpa.core.enums.ServiceType;
 

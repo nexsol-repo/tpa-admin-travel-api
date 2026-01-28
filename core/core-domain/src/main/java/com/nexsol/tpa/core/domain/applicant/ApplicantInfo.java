@@ -1,4 +1,4 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.applicant;
 
 import lombok.Builder;
 
@@ -8,7 +8,7 @@ public record ApplicantInfo(String name, String residentNumber, // 마스킹된 
     public static ApplicantInfo toApplicantInfo(Applicant applicant) {
         return ApplicantInfo.builder()
             .name(applicant.name())
-            .residentNumber(masking(applicant.residentNumber())) // [중요] 변환 시 마스킹 수행
+            .residentNumber(applicant.residentNumber())
             .phoneNumber(applicant.phoneNumber())
             .email(applicant.email())
             .build();

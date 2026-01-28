@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 플랜 서비스 (Business Layer)
- * - 비즈니스 흐름을 중계하는 Coordinator 역할
+ * 플랜 서비스 (Business Layer) - 비즈니스 흐름을 중계하는 Coordinator 역할
  */
 @Service
 @RequiredArgsConstructor

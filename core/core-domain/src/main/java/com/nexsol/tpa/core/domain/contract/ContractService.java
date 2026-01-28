@@ -1,5 +1,7 @@
-package com.nexsol.tpa.core.domain;
+package com.nexsol.tpa.core.domain.contract;
 
+import com.nexsol.tpa.core.domain.admin.MemoRegistrar;
+import com.nexsol.tpa.core.domain.admin.SystemLogRegistrar;
 import com.nexsol.tpa.core.enums.ServiceType;
 import com.nexsol.tpa.core.support.PageResult;
 import com.nexsol.tpa.core.support.SortPage;
@@ -20,6 +22,8 @@ public class ContractService {
 
     private final ContractFinder contractFinder;
 
+    private final ContractCreator contractCreator;
+
     private final ContractUpdater contractUpdater;
 
     private final ContractChangeDetector contractChangeDetector;
@@ -36,6 +40,24 @@ public class ContractService {
     @Transactional
     public PageResult<InsuranceContract> searchContract(ContractSearchCriteria criteria, SortPage sortPage) {
         return contractFinder.find(criteria, sortPage);
+    }
+
+    /**
+     * 계약 직접 등록 + 메모 등록 + 시스템 로그 등록 비즈니스 흐름: 1. 계약 생성 → 2. 메모 등록 → 3. 시스템 로그 등록
+     * 메모/시스템로그 등록 실패 시 전체 롤백
+     */
+    @Transactional
+    public InsuranceContract createContract(ContractCreateCommand command) {
+        // 1. 계약 생성
+        InsuranceContract created = contractCreator.create(command);
+
+        // 2. 메모 등록
+        memoRegistrar.register(created.contractId(), command.memo(), DEFAULT_SERVICE_TYPE);
+
+        // 3. 시스템 로그 등록
+        systemLogRegistrar.register(created.contractId(), "계약 직접 등록", DEFAULT_SERVICE_TYPE);
+
+        return created;
     }
 
     /**
