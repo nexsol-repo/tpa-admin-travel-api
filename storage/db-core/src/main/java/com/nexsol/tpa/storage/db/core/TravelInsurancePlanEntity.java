@@ -16,6 +16,9 @@ public class TravelInsurancePlanEntity extends BaseEntity {
     @Column(name = "plan_name")
     private String planName;
 
+    @Column(name = "insurance_product_name")
+    private String productName;
+
     @Column(name = "plan_full_name")
     private String planFullName;
 

@@ -116,12 +116,14 @@ public class TravelContractMapper {
         if (plan == null) {
             return ProductPlan.builder()
                 .planId(entity.getPlanId())
+                .productName(plan.getProductName())
+                .planName(plan.getPlanName())
                 .travelCountry(entity.getCountryName())
                 .build();
         }
         return ProductPlan.builder()
             .planId(plan.getId())
-            .productName(plan.getPlanFullName())
+            .productName(plan.getProductName())
             .planName(plan.getPlanName())
             .travelCountry(entity.getCountryName())
             .build();
