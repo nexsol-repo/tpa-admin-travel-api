@@ -43,11 +43,11 @@ public class ContractService {
     }
 
     /**
-     * 계약 직접 등록 + 메모 등록 + 시스템 로그 등록 비즈니스 흐름: 1. 계약 생성 → 2. 메모 등록 → 3. 시스템 로그 등록
-     * 메모/시스템로그 등록 실패 시 전체 롤백
+     * 계약 직접 등록 + 메모 등록 + 시스템 로그 등록 비즈니스 흐름: 1. 계약 생성 → 2. 메모 등록 → 3. 시스템 로그 등록 메모/시스템로그
+     * 등록 실패 시 전체 롤백
      */
     @Transactional
-    public InsuranceContract createContract(ContractCreateCommand command) {
+    public Long createContract(ContractCreateCommand command) {
         // 1. 계약 생성
         InsuranceContract created = contractCreator.create(command);
 
@@ -57,7 +57,7 @@ public class ContractService {
         // 3. 시스템 로그 등록
         systemLogRegistrar.register(created.contractId(), "계약 직접 등록", DEFAULT_SERVICE_TYPE);
 
-        return created;
+        return created.contractId();
     }
 
     /**
@@ -65,7 +65,7 @@ public class ContractService {
      * 5. 시스템 로그 등록 메모/시스템로그 등록 실패 시 전체 롤백
      */
     @Transactional
-    public InsuranceContract updateContract(ContractUpdateCommand command) {
+    public Long updateContract(ContractUpdateCommand command) {
         // 1. 기존 계약 조회 (변경 감지용)
         InsuranceContract existing = contractReader.read(command.contractId());
 
@@ -81,7 +81,7 @@ public class ContractService {
         // 5. 시스템 로그 등록
         systemLogRegistrar.register(updated.contractId(), changeLog, DEFAULT_SERVICE_TYPE);
 
-        return updated;
+        return updated.contractId();
     }
 
 }

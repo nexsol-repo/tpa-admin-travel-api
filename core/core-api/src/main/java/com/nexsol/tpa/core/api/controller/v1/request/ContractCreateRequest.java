@@ -13,12 +13,8 @@ import java.util.List;
  */
 public record ContractCreateRequest(
         // 보험 가입 정보
-        ContractStatus status,
-        SubscriptionOriginRequest subscriptionOrigin,
-        Long planId,
-        String travelCountry,
-        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate,
-        PeriodRequest period,
+        ContractStatus status, SubscriptionOriginRequest subscriptionOrigin, Long planId, String travelCountry,
+        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, PeriodRequest period,
         String policyNumber,
 
         // 가입자(피보험자) 정보
@@ -56,10 +52,7 @@ public record ContractCreateRequest(
     public record PeriodRequest(@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime startDate,
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime endDate) {
         public ContractCreateCommand.PeriodCommand toCommand() {
-            return ContractCreateCommand.PeriodCommand.builder()
-                .startDate(startDate)
-                .endDate(endDate)
-                .build();
+            return ContractCreateCommand.PeriodCommand.builder().startDate(startDate).endDate(endDate).build();
         }
     }
 

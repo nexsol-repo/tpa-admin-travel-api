@@ -218,9 +218,9 @@ public class ContractControllerTest extends RestDocsTest {
     @DisplayName("여행자 보험 계약 직접등록 API 문서화")
     void createContract() throws Exception {
         // Given
-        InsuranceContract createdContract = createMockContract(1L);
+        Long createdContractId = 1L;
 
-        given(contractService.createContract(any())).willReturn(createdContract);
+        given(contractService.createContract(any())).willReturn(createdContractId);
 
         // 직접 등록 요청 본문
         String requestBody = """
@@ -284,7 +284,7 @@ public class ContractControllerTest extends RestDocsTest {
         mockMvc.perform(post("/v1/admin/travel/contract").contentType(MediaType.APPLICATION_JSON).content(requestBody))
             .andExpect(status().isOk())
             .andDo(document("contract-create", requestFields(getContractCreateRequestFields()),
-                    responseFields(getContractDetailResponseFields())));
+                    responseFields(getContractIdResponseFields())));
     }
 
     @Test
@@ -292,9 +292,8 @@ public class ContractControllerTest extends RestDocsTest {
     void updateContract() throws Exception {
         // Given
         Long contractId = 1L;
-        InsuranceContract updatedContract = createMockContract(contractId); // 수정된 상태라고 가정
 
-        given(contractService.updateContract(any())).willReturn(updatedContract);
+        given(contractService.updateContract(any())).willReturn(contractId);
 
         // 결제 정보가 포함된 요청 본문
         String requestBody = """
@@ -333,16 +332,22 @@ public class ContractControllerTest extends RestDocsTest {
                 .content(requestBody))
             .andExpect(status().isOk())
             .andDo(document("contract-update", pathParameters(parameterWithName("contractId").description("수정할 계약 ID")),
-                    requestFields(getContractUpdateRequestFields()), // 리팩토링된 메서드 사용
-                    responseFields(getContractDetailResponseFields()) // 상세 조회와 동일한 응답 구조
-                                                                      // 사용
-            ));
+                    requestFields(getContractUpdateRequestFields()), responseFields(getContractIdResponseFields())));
     }
 
     // --- Helper Methods & Mock Data ---
 
     /**
-     * 계약 상세 응답 필드 정의 (상세 조회 & 수정 응답 공통 사용)
+     * 계약 ID 응답 필드 정의 (생성 & 수정 응답 공통 사용)
+     */
+    private FieldDescriptor[] getContractIdResponseFields() {
+        return new FieldDescriptor[] { fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+                fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+                fieldWithPath("data").description("생성/수정된 계약 ID") };
+    }
+
+    /**
+     * 계약 상세 응답 필드 정의 (상세 조회 응답 사용)
      */
     private FieldDescriptor[] getContractDetailResponseFields() {
         return new FieldDescriptor[] { fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
@@ -411,8 +416,7 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("subscriptionOrigin.insurerId").description("보험사 ID"),
                 fieldWithPath("subscriptionOrigin.insurerName").description("보험사명"),
 
-                fieldWithPath("planId").description("가입 플랜 ID"),
-                fieldWithPath("travelCountry").description("여행 국가"),
+                fieldWithPath("planId").description("가입 플랜 ID"), fieldWithPath("travelCountry").description("여행 국가"),
                 fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)"),
 
                 fieldWithPath("period").description("보험 기간 (출발일/도착일)"),
@@ -429,8 +433,7 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("applicant.email").description("이메일"),
 
                 // 결제 정보
-                fieldWithPath("payment").description("결제 정보"),
-                fieldWithPath("payment.method").description("결제 방법"),
+                fieldWithPath("payment").description("결제 정보"), fieldWithPath("payment.method").description("결제 방법"),
                 fieldWithPath("payment.totalAmount").description("결제 총액"),
                 fieldWithPath("payment.paidAt").description("결제일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
                 fieldWithPath("payment.canceledAt").description("해지일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),

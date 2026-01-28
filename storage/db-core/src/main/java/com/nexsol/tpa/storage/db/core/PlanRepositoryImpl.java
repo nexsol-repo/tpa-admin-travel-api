@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,6 +17,11 @@ public class PlanRepositoryImpl implements PlanRepository {
     @Override
     public List<Plan> findAllActive() {
         return planJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public Optional<Plan> findById(Long id) {
+        return planJpaRepository.findById(id).map(this::toDomain);
     }
 
     @Override

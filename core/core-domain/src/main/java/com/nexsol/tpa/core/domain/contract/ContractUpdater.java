@@ -4,6 +4,8 @@ import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
+import com.nexsol.tpa.core.domain.plan.Plan;
+import com.nexsol.tpa.core.domain.plan.PlanReader;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import com.nexsol.tpa.core.enums.ContractStatus;
@@ -23,6 +25,8 @@ import java.util.List;
 public class ContractUpdater {
 
     private final ContractRepository contractRepository;
+
+    private final PlanReader planReader;
 
     public InsuranceContract update(ContractUpdateCommand command) {
         InsuranceContract existing = contractRepository.findById(command.contractId())
@@ -72,8 +76,7 @@ public class ContractUpdater {
             updatedPeriod = InsurancePeriod.builder()
                 .startDate(command.period().startDate() != null ? command.period().startDate()
                         : existing.period().startDate())
-                .endDate(
-                        command.period().endDate() != null ? command.period().endDate() : existing.period().endDate())
+                .endDate(command.period().endDate() != null ? command.period().endDate() : existing.period().endDate())
                 .build();
         }
 
@@ -110,17 +113,19 @@ public class ContractUpdater {
     }
 
     /**
-     * 플랜 정보 수정 (planId만 수정, 나머지는 조회 시 planId로 재조회)
+     * 플랜 정보 수정 (planId로 정보 재조회)
      */
     private ProductPlan updateProductPlan(ProductPlan existing, Long planId) {
         if (planId == null) {
             return existing;
         }
 
+        Plan plan = planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+
         return ProductPlan.builder()
-            .planId(planId)
-            .productName(existing.productName())
-            .planName(existing.planName())
+            .planId(plan.id())
+            .productName(plan.fullName())
+            .planName(plan.name())
             .travelCountry(existing.travelCountry())
             .coverageLink(existing.coverageLink())
             .build();

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 플랜 조회 도구 클래스 (Implement Layer)
@@ -13,6 +14,10 @@ import java.util.List;
 public class PlanReader {
 
     private final PlanRepository planRepository;
+
+    public Optional<Plan> read(Long id) {
+        return planRepository.findById(id);
+    }
 
     public List<Plan> readAllActive() {
         return planRepository.findAllActive();

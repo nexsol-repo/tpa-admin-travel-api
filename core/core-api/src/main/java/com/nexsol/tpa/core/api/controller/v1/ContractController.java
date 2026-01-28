@@ -43,19 +43,18 @@ public class ContractController {
     }
 
     @PostMapping("/contract")
-    public ApiResponse<ContractDetailResponse> createContract(@RequestBody ContractCreateRequest request) {
-        InsuranceContract created = contractService.createContract(request.toCommand());
+    public ApiResponse<Long> createContract(@RequestBody ContractCreateRequest request) {
+        Long contractId = contractService.createContract(request.toCommand());
 
-        return ApiResponse.success(ContractDetailResponse.of(created));
+        return ApiResponse.success(contractId);
     }
 
     @PutMapping("/contract/{contractId}")
-    public ApiResponse<ContractDetailResponse> updateContract(@PathVariable Long contractId,
-            @RequestBody ContractUpdateRequest request) {
+    public ApiResponse<Long> updateContract(@PathVariable Long contractId, @RequestBody ContractUpdateRequest request) {
 
-        InsuranceContract updated = contractService.updateContract(request.toCommand(contractId));
+        Long updatedContractId = contractService.updateContract(request.toCommand(contractId));
 
-        return ApiResponse.success(ContractDetailResponse.of(updated));
+        return ApiResponse.success(updatedContractId);
     }
 
 }

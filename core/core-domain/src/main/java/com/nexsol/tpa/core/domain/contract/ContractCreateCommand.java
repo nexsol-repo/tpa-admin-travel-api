@@ -11,18 +11,9 @@ import java.util.List;
  * 계약 생성 명령 객체 Presentation Layer에서 Business Layer로 전달되는 개념 객체
  */
 @Builder
-public record ContractCreateCommand(
-        ContractStatus status,
-        SubscriptionOriginCommand subscriptionOrigin,
-        Long planId,
-        String travelCountry,
-        LocalDateTime applicationDate,
-        PeriodCommand period,
-        String policyNumber,
-        ApplicantCommand applicant,
-        PaymentCommand payment,
-        List<CompanionCommand> companions,
-        String memo) {
+public record ContractCreateCommand(ContractStatus status, SubscriptionOriginCommand subscriptionOrigin, Long planId,
+        String travelCountry, LocalDateTime applicationDate, PeriodCommand period, String policyNumber,
+        ApplicantCommand applicant, PaymentCommand payment, List<CompanionCommand> companions, String memo) {
 
     /**
      * 가입 출처 정보 (제휴사, 채널, 보험사)

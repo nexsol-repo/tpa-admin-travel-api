@@ -49,6 +49,8 @@ public class ContractRepositoryImpl implements ContractRepository {
 
     private final TravelInsurancePlanJpaRepository planJpaRepository;
 
+    private final TravelContractMapper travelContractMapper;
+
     @Override
     public Optional<InsuranceContract> findById(Long contractId) {
         var contractEntityOptional = travelContractJpaRepository.findById(contractId);
@@ -63,7 +65,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         var people = insuredPersonJpaRepository.findAllByContractId(contractId);
         var plan = fetchPlan(contract.getPlanId());
 
-        return Optional.of(contract.toDomain(payment, people, plan));
+        return Optional.of(travelContractMapper.toDomain(contract, payment, people, plan));
     }
 
     private TravelInsurancePlanEntity fetchPlan(Long planId) {
@@ -76,7 +78,7 @@ public class ContractRepositoryImpl implements ContractRepository {
     @Override
     public InsuranceContract create(InsuranceContract contract) {
         // 1. 계약 엔티티 생성 및 저장
-        TravelContractEntity contractEntity = TravelContractEntity.create(contract);
+        TravelContractEntity contractEntity = travelContractMapper.toEntity(contract);
         TravelContractEntity savedContract = travelContractJpaRepository.save(contractEntity);
         Long contractId = savedContract.getId();
 
@@ -141,8 +143,8 @@ public class ContractRepositoryImpl implements ContractRepository {
         Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
 
         return contracts.stream()
-            .map(c -> c.toDomain(paymentMap.get(c.getId()), peopleMap.getOrDefault(c.getId(), Collections.emptyList()),
-                    planMap.get(c.getPlanId())))
+            .map(c -> travelContractMapper.toDomain(c, paymentMap.get(c.getId()),
+                    peopleMap.getOrDefault(c.getId(), Collections.emptyList()), planMap.get(c.getPlanId())))
             .toList();
     }
 
@@ -193,18 +195,11 @@ public class ContractRepositoryImpl implements ContractRepository {
             entity.updateStatus(contract.status().name());
         }
         if (contract.applicant() != null) {
-            entity.updateApplicant(contract.applicant().name(), contract.applicant().phoneNumber(),
-                    contract.applicant().email());
+            entity.updateApplicant(contract.applicant());
         }
-        if (contract.metaInfo() != null && contract.metaInfo().period() != null) {
-            entity.updateInsurancePeriod(contract.metaInfo().period().startDate(),
-                    contract.metaInfo().period().endDate());
-        }
-        // 가입 출처 정보 수정 (보험사, 채널, 제휴사 - id와 name 함께 수정)
-        if (contract.metaInfo() != null && contract.metaInfo().origin() != null) {
-            var origin = contract.metaInfo().origin();
-            entity.updateSubscriptionOrigin(origin.insurerId(), origin.insurerName(), origin.channelId(),
-                    origin.channelName(), origin.partnerId(), origin.partnerName());
+        if (contract.metaInfo() != null) {
+            entity.updateInsurancePeriod(contract.metaInfo().period());
+            entity.updateSubscriptionOrigin(contract.metaInfo().origin());
         }
         // 플랜 ID 수정
         if (contract.productPlan() != null && contract.productPlan().planId() != null) {
@@ -248,7 +243,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository.findAllByContractId(contractId);
         TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
 
-        return contract.toDomain(payment, people, plan);
+        return travelContractMapper.toDomain(contract, payment, people, plan);
     }
 
     private String mapSortProperty(String requestProperty) {

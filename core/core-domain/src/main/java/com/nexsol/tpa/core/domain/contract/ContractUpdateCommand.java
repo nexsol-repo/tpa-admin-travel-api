@@ -18,8 +18,8 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
      * 가입 출처 정보 수정 명령 (보험사, 채널, 제휴사 - id와 name 필요)
      */
     @Builder
-    public record SubscriptionOriginUpdateCommand(Long insurerId, String insurerName, Long channelId, String channelName,
-            Long partnerId, String partnerName) {
+    public record SubscriptionOriginUpdateCommand(Long insurerId, String insurerName, Long channelId,
+            String channelName, Long partnerId, String partnerName) {
     }
 
     @Builder

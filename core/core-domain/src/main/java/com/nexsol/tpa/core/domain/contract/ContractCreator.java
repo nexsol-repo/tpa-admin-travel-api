@@ -4,9 +4,13 @@ import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
+import com.nexsol.tpa.core.domain.plan.Plan;
+import com.nexsol.tpa.core.domain.plan.PlanReader;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import com.nexsol.tpa.core.enums.ContractStatus;
+import com.nexsol.tpa.core.error.CoreErrorType;
+import com.nexsol.tpa.core.error.CoreException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +25,8 @@ import java.util.List;
 public class ContractCreator {
 
     private final ContractRepository contractRepository;
+
+    private final PlanReader planReader;
 
     public InsuranceContract create(ContractCreateCommand command) {
         InsuranceContract newContract = buildContract(command);
@@ -66,15 +72,17 @@ public class ContractCreator {
         if (period == null) {
             return null;
         }
-        return InsurancePeriod.builder()
-            .startDate(period.startDate())
-            .endDate(period.endDate())
-            .build();
+        return InsurancePeriod.builder().startDate(period.startDate()).endDate(period.endDate()).build();
     }
 
     private ProductPlan buildProductPlan(ContractCreateCommand command) {
+        Plan plan = planReader.read(command.planId())
+            .orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+
         return ProductPlan.builder()
-            .planId(command.planId())
+            .planId(plan.id())
+            .productName(plan.fullName())
+            .planName(plan.name())
             .travelCountry(command.travelCountry())
             .build();
     }
