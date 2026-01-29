@@ -148,8 +148,14 @@ public class ContractUpdater {
     private List<InsuredPerson> updateInsuredPeople(List<InsuredPerson> existing,
             List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands) {
 
-        if (commands == null || commands.isEmpty()) {
+        // null이면 기존 유지 (수정 안 함)
+        if (commands == null) {
             return existing;
+        }
+
+        // 빈 리스트면 빈 리스트 반환 (모든 동반자 삭제)
+        if (commands.isEmpty()) {
+            return List.of();
         }
 
         return commands.stream().map(this::toInsuredPerson).toList();
@@ -157,6 +163,7 @@ public class ContractUpdater {
 
     private InsuredPerson toInsuredPerson(ContractUpdateCommand.InsuredPersonUpdateCommand command) {
         return InsuredPerson.builder()
+            .id(command.id())
             .name(command.name())
             .englishName(command.englishName())
             .residentNumber(command.residentNumber())

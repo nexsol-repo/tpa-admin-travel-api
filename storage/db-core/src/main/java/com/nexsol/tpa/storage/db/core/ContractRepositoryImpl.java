@@ -176,8 +176,12 @@ public class ContractRepositoryImpl implements ContractRepository {
 
         applyContractChanges(entity, contract);
 
+        // 피보험자 수 (대표 피보험자 1명 + 동반자 수)
         if (contract.insuredPeople() != null) {
-            entity.updateInsuredCount(contract.insuredPeople().size());
+            entity.updateInsuredCount(contract.insuredPeople().size() + 1);
+        }
+        else {
+            entity.updateInsuredCount(1); // 대표 피보험자만 있는 경우
         }
 
         TravelContractEntity saved = travelContractJpaRepository.save(entity);

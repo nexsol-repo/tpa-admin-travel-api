@@ -20,9 +20,4 @@ public record InsuranceContract(Long contractId, ContractStatus status, Contract
         Applicant applicant, PaymentInfo paymentInfo, List<InsuredPerson> insuredPeople, Long employeeId
 
 ) {
-    public InsuranceContract {
-        if (insuredPeople == null || insuredPeople.isEmpty()) {
-            throw new CoreException(CoreErrorType.INSURANCE_NOTFOUND_PEOPLE_DATA);
-        }
-    }
 }
