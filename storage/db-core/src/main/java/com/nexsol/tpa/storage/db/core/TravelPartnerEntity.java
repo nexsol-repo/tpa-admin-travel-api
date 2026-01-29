@@ -23,6 +23,8 @@ public class TravelPartnerEntity extends BaseEntity {
 
     private String address;
 
+    private String serviceType;
+
     @Column(columnDefinition = "TINYINT(1)")
     private boolean isActive;
 

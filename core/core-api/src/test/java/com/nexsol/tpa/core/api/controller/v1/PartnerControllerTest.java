@@ -2,6 +2,7 @@ package com.nexsol.tpa.core.api.controller.v1;
 
 import com.nexsol.tpa.core.domain.partner.Partner;
 import com.nexsol.tpa.core.domain.partner.PartnerService;
+import com.nexsol.tpa.core.enums.ServiceType;
 import com.nexsol.tpa.test.api.RestDocsTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +37,7 @@ public class PartnerControllerTest extends RestDocsTest {
         List<Partner> mockPartners = List.of(new Partner(1L, "TPA001", "TPA KOREA"), new Partner(2L, "TPA002", "여행사A"),
                 new Partner(3L, "TPA003", "여행사B"));
 
-        given(partnerService.getActivePartners()).willReturn(mockPartners);
+        given(partnerService.getActivePartners(ServiceType.TRAVEL)).willReturn(mockPartners);
 
         // When & Then
         mockMvc.perform(get("/v1/admin/travel/partner").contentType(MediaType.APPLICATION_JSON))

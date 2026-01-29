@@ -1,5 +1,7 @@
 package com.nexsol.tpa.core.domain.partner;
 
+import com.nexsol.tpa.core.enums.ServiceType;
+
 import java.util.List;
 
 /**
@@ -8,5 +10,7 @@ import java.util.List;
 public interface PartnerRepository {
 
     List<Partner> findAllActive();
+
+    List<Partner> findAllActiveByServiceType(ServiceType serviceType);
 
 }

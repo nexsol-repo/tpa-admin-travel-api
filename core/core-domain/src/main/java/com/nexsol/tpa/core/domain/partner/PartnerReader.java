@@ -1,5 +1,6 @@
 package com.nexsol.tpa.core.domain.partner;
 
+import com.nexsol.tpa.core.enums.ServiceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,10 @@ public class PartnerReader {
 
     public List<Partner> readAllActive() {
         return partnerRepository.findAllActive();
+    }
+
+    public List<Partner> readAllActiveByServiceType(ServiceType serviceType) {
+        return partnerRepository.findAllActiveByServiceType(serviceType);
     }
 
 }
