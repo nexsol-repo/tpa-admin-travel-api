@@ -6,10 +6,6 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;
 import org.springframework.context.annotation.Bean;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -22,11 +18,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nexsol.tpa.client.aligo.AligoClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-
-@Configuration
-@EnableFeignClients(basePackageClasses = AligoClient.class)
+/**
+ * AligoClient 전용 Feign 설정 (전역 빈이 아님)
+ * AligoClient의 configuration 속성에서 참조됨
+ */
 public class AligoFeignConfig {
 
     // @Bean
