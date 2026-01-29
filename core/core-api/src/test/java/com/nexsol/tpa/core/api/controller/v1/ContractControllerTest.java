@@ -310,6 +310,9 @@ public class ContractControllerTest extends RestDocsTest {
                         "partnerName": "TPA KOREA 2"
                     },
                     "planId": 2,
+                    "travelCountry": "미국",
+                    "policyNumber": "15540-97223",
+                    "policyLink": "https://insurance.example.com/policy/15540-97223",
                     "applicant": {
                         "name": "홍길동수정",
                         "phoneNumber": "010-1111-2222",
@@ -483,6 +486,9 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("subscriptionOrigin.partnerName").description("제휴사명").optional(),
 
                 fieldWithPath("planId").description("플랜 ID").optional(),
+                fieldWithPath("travelCountry").description("여행 국가").optional(),
+                fieldWithPath("policyNumber").description("증권번호").optional(),
+                fieldWithPath("policyLink").description("증권주소").optional(),
 
                 fieldWithPath("applicant").description("가입자(피보험자) 정보 (부분 수정 가능)").optional(),
                 fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(),
