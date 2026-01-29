@@ -51,8 +51,8 @@ public class TravelContractMapper {
             entity.updateTotalPremium(contract.paymentInfo().totalAmount());
         }
 
-        // 피보험자 수
-        entity.updateInsuredCount(contract.getTotalInsuredCount());
+        // 피보험자 수 (동반자 수 기반으로 계산)
+        entity.updateInsuredCount(contract.calculateTotalInsuredCount());
 
         // 담당자 ID
         entity.updateEmployeeId(contract.employeeId());
@@ -80,6 +80,7 @@ public class TravelContractMapper {
             .paymentInfo(toPaymentInfo(entity, payment))
             .insuredPeople(safePeople.stream().map(TravelInsurePeopleEntity::toDomain).toList())
             .employeeId(entity.getEmployeeId())
+            .insuredCount(entity.getInsuredPeopleNumber())
             .build();
     }
 
