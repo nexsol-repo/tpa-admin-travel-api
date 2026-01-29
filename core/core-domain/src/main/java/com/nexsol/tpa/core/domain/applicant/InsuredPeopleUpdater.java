@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 피보험자(동반자) 수정 도구 클래스 (Implement Layer)
- * 동반자 변경 감지 및 적용 로직을 담당
+ * 피보험자(동반자) 수정 도구 클래스 (Implement Layer) 동반자 변경 감지 및 적용 로직을 담당
  */
 @Component
 @RequiredArgsConstructor
@@ -53,9 +52,7 @@ public class InsuredPeopleUpdater {
             .toList();
 
         // 생성 대상: 요청에 id가 없는 것
-        List<InsuredPerson> toCreate = requested.stream()
-            .filter(p -> p.id() == null)
-            .toList();
+        List<InsuredPerson> toCreate = requested.stream().filter(p -> p.id() == null).toList();
 
         return new InsuredPeopleChanges(toDelete, toUpdate, toCreate);
     }
@@ -78,16 +75,11 @@ public class InsuredPeopleUpdater {
     }
 
     private Set<Long> extractIds(List<InsuredPerson> people) {
-        return people.stream()
-            .map(InsuredPerson::id)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+        return people.stream().map(InsuredPerson::id).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     private Map<Long, InsuredPerson> toMap(List<InsuredPerson> people) {
-        return people.stream()
-            .filter(p -> p.id() != null)
-            .collect(Collectors.toMap(InsuredPerson::id, p -> p));
+        return people.stream().filter(p -> p.id() != null).collect(Collectors.toMap(InsuredPerson::id, p -> p));
     }
 
 }

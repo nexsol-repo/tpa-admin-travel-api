@@ -1,6 +1,7 @@
 package com.nexsol.tpa.core.enums;
 
 public enum MailType {
+
     REJOIN("재가입 안내", "재가입창", "재가입 링크"), CERTIFICATE("가입확인서 안내", "가입확인서(PDF)창", "가입확인서 보기");
 
     private final String titleSuffix;

@@ -29,9 +29,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Configuration
-//
-//@Import(HttpMessageConvertersAutoConfiguration.class)
+import com.nexsol.tpa.client.aligo.AligoClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
+@Configuration
+@EnableFeignClients(basePackageClasses = AligoClient.class)
 public class AligoFeignConfig {
 
     // @Bean

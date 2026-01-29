@@ -1,3 +1,20 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: test@test.com
+    password: test-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 external:
   memo-service:
     url: http://localhost:8081
+  aligo:
+    key: test-api-key
+    user-id: test-user-id
+    sender: 01012345678

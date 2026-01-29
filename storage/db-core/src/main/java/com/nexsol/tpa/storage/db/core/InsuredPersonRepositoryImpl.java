@@ -38,9 +38,7 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
             return;
         }
 
-        List<Long> ids = people.stream()
-            .map(InsuredPerson::id)
-            .toList();
+        List<Long> ids = people.stream().map(InsuredPerson::id).toList();
 
         List<TravelInsurePeopleEntity> entities = insuredPersonJpaRepository.findAllById(ids);
 
@@ -48,13 +46,8 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
             people.stream()
                 .filter(p -> p.id().equals(entity.getId()))
                 .findFirst()
-                .ifPresent(person -> entity.updatePersonInfo(
-                    person.name(),
-                    person.englishName(),
-                    person.residentNumber(),
-                    person.passportNumber(),
-                    person.gender()
-                ));
+                .ifPresent(person -> entity.updatePersonInfo(person.name(), person.englishName(),
+                        person.residentNumber(), person.passportNumber(), person.gender()));
         }
 
         insuredPersonJpaRepository.saveAll(entities);

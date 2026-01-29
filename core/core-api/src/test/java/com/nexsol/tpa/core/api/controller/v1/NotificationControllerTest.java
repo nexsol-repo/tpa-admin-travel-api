@@ -53,8 +53,7 @@ public class NotificationControllerTest extends RestDocsTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isOk())
-            .andDo(document("notification-email",
-                    pathParameters(parameterWithName("contractId").description("계약 ID")),
+            .andDo(document("notification-email", pathParameters(parameterWithName("contractId").description("계약 ID")),
                     requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
                             fieldWithPath("link").description("발송할 링크 URL")),
                     responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
@@ -82,8 +81,7 @@ public class NotificationControllerTest extends RestDocsTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isOk())
-            .andDo(document("notification-sms",
-                    pathParameters(parameterWithName("contractId").description("계약 ID")),
+            .andDo(document("notification-sms", pathParameters(parameterWithName("contractId").description("계약 ID")),
                     requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
                             fieldWithPath("link").description("발송할 링크 URL")),
                     responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
@@ -111,8 +109,7 @@ public class NotificationControllerTest extends RestDocsTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andExpect(status().isOk())
-            .andDo(document("notification-all",
-                    pathParameters(parameterWithName("contractId").description("계약 ID")),
+            .andDo(document("notification-all", pathParameters(parameterWithName("contractId").description("계약 ID")),
                     requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
                             fieldWithPath("link").description("발송할 링크 URL")),
                     responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
