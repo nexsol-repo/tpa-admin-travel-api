@@ -21,11 +21,11 @@ public record InsuranceContract(Long contractId, ContractStatus status, Contract
         Integer insuredCount
 
 ) {
+
     private static final int REPRESENTATIVE_COUNT = 1;
 
     /**
-     * 총 피보험자 수 (대표 피보험자 1명 + 동반자 수)
-     * - 저장 시 계산용
+     * 총 피보험자 수 (대표 피보험자 1명 + 동반자 수) - 저장 시 계산용
      */
     public int calculateTotalInsuredCount() {
         int companionCount = (insuredPeople != null) ? insuredPeople.size() : 0;
@@ -33,8 +33,7 @@ public record InsuranceContract(Long contractId, ContractStatus status, Contract
     }
 
     /**
-     * 총 피보험자 수 조회
-     * - DB에 저장된 값 우선, 없으면 계산
+     * 총 피보험자 수 조회 - DB에 저장된 값 우선, 없으면 계산
      */
     public int getTotalInsuredCount() {
         return (insuredCount != null) ? insuredCount : calculateTotalInsuredCount();

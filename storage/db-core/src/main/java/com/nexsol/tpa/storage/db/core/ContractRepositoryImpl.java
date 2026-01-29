@@ -176,8 +176,8 @@ public class ContractRepositoryImpl implements ContractRepository {
 
         applyContractChanges(entity, contract);
 
-        // 피보험자 수
-        entity.updateInsuredCount(contract.getTotalInsuredCount());
+        // 피보험자 수 (동반자 수 기반으로 계산)
+        entity.updateInsuredCount(contract.calculateTotalInsuredCount());
 
         TravelContractEntity saved = travelContractJpaRepository.save(entity);
 
@@ -236,7 +236,7 @@ public class ContractRepositoryImpl implements ContractRepository {
             }
         }
 
-        // 2. 보낸 동반자 업데이트 (기존에 있는 것만)
+        // 2. 기존 동반자 업데이트
         for (InsuredPerson person : insuredPeople) {
             if (person.id() != null && existingMap.containsKey(person.id())) {
                 TravelInsurePeopleEntity entity = existingMap.get(person.id());
@@ -245,7 +245,16 @@ public class ContractRepositoryImpl implements ContractRepository {
             }
         }
 
+        // 3. 신규 동반자 추가 (id가 null인 경우)
+        List<TravelInsurePeopleEntity> newPeople = insuredPeople.stream()
+            .filter(person -> person.id() == null)
+            .map(person -> TravelInsurePeopleEntity.create(contractId, person))
+            .toList();
+
         insuredPersonJpaRepository.saveAll(existingPeople);
+        if (!newPeople.isEmpty()) {
+            insuredPersonJpaRepository.saveAll(newPeople);
+        }
     }
 
     private void savePayment(Long contractId, PaymentInfo paymentInfo) {
