@@ -19,7 +19,7 @@ public class NotificationHistoryRegistrarImpl implements NotificationHistoryRegi
     public void registerSms(Long contractId, String message, ServiceType serviceType) {
         NotificationRequest request = NotificationRequest.builder()
             .type("SMS")
-            .message(message)
+            .content(message)
             .serviceType(serviceType)
             .build();
         memoClient.createNotification(contractId, request);
@@ -29,7 +29,7 @@ public class NotificationHistoryRegistrarImpl implements NotificationHistoryRegi
     public void registerEmail(Long contractId, String message, ServiceType serviceType) {
         NotificationRequest request = NotificationRequest.builder()
             .type("MAIL")
-            .message(message)
+            .content(message)
             .serviceType(serviceType)
             .build();
         memoClient.createNotification(contractId, request);

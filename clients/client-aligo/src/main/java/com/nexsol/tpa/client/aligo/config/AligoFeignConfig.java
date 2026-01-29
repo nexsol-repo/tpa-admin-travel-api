@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AligoClient 전용 Feign 설정 (전역 빈이 아님)
- * AligoClient의 configuration 속성에서 참조됨
+ * AligoClient 전용 Feign 설정 (전역 빈이 아님) AligoClient의 configuration 속성에서 참조됨
  */
 public class AligoFeignConfig {
 

@@ -19,7 +19,7 @@ public class NotificationRequest {
     /**
      * 알림 내용
      */
-    private String message;
+    private String content;
 
     /**
      * 서비스 유형
