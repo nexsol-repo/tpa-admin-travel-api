@@ -119,7 +119,7 @@ public class ContractControllerTest extends RestDocsTest {
                 .passportNumber("M12345678")
                 .gender("남성")
                 .individualPremium(BigDecimal.valueOf(8000))
-                .iIndividualPolicyNumber("15540-97222")
+                .individualPolicyNumber("15540-97222")
                 .build(),
                     InsuredPerson.builder()
 
@@ -129,7 +129,7 @@ public class ContractControllerTest extends RestDocsTest {
                         .passportNumber("M87654321")
                         .gender("여성")
                         .individualPremium(BigDecimal.valueOf(9000))
-                        .iIndividualPolicyNumber("15540-97222")
+                        .individualPolicyNumber("15540-97222")
                         .build()))
             .build();
 
@@ -539,7 +539,7 @@ public class ContractControllerTest extends RestDocsTest {
                 .passportNumber("M12345678")
                 .gender("남성")
                 .individualPremium(BigDecimal.valueOf(8000))
-                .iIndividualPolicyNumber("15540-97222")
+                .individualPolicyNumber("15540-97222")
                 .build()))
             .build();
     }

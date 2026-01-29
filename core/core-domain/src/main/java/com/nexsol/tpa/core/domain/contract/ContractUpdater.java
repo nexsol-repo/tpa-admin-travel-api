@@ -161,7 +161,9 @@ public class ContractUpdater {
             .englishName(command.englishName())
             .residentNumber(command.residentNumber())
             .passportNumber(command.passportNumber())
+            .individualPolicyNumber(command.policyNumber())
             .gender(command.gender())
+            .individualPremium(command.premium())
             .build();
     }
 

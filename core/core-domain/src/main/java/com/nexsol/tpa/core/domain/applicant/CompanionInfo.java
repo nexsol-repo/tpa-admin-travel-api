@@ -15,7 +15,7 @@ public record CompanionInfo(String name, String englishName, String residentNumb
             .passportNumber(person.passportNumber())
             .gender(person.gender())
             .premium(person.individualPremium())
-            .policyNumber(person.iIndividualPolicyNumber())
+            .policyNumber(person.individualPolicyNumber())
             .build();
     }
 

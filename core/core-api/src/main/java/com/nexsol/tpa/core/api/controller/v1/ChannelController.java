@@ -5,6 +5,7 @@ import com.nexsol.tpa.core.domain.channel.ChannelService;
 import com.nexsol.tpa.core.support.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,9 +18,12 @@ public class ChannelController {
 
     private final ChannelService channelService;
 
-    @GetMapping("/channel")
-    public ApiResponse<List<ChannelResponse>> getChannels() {
-        List<ChannelResponse> channels = channelService.getActiveChannels().stream().map(ChannelResponse::of).toList();
+    @GetMapping("/partner/{partnerId}/channel")
+    public ApiResponse<List<ChannelResponse>> getChannels(@PathVariable Long partnerId) {
+        List<ChannelResponse> channels = channelService.getActiveChannelsByPartnerId(partnerId)
+            .stream()
+            .map(ChannelResponse::of)
+            .toList();
 
         return ApiResponse.success(channels);
     }

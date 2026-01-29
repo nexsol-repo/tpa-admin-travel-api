@@ -138,7 +138,7 @@ public class ContractCreator {
             .passportNumber(companion.passportNumber())
             .gender(companion.gender())
             .individualPremium(companion.premium())
-            .iIndividualPolicyNumber(companion.policyNumber())
+            .individualPolicyNumber(companion.policyNumber())
             .build();
     }
 

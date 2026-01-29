@@ -4,14 +4,13 @@ import com.nexsol.tpa.core.domain.contract.ContractUpdateCommand;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
         List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, SubscriptionOriginRequest subscriptionOrigin,
-        Long planId,
-        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate,
-        String memo) {
+        Long planId, @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, String memo) {
 
     /**
      * 가입 출처 정보 수정 요청 (보험사, 채널, 제휴사 - id와 name 필요)
@@ -48,7 +47,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
     }
 
     public record InsuredPersonRequest(String name, String englishName, String residentNumber, String passportNumber,
-            String gender) {
+            String gender, String policyNumber, BigDecimal premium) {
         public ContractUpdateCommand.InsuredPersonUpdateCommand toCommand() {
             return ContractUpdateCommand.InsuredPersonUpdateCommand.builder()
                 .name(name)
@@ -56,6 +55,8 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
                 .residentNumber(residentNumber)
                 .passportNumber(passportNumber)
                 .gender(gender)
+                .policyNumber(policyNumber)
+                .premium(premium)
                 .build();
         }
     }

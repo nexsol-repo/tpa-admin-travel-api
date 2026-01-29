@@ -9,4 +9,6 @@ public interface ChannelRepository {
 
     List<Channel> findAllActive();
 
+    List<Channel> findByPartnerIdAndActive(Long partnerId);
+
 }

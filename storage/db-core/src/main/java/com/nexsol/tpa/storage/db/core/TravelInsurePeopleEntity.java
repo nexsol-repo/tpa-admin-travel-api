@@ -38,12 +38,12 @@ public class TravelInsurePeopleEntity extends BaseEntity {
     @Column(name = "insure_premium")
     private BigDecimal insurePremium;
 
-    @Column(name = "insure_number")
-    private String insureNumber;
+    @Column(name = "policy_number")
+    private String policyNumber;
 
     @Builder
     private TravelInsurePeopleEntity(Long contractId, String name, String englishName, String residentNumber,
-            String passportNumber, String gender, BigDecimal insurePremium, String insureNumber) {
+            String passportNumber, String gender, BigDecimal insurePremium, String policyNumber) {
         this.contractId = contractId;
         this.name = name;
         this.englishName = englishName;
@@ -51,7 +51,7 @@ public class TravelInsurePeopleEntity extends BaseEntity {
         this.passportNumber = passportNumber;
         this.gender = gender;
         this.insurePremium = insurePremium;
-        this.insureNumber = insureNumber;
+        this.policyNumber = policyNumber;
     }
 
     /**
@@ -66,7 +66,7 @@ public class TravelInsurePeopleEntity extends BaseEntity {
             .passportNumber(person.passportNumber())
             .gender(person.gender())
             .insurePremium(person.individualPremium())
-            .insureNumber(person.iIndividualPolicyNumber())
+            .policyNumber(person.individualPolicyNumber())
             .build();
     }
 
@@ -97,7 +97,7 @@ public class TravelInsurePeopleEntity extends BaseEntity {
             .passportNumber(this.passportNumber)
             .gender(this.gender)
             .individualPremium(this.insurePremium)
-            .iIndividualPolicyNumber(this.insureNumber)
+            .individualPolicyNumber(this.policyNumber)
             .build();
     }
 

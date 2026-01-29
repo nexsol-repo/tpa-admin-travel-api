@@ -18,4 +18,8 @@ public class ChannelReader {
         return channelRepository.findAllActive();
     }
 
+    public List<Channel> readByPartnerId(Long partnerId) {
+        return channelRepository.findByPartnerIdAndActive(partnerId);
+    }
+
 }

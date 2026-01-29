@@ -11,10 +11,12 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,15 +35,18 @@ public class ChannelControllerTest extends RestDocsTest {
     @DisplayName("채널 목록 조회 API 문서화")
     void getChannels() throws Exception {
         // Given
-        List<Channel> mockChannels = List.of(new Channel(1L, "CH001", "TPA KOREA"), new Channel(2L, "CH002", "모바일앱"),
-                new Channel(3L, "CH003", "제휴몰"));
+        Long partnerId = 1L;
+        List<Channel> mockChannels = List.of(new Channel(1L, partnerId, "CH001", "TPA KOREA"),
+                new Channel(2L, partnerId, "CH002", "모바일앱"), new Channel(3L, partnerId, "CH003", "제휴몰"));
 
-        given(channelService.getActiveChannels()).willReturn(mockChannels);
+        given(channelService.getActiveChannelsByPartnerId(anyLong())).willReturn(mockChannels);
 
         // When & Then
-        mockMvc.perform(get("/v1/admin/travel/channel").contentType(MediaType.APPLICATION_JSON))
+        mockMvc
+            .perform(get("/v1/admin/travel/partner/{partnerId}/channel", partnerId)
+                .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andDo(document("channel-list",
+            .andDo(document("channel-list", pathParameters(parameterWithName("partnerId").description("파트너 ID")),
                     responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
                             fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
                             fieldWithPath("data").description("채널 목록"), fieldWithPath("data[].id").description("채널 ID"),

@@ -18,7 +18,7 @@ public class TravelChannelEntity extends BaseEntity {
 
     private String channelName;
 
-    @Enumerated(value= EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private ServiceType serviceType;
 
     @Column(columnDefinition = "TINYINT(1)")

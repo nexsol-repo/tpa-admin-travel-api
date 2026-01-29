@@ -8,4 +8,6 @@ public interface ChannelJpaRepository extends JpaRepository<TravelChannelEntity,
 
     List<TravelChannelEntity> findByIsActiveTrue();
 
+    List<TravelChannelEntity> findByPartnerIdAndIsActiveTrue(Long partnerId);
+
 }

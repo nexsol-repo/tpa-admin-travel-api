@@ -18,4 +18,8 @@ public class ChannelService {
         return channelReader.readAllActive();
     }
 
+    public List<Channel> getActiveChannelsByPartnerId(Long partnerId) {
+        return channelReader.readByPartnerId(partnerId);
+    }
+
 }

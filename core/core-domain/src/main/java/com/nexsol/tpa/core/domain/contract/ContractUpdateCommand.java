@@ -3,6 +3,7 @@ package com.nexsol.tpa.core.domain.contract;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
 
     @Builder
     public record InsuredPersonUpdateCommand(String name, String englishName, String residentNumber,
-            String passportNumber, String gender) {
+            String passportNumber, String policyNumber, String gender, BigDecimal premium) {
     }
 
     @Builder
