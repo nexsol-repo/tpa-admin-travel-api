@@ -1,6 +1,5 @@
 package com.nexsol.tpa.storage.db.core;
 
-import com.nexsol.tpa.core.enums.ServiceType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,8 +17,7 @@ public class TravelChannelEntity extends BaseEntity {
 
     private String channelName;
 
-    @Enumerated(value = EnumType.STRING)
-    private ServiceType serviceType;
+    private String serviceType;
 
     @Column(columnDefinition = "TINYINT(1)")
     private boolean isActive;

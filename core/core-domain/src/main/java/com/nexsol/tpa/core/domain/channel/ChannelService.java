@@ -1,5 +1,6 @@
 package com.nexsol.tpa.core.domain.channel;
 
+import com.nexsol.tpa.core.enums.ServiceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +19,8 @@ public class ChannelService {
         return channelReader.readAllActive();
     }
 
-    public List<Channel> getActiveChannelsByPartnerId(Long partnerId) {
-        return channelReader.readByPartnerId(partnerId);
+    public List<Channel> getChannels(Long partnerId, ServiceType serviceType) {
+        return channelReader.readAll(partnerId, serviceType);
     }
 
 }

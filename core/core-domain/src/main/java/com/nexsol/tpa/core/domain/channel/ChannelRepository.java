@@ -1,5 +1,7 @@
 package com.nexsol.tpa.core.domain.channel;
 
+import com.nexsol.tpa.core.enums.ServiceType;
+
 import java.util.List;
 
 /**
@@ -9,6 +11,6 @@ public interface ChannelRepository {
 
     List<Channel> findAllActive();
 
-    List<Channel> findByPartnerIdAndActive(Long partnerId);
+    List<Channel> findAll(Long partnerId, ServiceType serviceType);
 
 }

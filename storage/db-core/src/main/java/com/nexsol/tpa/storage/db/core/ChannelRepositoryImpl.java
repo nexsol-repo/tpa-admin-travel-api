@@ -2,6 +2,7 @@ package com.nexsol.tpa.storage.db.core;
 
 import com.nexsol.tpa.core.domain.channel.Channel;
 import com.nexsol.tpa.core.domain.channel.ChannelRepository;
+import com.nexsol.tpa.core.enums.ServiceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,8 +20,11 @@ public class ChannelRepositoryImpl implements ChannelRepository {
     }
 
     @Override
-    public List<Channel> findByPartnerIdAndActive(Long partnerId) {
-        return channelJpaRepository.findByPartnerIdAndIsActiveTrue(partnerId).stream().map(this::toDomain).toList();
+    public List<Channel> findAll(Long partnerId, ServiceType serviceType) {
+        return channelJpaRepository.findAllByPartnerIdAndServiceType(partnerId, serviceType.name())
+            .stream()
+            .map(this::toDomain)
+            .toList();
     }
 
     private Channel toDomain(TravelChannelEntity entity) {

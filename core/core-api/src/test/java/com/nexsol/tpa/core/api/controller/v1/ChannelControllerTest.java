@@ -11,6 +11,7 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -39,7 +40,7 @@ public class ChannelControllerTest extends RestDocsTest {
         List<Channel> mockChannels = List.of(new Channel(1L, partnerId, "CH001", "TPA KOREA"),
                 new Channel(2L, partnerId, "CH002", "모바일앱"), new Channel(3L, partnerId, "CH003", "제휴몰"));
 
-        given(channelService.getActiveChannelsByPartnerId(anyLong())).willReturn(mockChannels);
+        given(channelService.getChannels(anyLong(), any())).willReturn(mockChannels);
 
         // When & Then
         mockMvc
