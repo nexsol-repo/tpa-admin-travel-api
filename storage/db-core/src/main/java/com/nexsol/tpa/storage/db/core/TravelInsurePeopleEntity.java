@@ -41,6 +41,9 @@ public class TravelInsurePeopleEntity extends BaseEntity {
     @Column(name = "policy_number")
     private String policyNumber;
 
+    @Column(name = "deleted_at")
+    private java.time.LocalDateTime deletedAt;
+
     @Builder
     private TravelInsurePeopleEntity(Long contractId, String name, String englishName, String residentNumber,
             String passportNumber, String gender, BigDecimal insurePremium, String policyNumber) {
@@ -91,6 +94,7 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 
     public InsuredPerson toDomain() {
         return InsuredPerson.builder()
+            .id(this.getId())
             .name(this.name)
             .englishName(this.englishName)
             .residentNumber(this.residentNumber)
@@ -99,6 +103,18 @@ public class TravelInsurePeopleEntity extends BaseEntity {
             .individualPremium(this.insurePremium)
             .individualPolicyNumber(this.policyNumber)
             .build();
+    }
+
+    public void softDelete() {
+        this.deletedAt = java.time.LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 
 }

@@ -46,10 +46,11 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
         }
     }
 
-    public record InsuredPersonRequest(String name, String englishName, String residentNumber, String passportNumber,
-            String gender, String policyNumber, BigDecimal premium) {
+    public record InsuredPersonRequest(Long id, String name, String englishName, String residentNumber,
+            String passportNumber, String gender, String policyNumber, BigDecimal premium) {
         public ContractUpdateCommand.InsuredPersonUpdateCommand toCommand() {
             return ContractUpdateCommand.InsuredPersonUpdateCommand.builder()
+                .id(id)
                 .name(name)
                 .englishName(englishName)
                 .residentNumber(residentNumber)

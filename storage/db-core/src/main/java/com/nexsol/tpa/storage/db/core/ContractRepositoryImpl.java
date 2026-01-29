@@ -62,7 +62,7 @@ public class ContractRepositoryImpl implements ContractRepository {
         TravelContractEntity contract = contractEntityOptional.get();
 
         var payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
-        var people = insuredPersonJpaRepository.findAllByContractId(contractId);
+        var people = insuredPersonJpaRepository.findAllByContractIdAndDeletedAtIsNull(contractId);
         var plan = fetchPlan(contract.getPlanId());
 
         return Optional.of(travelContractMapper.toDomain(contract, payment, people, plan));
@@ -155,7 +155,7 @@ public class ContractRepositoryImpl implements ContractRepository {
     }
 
     private Map<Long, List<TravelInsurePeopleEntity>> fetchPeopleMap(List<Long> contractIds) {
-        return insuredPersonJpaRepository.findAllByContractIdIn(contractIds)
+        return insuredPersonJpaRepository.findAllByContractIdInAndDeletedAtIsNull(contractIds)
             .stream()
             .collect(Collectors.groupingBy(TravelInsurePeopleEntity::getContractId));
     }
@@ -211,17 +211,39 @@ public class ContractRepositoryImpl implements ContractRepository {
     }
 
     private void saveInsuredPeople(Long contractId, List<InsuredPerson> insuredPeople) {
-        if (insuredPeople == null || insuredPeople.isEmpty()) {
+        // null이면 수정 안 함 (기존 유지)
+        if (insuredPeople == null) {
             return;
         }
 
-        List<TravelInsurePeopleEntity> existingPeople = insuredPersonJpaRepository.findAllByContractId(contractId);
+        // 기존 동반자 조회 (삭제되지 않은 것만)
+        List<TravelInsurePeopleEntity> existingPeople = insuredPersonJpaRepository
+            .findAllByContractIdAndDeletedAtIsNull(contractId);
 
-        for (int i = 0; i < insuredPeople.size() && i < existingPeople.size(); i++) {
-            var person = insuredPeople.get(i);
-            var entity = existingPeople.get(i);
-            entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
-                    person.passportNumber(), person.gender());
+        // 요청에서 보낸 ID 목록
+        Set<Long> requestedIds = insuredPeople.stream()
+            .map(InsuredPerson::id)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        // 기존 동반자 Map
+        Map<Long, TravelInsurePeopleEntity> existingMap = existingPeople.stream()
+            .collect(Collectors.toMap(TravelInsurePeopleEntity::getId, entity -> entity));
+
+        // 1. 보내지 않은 기존 동반자는 soft delete
+        for (TravelInsurePeopleEntity existing : existingPeople) {
+            if (!requestedIds.contains(existing.getId())) {
+                existing.softDelete();
+            }
+        }
+
+        // 2. 보낸 동반자 업데이트 (기존에 있는 것만)
+        for (InsuredPerson person : insuredPeople) {
+            if (person.id() != null && existingMap.containsKey(person.id())) {
+                TravelInsurePeopleEntity entity = existingMap.get(person.id());
+                entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
+                        person.passportNumber(), person.gender());
+            }
         }
 
         insuredPersonJpaRepository.saveAll(existingPeople);
@@ -243,7 +265,8 @@ public class ContractRepositoryImpl implements ContractRepository {
         TravelContractEntity contract = travelContractJpaRepository.findById(contractId)
             .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
         TravelInsurePaymentEntity payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
-        List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository.findAllByContractId(contractId);
+        List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository
+            .findAllByContractIdAndDeletedAtIsNull(contractId);
         TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
 
         return travelContractMapper.toDomain(contract, payment, people, plan);

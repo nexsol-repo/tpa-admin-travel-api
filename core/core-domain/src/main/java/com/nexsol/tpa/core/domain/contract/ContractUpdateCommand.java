@@ -33,7 +33,7 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
     }
 
     @Builder
-    public record InsuredPersonUpdateCommand(String name, String englishName, String residentNumber,
+    public record InsuredPersonUpdateCommand(Long id, String name, String englishName, String residentNumber,
             String passportNumber, String policyNumber, String gender, BigDecimal premium) {
     }
 
