@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "travel_partner")
+@Table(name = "tpa_partner")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelPartnerEntity extends BaseEntity {
