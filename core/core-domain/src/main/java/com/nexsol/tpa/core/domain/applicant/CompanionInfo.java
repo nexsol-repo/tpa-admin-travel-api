@@ -5,10 +5,11 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record CompanionInfo(String name, String englishName, String residentNumber, String passportNumber,
+public record CompanionInfo(Long id, String name, String englishName, String residentNumber, String passportNumber,
         String gender, BigDecimal premium, String policyNumber) {
     public static CompanionInfo of(InsuredPerson person) {
         return CompanionInfo.builder()
+            .id(person.id())
             .name(person.name())
             .englishName(person.englishName())
             .residentNumber(person.residentNumber())
