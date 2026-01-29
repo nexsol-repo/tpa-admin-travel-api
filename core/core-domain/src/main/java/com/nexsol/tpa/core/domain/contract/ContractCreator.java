@@ -85,6 +85,7 @@ public class ContractCreator {
             .productName(plan.fullName())
             .planName(plan.name())
             .travelCountry(command.travelCountry())
+            .countryCode(command.countryCode())
             .build();
     }
 

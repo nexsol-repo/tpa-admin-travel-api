@@ -14,8 +14,8 @@ import java.util.List;
 public record ContractCreateRequest(
         // 보험 가입 정보
         ContractStatus status, SubscriptionOriginRequest subscriptionOrigin, Long planId, String travelCountry,
-        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, PeriodRequest period,
-        String policyNumber,
+        String countryCode, @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate,
+        PeriodRequest period, String policyNumber,
 
         // 가입자(피보험자) 정보
         ApplicantRequest applicant,
@@ -111,6 +111,7 @@ public record ContractCreateRequest(
             .subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
             .planId(planId)
             .travelCountry(travelCountry)
+            .countryCode(countryCode)
             .applicationDate(applicationDate)
             .period(period != null ? period.toCommand() : null)
             .policyNumber(policyNumber)

@@ -50,7 +50,8 @@ public class ContractUpdater {
             .contractId(existing.contractId())
             .status(resolveStatus(existing, command))
             .metaInfo(updateMeta(existing.metaInfo(), command))
-            .productPlan(updateProductPlan(existing.productPlan(), command.planId(), command.travelCountry()))
+            .productPlan(updateProductPlan(existing.productPlan(), command.planId(), command.travelCountry(),
+                    command.countryCode()))
             .applicant(updateApplicant(existing.applicant(), command.applicant()))
             .paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
             .insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
@@ -125,8 +126,8 @@ public class ContractUpdater {
     /**
      * 플랜 정보 수정 (planId로 정보 재조회)
      */
-    private ProductPlan updateProductPlan(ProductPlan existing, Long planId, String travelCountry) {
-        if (planId == null && travelCountry == null) {
+    private ProductPlan updateProductPlan(ProductPlan existing, Long planId, String travelCountry, String countryCode) {
+        if (planId == null && travelCountry == null && countryCode == null) {
             return existing;
         }
 
@@ -147,6 +148,7 @@ public class ContractUpdater {
             .productName(productName)
             .planName(planName)
             .travelCountry(travelCountry != null ? travelCountry : existing.travelCountry())
+            .countryCode(countryCode != null ? countryCode : existing.countryCode())
             .coverageLink(existing.coverageLink())
             .build();
     }

@@ -203,9 +203,11 @@ public class ContractRepositoryImpl implements ContractRepository {
             entity.updatePolicyLink(contract.metaInfo().policyLink());
             entity.updateApplyDate(contract.metaInfo().applicationDate());
         }
-        // 플랜 ID 수정
-        if (contract.productPlan() != null && contract.productPlan().planId() != null) {
+        // 플랜 및 여행 국가 정보 수정
+        if (contract.productPlan() != null) {
             entity.updatePlanId(contract.productPlan().planId());
+            entity.updateCountryName(contract.productPlan().travelCountry());
+            entity.updateCountryCode(contract.productPlan().countryCode());
         }
         // 담당자 ID 수정
         if (contract.employeeId() != null) {

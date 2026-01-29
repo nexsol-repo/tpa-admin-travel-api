@@ -51,6 +51,8 @@ public class TravelContractEntity extends BaseEntity {
 
     private String countryName;
 
+    private String countryCode;
+
     private String status;
 
     private LocalDateTime applyDate;
@@ -117,6 +119,10 @@ public class TravelContractEntity extends BaseEntity {
 
     public void updateCountryName(String countryName) {
         this.countryName = updateIfNotNull(this.countryName, countryName);
+    }
+
+    public void updateCountryCode(String countryCode) {
+        this.countryCode = updateIfNotNull(this.countryCode, countryCode);
     }
 
     public void updateTotalPremium(BigDecimal totalPremium) {

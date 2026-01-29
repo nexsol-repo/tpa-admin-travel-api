@@ -238,6 +238,7 @@ public class ContractControllerTest extends RestDocsTest {
                     },
                     "planId": 1,
                     "travelCountry": "일본",
+                    "countryCode": "JP",
                     "applicationDate": "2024-02-01T00:00:00",
                     "period": {
                         "startDate": "2024-03-15T17:00:00",
@@ -311,6 +312,7 @@ public class ContractControllerTest extends RestDocsTest {
                     },
                     "planId": 2,
                     "travelCountry": "미국",
+                    "countryCode": "US",
                     "policyNumber": "15540-97223",
                     "policyLink": "https://insurance.example.com/policy/15540-97223",
                     "applicant": {
@@ -377,6 +379,7 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("data.insuranceSection.product.name").description("보험 상품명"),
                 fieldWithPath("data.insuranceSection.product.plan").description("플랜명"),
                 fieldWithPath("data.insuranceSection.product.country").description("여행 국가"),
+                fieldWithPath("data.insuranceSection.product.countryCode").description("여행 국가 코드").optional(),
                 fieldWithPath("data.insuranceSection.subscription.partner").description("제휴사"),
                 fieldWithPath("data.insuranceSection.subscription.channel").description("채널"),
                 fieldWithPath("data.insuranceSection.subscription.insurer").description("보험사"),
@@ -435,6 +438,7 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("subscriptionOrigin.insurerName").description("보험사명"),
 
                 fieldWithPath("planId").description("가입 플랜 ID"), fieldWithPath("travelCountry").description("여행 국가"),
+                fieldWithPath("countryCode").description("여행 국가 코드").optional(),
                 fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)"),
 
                 fieldWithPath("period").description("보험 기간 (출발일/도착일)"),
@@ -487,6 +491,7 @@ public class ContractControllerTest extends RestDocsTest {
 
                 fieldWithPath("planId").description("플랜 ID").optional(),
                 fieldWithPath("travelCountry").description("여행 국가").optional(),
+                fieldWithPath("countryCode").description("여행 국가 코드").optional(),
                 fieldWithPath("policyNumber").description("증권번호").optional(),
                 fieldWithPath("policyLink").description("증권주소").optional(),
 

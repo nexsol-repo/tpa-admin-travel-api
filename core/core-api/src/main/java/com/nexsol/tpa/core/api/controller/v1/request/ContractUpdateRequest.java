@@ -10,7 +10,7 @@ import java.util.List;
 
 public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
         List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, SubscriptionOriginRequest subscriptionOrigin,
-        Long planId, String travelCountry, String policyNumber, String policyLink,
+        Long planId, String travelCountry, String countryCode, String policyNumber, String policyLink,
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, String memo) {
 
     /**
@@ -86,6 +86,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
             .subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
             .planId(planId)
             .travelCountry(travelCountry)
+            .countryCode(countryCode)
             .policyNumber(policyNumber)
             .policyLink(policyLink)
             .applicationDate(applicationDate)

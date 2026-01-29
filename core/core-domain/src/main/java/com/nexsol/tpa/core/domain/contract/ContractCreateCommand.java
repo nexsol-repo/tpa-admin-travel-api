@@ -12,9 +12,9 @@ import java.util.List;
  */
 @Builder
 public record ContractCreateCommand(ContractStatus status, SubscriptionOriginCommand subscriptionOrigin, Long planId,
-        String travelCountry, LocalDateTime applicationDate, PeriodCommand period, String policyNumber,
-        ApplicantCommand applicant, PaymentCommand payment, List<CompanionCommand> companions, String memo,
-        Long employeeId) {
+        String travelCountry, String countryCode, LocalDateTime applicationDate, PeriodCommand period,
+        String policyNumber, ApplicantCommand applicant, PaymentCommand payment, List<CompanionCommand> companions,
+        String memo, Long employeeId) {
 
     /**
      * 가입 출처 정보 (제휴사, 채널, 보험사)

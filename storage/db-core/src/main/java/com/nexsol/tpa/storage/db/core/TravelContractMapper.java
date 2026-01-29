@@ -44,6 +44,7 @@ public class TravelContractMapper {
         if (contract.productPlan() != null) {
             entity.updatePlanId(contract.productPlan().planId());
             entity.updateCountryName(contract.productPlan().travelCountry());
+            entity.updateCountryCode(contract.productPlan().countryCode());
         }
 
         // 결제 정보
@@ -123,9 +124,8 @@ public class TravelContractMapper {
         if (plan == null) {
             return ProductPlan.builder()
                 .planId(entity.getPlanId())
-                .productName(plan.getProductName())
-                .planName(plan.getPlanName())
                 .travelCountry(entity.getCountryName())
+                .countryCode(entity.getCountryCode())
                 .build();
         }
         return ProductPlan.builder()
@@ -133,6 +133,7 @@ public class TravelContractMapper {
             .productName(plan.getProductName())
             .planName(plan.getPlanName())
             .travelCountry(entity.getCountryName())
+            .countryCode(entity.getCountryCode())
             .build();
     }
 
