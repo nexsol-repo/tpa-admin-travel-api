@@ -50,7 +50,7 @@ public class ContractUpdater {
             .contractId(existing.contractId())
             .status(resolveStatus(existing, command))
             .metaInfo(updateMeta(existing.metaInfo(), command))
-            .productPlan(updateProductPlan(existing.productPlan(), command.planId()))
+            .productPlan(updateProductPlan(existing.productPlan(), command.planId(), command.travelCountry()))
             .applicant(updateApplicant(existing.applicant(), command.applicant()))
             .paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
             .insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
@@ -92,7 +92,8 @@ public class ContractUpdater {
         SubscriptionOrigin updatedOrigin = updateSubscriptionOrigin(existing.origin(), command.subscriptionOrigin());
 
         return ContractMeta.builder()
-            .policyNumber(existing.policyNumber())
+            .policyNumber(command.policyNumber() != null ? command.policyNumber() : existing.policyNumber())
+            .policyLink(command.policyLink() != null ? command.policyLink() : existing.policyLink())
             .origin(updatedOrigin)
             .applicationDate(command.applicationDate() != null ? command.applicationDate() : existing.applicationDate())
             .period(updatedPeriod)
@@ -124,18 +125,28 @@ public class ContractUpdater {
     /**
      * 플랜 정보 수정 (planId로 정보 재조회)
      */
-    private ProductPlan updateProductPlan(ProductPlan existing, Long planId) {
-        if (planId == null) {
+    private ProductPlan updateProductPlan(ProductPlan existing, Long planId, String travelCountry) {
+        if (planId == null && travelCountry == null) {
             return existing;
         }
 
-        Plan plan = planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+        // planId가 있으면 플랜 정보 조회, 없으면 기존 유지
+        String productName = existing.productName();
+        String planName = existing.planName();
+        Long resolvedPlanId = existing.planId();
+
+        if (planId != null) {
+            Plan plan = planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+            resolvedPlanId = plan.id();
+            productName = plan.fullName();
+            planName = plan.name();
+        }
 
         return ProductPlan.builder()
-            .planId(plan.id())
-            .productName(plan.fullName())
-            .planName(plan.name())
-            .travelCountry(existing.travelCountry())
+            .planId(resolvedPlanId)
+            .productName(productName)
+            .planName(planName)
+            .travelCountry(travelCountry != null ? travelCountry : existing.travelCountry())
             .coverageLink(existing.coverageLink())
             .build();
     }
