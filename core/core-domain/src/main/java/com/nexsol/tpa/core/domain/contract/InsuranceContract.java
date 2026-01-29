@@ -20,4 +20,13 @@ public record InsuranceContract(Long contractId, ContractStatus status, Contract
         Applicant applicant, PaymentInfo paymentInfo, List<InsuredPerson> insuredPeople, Long employeeId
 
 ) {
+    private static final int REPRESENTATIVE_COUNT = 1;
+
+    /**
+     * 총 피보험자 수 (대표 피보험자 1명 + 동반자 수)
+     */
+    public int getTotalInsuredCount() {
+        int companionCount = (insuredPeople != null) ? insuredPeople.size() : 0;
+        return REPRESENTATIVE_COUNT + companionCount;
+    }
 }

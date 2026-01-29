@@ -22,7 +22,7 @@ public record ContractResponse(Long contractId, String contractStatus, String co
             .insurerName(domain.metaInfo().origin().insurerName())
             .applicantName(domain.applicant().name())
             .applicantPhone(domain.applicant().phoneNumber())
-            .insuredCount(domain.insuredPeople().size())
+            .insuredCount(domain.getTotalInsuredCount())
             .totalPremium(domain.paymentInfo() != null ? domain.paymentInfo().totalAmount() : BigDecimal.ZERO)
             .applicationDate(domain.metaInfo().applicationDate())
             .insuranceStartDate(domain.metaInfo().period().startDate())
