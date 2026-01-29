@@ -1,6 +1,7 @@
 package com.nexsol.tpa.core.domain.contract;
 
 import com.nexsol.tpa.core.domain.applicant.Applicant;
+import com.nexsol.tpa.core.domain.applicant.InsuredPeopleUpdater;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
@@ -28,13 +29,20 @@ public class ContractUpdater {
 
     private final PlanReader planReader;
 
+    private final InsuredPeopleUpdater insuredPeopleUpdater;
+
     public Long update(ContractUpdateCommand command) {
         InsuranceContract existing = contractRepository.findById(command.contractId())
             .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
         InsuranceContract updated = applyChanges(existing, command);
 
-        return contractRepository.save(updated);
+        Long contractId = contractRepository.save(updated);
+
+        // 동반자 수정은 별도 도구 클래스에 위임
+        insuredPeopleUpdater.update(contractId, updated.insuredPeople());
+
+        return contractId;
     }
 
     private InsuranceContract applyChanges(InsuranceContract existing, ContractUpdateCommand command) {

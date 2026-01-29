@@ -1,6 +1,5 @@
 package com.nexsol.tpa.storage.db.core;
 
-import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.contract.ContractRepository;
 import com.nexsol.tpa.core.domain.contract.ContractSearchCriteria;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
@@ -18,8 +17,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -181,8 +183,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
         TravelContractEntity saved = travelContractJpaRepository.save(entity);
 
-        saveInsuredPeople(contract.contractId(), contract.insuredPeople());
-
+        // 동반자 저장은 InsuredPeopleUpdater (Implement Layer)에서 처리
         savePayment(contract.contractId(), contract.paymentInfo());
 
         return saved.getId();
@@ -206,54 +207,6 @@ public class ContractRepositoryImpl implements ContractRepository {
         // 담당자 ID 수정
         if (contract.employeeId() != null) {
             entity.updateEmployeeId(contract.employeeId());
-        }
-    }
-
-    private void saveInsuredPeople(Long contractId, List<InsuredPerson> insuredPeople) {
-        // null이면 수정 안 함 (기존 유지)
-        if (insuredPeople == null) {
-            return;
-        }
-
-        // 기존 피보험자 조회 (삭제되지 않은 것만)
-        List<TravelInsurePeopleEntity> existingPeople = insuredPersonJpaRepository
-            .findAllByContractIdAndDeletedAtIsNull(contractId);
-
-        // 요청에서 보낸 ID 목록
-        Set<Long> requestedIds = insuredPeople.stream()
-            .map(InsuredPerson::id)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-
-        // 기존 피보험자 Map
-        Map<Long, TravelInsurePeopleEntity> existingMap = existingPeople.stream()
-            .collect(Collectors.toMap(TravelInsurePeopleEntity::getId, entity -> entity));
-
-        // 1. 보내지 않은 기존 동반자는 soft delete
-        for (TravelInsurePeopleEntity existing : existingPeople) {
-            if (!requestedIds.contains(existing.getId())) {
-                existing.softDelete();
-            }
-        }
-
-        // 2. 기존 동반자 업데이트
-        for (InsuredPerson person : insuredPeople) {
-            if (person.id() != null && existingMap.containsKey(person.id())) {
-                TravelInsurePeopleEntity entity = existingMap.get(person.id());
-                entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
-                        person.passportNumber(), person.gender());
-            }
-        }
-
-        // 3. 신규 동반자 추가 (id가 null인 경우)
-        List<TravelInsurePeopleEntity> newPeople = insuredPeople.stream()
-            .filter(person -> person.id() == null)
-            .map(person -> TravelInsurePeopleEntity.create(contractId, person))
-            .toList();
-
-        insuredPersonJpaRepository.saveAll(existingPeople);
-        if (!newPeople.isEmpty()) {
-            insuredPersonJpaRepository.saveAll(newPeople);
         }
     }
 
