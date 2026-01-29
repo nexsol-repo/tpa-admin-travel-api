@@ -8,6 +8,8 @@ dependencies {
     implementation project(":support:logging")
     runtimeOnly project(":storage:db-core")
     runtimeOnly project(":clients:client-memo")
+    runtimeOnly project(":clients:client-aligo")
+    runtimeOnly project(":support:mailer")
 
 
     testImplementation project(":tests:api-docs")

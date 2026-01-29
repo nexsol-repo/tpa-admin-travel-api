@@ -69,6 +69,62 @@ include::{snippets}/contract-update/response-fields.adoc[]
 include::{snippets}/contract-update/http-request.adoc[]
 include::{snippets}/contract-update/http-response.adoc[]
 
+[[Notification-API]]
+== 알림 발송
+
+계약자에게 이메일/SMS 알림을 발송합니다. 발송 후 메모가 자동으로 등록됩니다.
+
+=== 이메일 발송
+
+계약자에게 이메일을 발송합니다.
+
+==== 요청 경로 파라미터
+include::{snippets}/notification-email/path-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/notification-email/request-fields.adoc[]
+
+==== 응답 필드
+include::{snippets}/notification-email/response-fields.adoc[]
+
+==== HTTP 예시
+include::{snippets}/notification-email/http-request.adoc[]
+include::{snippets}/notification-email/http-response.adoc[]
+
+=== SMS 발송
+
+계약자에게 SMS를 발송합니다.
+
+==== 요청 경로 파라미터
+include::{snippets}/notification-sms/path-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/notification-sms/request-fields.adoc[]
+
+==== 응답 필드
+include::{snippets}/notification-sms/response-fields.adoc[]
+
+==== HTTP 예시
+include::{snippets}/notification-sms/http-request.adoc[]
+include::{snippets}/notification-sms/http-response.adoc[]
+
+=== 이메일 + SMS 동시 발송
+
+계약자에게 이메일과 SMS를 동시에 발송합니다.
+
+==== 요청 경로 파라미터
+include::{snippets}/notification-all/path-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/notification-all/request-fields.adoc[]
+
+==== 응답 필드
+include::{snippets}/notification-all/response-fields.adoc[]
+
+==== HTTP 예시
+include::{snippets}/notification-all/http-request.adoc[]
+include::{snippets}/notification-all/http-response.adoc[]
+
 [[Master-Data-API]]
 == 2. 마스터 데이터 관리
 
