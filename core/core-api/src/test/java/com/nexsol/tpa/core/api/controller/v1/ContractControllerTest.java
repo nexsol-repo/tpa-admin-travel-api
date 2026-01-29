@@ -111,18 +111,19 @@ public class ContractControllerTest extends RestDocsTest {
                 .paidAt(LocalDateTime.of(2025, 12, 24, 15, 1, 42))
                 .build())
             // 5. 피보험자(동반자) 목록
-            .insuredPeople(List.of(InsuredPerson.builder()
-
-                .name("홍길동")
-                .englishName("Hong Gildong")
-                .residentNumber("910504-1******")
-                .passportNumber("M12345678")
-                .gender("남성")
-                .individualPremium(BigDecimal.valueOf(8000))
-                .individualPolicyNumber("15540-97222")
-                .build(),
+            .insuredPeople(List.of(
                     InsuredPerson.builder()
-
+                        .id(1L)
+                        .name("홍길동")
+                        .englishName("Hong Gildong")
+                        .residentNumber("910504-1******")
+                        .passportNumber("M12345678")
+                        .gender("남성")
+                        .individualPremium(BigDecimal.valueOf(8000))
+                        .individualPolicyNumber("15540-97222")
+                        .build(),
+                    InsuredPerson.builder()
+                        .id(2L)
                         .name("김영희")
                         .englishName("Kim Younghee")
                         .residentNumber("910504-2111111")
@@ -319,6 +320,7 @@ public class ContractControllerTest extends RestDocsTest {
                     },
                     "insuredPeople": [
                         {
+                            "id": 1,
                             "name": "홍길동수정",
                             "englishName": "Hong Gildong Updated",
                             "residentNumber": "910504-1234567",
@@ -401,6 +403,7 @@ public class ContractControllerTest extends RestDocsTest {
 
                 // 5. Companions
                 fieldWithPath("data.companions").description("동반자 목록"), // UI 용어 반영
+                fieldWithPath("data.companions[].id").description("동반자 ID"),
                 fieldWithPath("data.companions[].name").description("이름"),
                 fieldWithPath("data.companions[].englishName").description("영문 이름"),
                 fieldWithPath("data.companions[].residentNumber").description("주민등록번호 (마스킹)"),
@@ -488,7 +491,8 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("period.startDate").description("보험 시작 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
                 fieldWithPath("period.endDate").description("보험 종료 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
-                fieldWithPath("insuredPeople").description("동반자 목록 (전체 교체)").optional(),
+                fieldWithPath("insuredPeople").description("동반자 목록 (보낸 ID만 유지, 나머지 삭제)").optional(),
+                fieldWithPath("insuredPeople[].id").description("동반자 ID (기존 동반자 수정 시 필수)").optional(),
                 fieldWithPath("insuredPeople[].name").description("동반자 이름"),
                 fieldWithPath("insuredPeople[].englishName").description("동반자 영문 이름"),
                 fieldWithPath("insuredPeople[].residentNumber").description("주민등록번호"),
@@ -533,6 +537,7 @@ public class ContractControllerTest extends RestDocsTest {
                 .canceledAt(LocalDateTime.of(2025, 3, 16, 15, 1, 42)) // 해지일 예시
                 .build())
             .insuredPeople(List.of(InsuredPerson.builder()
+                .id(1L)
                 .name("홍길동")
                 .englishName("Hong Gildong")
                 .residentNumber("910504-1******")
