@@ -22,7 +22,7 @@ COPY clients/client-memo/build.gradle ./clients/client-memo/
 COPY storage/db-core/build.gradle ./storage/db-core/
 COPY support/logging/build.gradle ./support/logging/
 COPY support/monitoring/build.gradle ./support/monitoring/
-#COPY support/mailer/build.gradle ./support/mailer/
+COPY support/mailer/build.gradle ./support/mailer/
 COPY tests/api-docs/build.gradle ./tests/api-docs/
 
 RUN chmod +x ./gradlew
