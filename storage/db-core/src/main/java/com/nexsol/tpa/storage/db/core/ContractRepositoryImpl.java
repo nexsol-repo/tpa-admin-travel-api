@@ -199,6 +199,9 @@ public class ContractRepositoryImpl implements ContractRepository {
         if (contract.metaInfo() != null) {
             entity.updateInsurancePeriod(contract.metaInfo().period());
             entity.updateSubscriptionOrigin(contract.metaInfo().origin());
+            entity.updatePolicyNumber(contract.metaInfo().policyNumber());
+            entity.updatePolicyLink(contract.metaInfo().policyLink());
+            entity.updateApplyDate(contract.metaInfo().applicationDate());
         }
         // 플랜 ID 수정
         if (contract.productPlan() != null && contract.productPlan().planId() != null) {

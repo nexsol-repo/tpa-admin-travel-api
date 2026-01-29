@@ -94,6 +94,9 @@ public class TravelContractMapper {
         if (meta.policyNumber() != null) {
             entity.updatePolicyNumber(meta.policyNumber());
         }
+        if (meta.policyLink() != null) {
+            entity.updatePolicyLink(meta.policyLink());
+        }
         if (meta.applicationDate() != null) {
             entity.updateApplyDate(meta.applicationDate());
         }
@@ -102,6 +105,7 @@ public class TravelContractMapper {
     private ContractMeta toContractMeta(TravelContractEntity entity) {
         return ContractMeta.builder()
             .policyNumber(entity.getPolicyNumber())
+            .policyLink(entity.getPolicyLink())
             .origin(SubscriptionOrigin.builder()
                 .partnerId(entity.getPartnerId())
                 .partnerName(entity.getPartnerName())

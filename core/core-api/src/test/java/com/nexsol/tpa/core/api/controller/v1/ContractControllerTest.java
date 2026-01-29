@@ -84,6 +84,7 @@ public class ContractControllerTest extends RestDocsTest {
             // 1. 계약 메타 정보 (증권번호, 제휴사, 기간)
             .metaInfo(ContractMeta.builder()
                 .policyNumber("15540-97222")
+                .policyLink("https://insurance.example.com/policy/15540-97222")
                 .origin(SubscriptionOrigin.builder()
                     .partnerName("TPA KOREA")
                     .channelName("TPA KOREA")
@@ -384,6 +385,7 @@ public class ContractControllerTest extends RestDocsTest {
                 fieldWithPath("data.insuranceSection.status.insuredCount").description("총 가입 인원수"),
                 fieldWithPath("data.insuranceSection.status.totalPremium").description("총 보험료"),
                 fieldWithPath("data.insuranceSection.policyNumber").description("증권번호"),
+                fieldWithPath("data.insuranceSection.policyLink").description("증권주소").optional(),
 
                 // 3. Applicant Section
                 fieldWithPath("data.applicantSection").description("신청자 정보 섹션"),
@@ -515,6 +517,7 @@ public class ContractControllerTest extends RestDocsTest {
             .status(ContractStatus.COMPLETED)
             .metaInfo(ContractMeta.builder()
                 .policyNumber("15540-97222")
+                .policyLink("https://insurance.example.com/policy/15540-97222")
                 .origin(SubscriptionOrigin.builder()
                     .partnerName("TPA KOREA")
                     .channelName("TPA KOREA")

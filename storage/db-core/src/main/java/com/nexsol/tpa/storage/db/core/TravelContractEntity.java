@@ -29,6 +29,8 @@ public class TravelContractEntity extends BaseEntity {
 
     private String policyNumber;
 
+    private String policyLink;
+
     private String partnerName;
 
     private String channelName;
@@ -123,6 +125,10 @@ public class TravelContractEntity extends BaseEntity {
 
     public void updatePolicyNumber(String policyNumber) {
         this.policyNumber = updateIfNotNull(this.policyNumber, policyNumber);
+    }
+
+    public void updatePolicyLink(String policyLink) {
+        this.policyLink = updateIfNotNull(this.policyLink, policyLink);
     }
 
     public void updateApplyDate(LocalDateTime applyDate) {
