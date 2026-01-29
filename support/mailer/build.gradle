@@ -1,5 +1,7 @@
 dependencies {
 
     implementation project(":core:core-enum")
+    implementation project(":core:core-domain")
+    implementation project(":clients:client-aligo")
     implementation "org.springframework.boot:spring-boot-starter-mail"
 }
