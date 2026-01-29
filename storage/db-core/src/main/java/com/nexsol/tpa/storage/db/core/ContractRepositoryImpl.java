@@ -216,7 +216,7 @@ public class ContractRepositoryImpl implements ContractRepository {
             return;
         }
 
-        // 기존 동반자 조회 (삭제되지 않은 것만)
+        // 기존 피보험자 조회 (삭제되지 않은 것만)
         List<TravelInsurePeopleEntity> existingPeople = insuredPersonJpaRepository
             .findAllByContractIdAndDeletedAtIsNull(contractId);
 
@@ -226,7 +226,7 @@ public class ContractRepositoryImpl implements ContractRepository {
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-        // 기존 동반자 Map
+        // 기존 피보험자 Map
         Map<Long, TravelInsurePeopleEntity> existingMap = existingPeople.stream()
             .collect(Collectors.toMap(TravelInsurePeopleEntity::getId, entity -> entity));
 

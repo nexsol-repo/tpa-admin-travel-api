@@ -536,16 +536,27 @@ public class ContractControllerTest extends RestDocsTest {
                 .paidAt(LocalDateTime.of(2025, 3, 15, 15, 1, 42))
                 .canceledAt(LocalDateTime.of(2025, 3, 16, 15, 1, 42)) // 해지일 예시
                 .build())
-            .insuredPeople(List.of(InsuredPerson.builder()
-                .id(1L)
-                .name("홍길동")
-                .englishName("Hong Gildong")
-                .residentNumber("910504-1******")
-                .passportNumber("M12345678")
-                .gender("남성")
-                .individualPremium(BigDecimal.valueOf(8000))
-                .individualPolicyNumber("15540-97222")
-                .build()))
+            .insuredPeople(List.of(
+                    InsuredPerson.builder()
+                        .id(1L)
+                        .name("홍길동")
+                        .englishName("Hong Gildong")
+                        .residentNumber("910504-1******")
+                        .passportNumber("M12345678")
+                        .gender("남성")
+                        .individualPremium(BigDecimal.valueOf(8000))
+                        .individualPolicyNumber("15540-97222")
+                        .build(),
+                    InsuredPerson.builder()
+                        .id(2L)
+                        .name("김영희")
+                        .englishName("Kim Younghee")
+                        .residentNumber("920101-2******")
+                        .passportNumber("M87654321")
+                        .gender("여성")
+                        .individualPremium(BigDecimal.valueOf(9000))
+                        .individualPolicyNumber("15540-97223")
+                        .build()))
             .build();
     }
 
