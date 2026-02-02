@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelChannelEntity extends BaseEntity {
 
-    private Long partnerId;
+	private Long partnerId;
 
-    private String channelCode;
+	private String channelCode;
 
-    private String channelName;
+	private String channelName;
 
-    private String serviceType;
+	private String serviceType;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private boolean isActive;
+	@Column(columnDefinition = "TINYINT(1)")
+	private boolean isActive;
 
 }

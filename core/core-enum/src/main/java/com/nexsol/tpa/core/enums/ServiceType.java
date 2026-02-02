@@ -8,12 +8,12 @@ import lombok.Getter;
 @Getter
 public enum ServiceType {
 
-    PUNGSU("풍수"), TRAVEL("여행"), SOLAR("태양광");
+	PUNGSU("풍수"), TRAVEL("여행"), SOLAR("태양광");
 
-    private final String description;
+	private final String description;
 
-    ServiceType(String description) {
-        this.description = description;
-    }
+	ServiceType(String description) {
+		this.description = description;
+	}
 
 }

@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public record MemoRequest(String content,
 
-        ServiceType serviceType) {
+		ServiceType serviceType) {
 
 }

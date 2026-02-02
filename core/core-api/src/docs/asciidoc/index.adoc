@@ -52,6 +52,18 @@ include::{snippets}/contract-create/response-fields.adoc[]
 include::{snippets}/contract-create/http-request.adoc[]
 include::{snippets}/contract-create/http-response.adoc[]
 
+=== 계약 목록 엑셀 다운로드
+
+검색된 계약 목록 전체를 엑셀 파일(.xlsx)로 다운로드합니다. +
+조회 기간(`startDate`, `endDate`)은 필수 입력 항목입니다. `targetInsurerId`를 통해 특정 보험사 양식을 지정할 수 있습니다.
+
+==== 요청 파라미터
+include::{snippets}/contract-excel-download/query-parameters.adoc[]
+
+==== HTTP 예시
+include::{snippets}/contract-excel-download/http-request.adoc[]
+include::{snippets}/contract-excel-download/http-response.adoc[]
+
 === 계약 수정
 
 여행자 보험 계약 정보를 수정합니다.

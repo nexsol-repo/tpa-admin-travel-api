@@ -4,8 +4,8 @@ import com.nexsol.tpa.core.domain.channel.Channel;
 
 public record ChannelResponse(Long id, String value, String label) {
 
-    public static ChannelResponse of(Channel channel) {
-        return new ChannelResponse(channel.id(), channel.code(), channel.name());
-    }
+	public static ChannelResponse of(Channel channel) {
+		return new ChannelResponse(channel.id(), channel.code(), channel.name());
+	}
 
 }

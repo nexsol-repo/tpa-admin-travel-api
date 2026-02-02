@@ -15,13 +15,13 @@ import java.util.List;
 @RequestMapping("/v1/admin/travel")
 public class InsurerController {
 
-    private final InsurerService insurerService;
+	private final InsurerService insurerService;
 
-    @GetMapping("/insurer")
-    public ApiResponse<List<InsurerResponse>> getInsurers() {
-        List<InsurerResponse> insurers = insurerService.getActiveInsurers().stream().map(InsurerResponse::of).toList();
+	@GetMapping("/insurer")
+	public ApiResponse<List<InsurerResponse>> getInsurers() {
+		List<InsurerResponse> insurers = insurerService.getActiveInsurers().stream().map(InsurerResponse::of).toList();
 
-        return ApiResponse.success(insurers);
-    }
+		return ApiResponse.success(insurers);
+	}
 
 }

@@ -11,19 +11,19 @@ import lombok.Data;
 @Builder
 public class NotificationRequest {
 
-    /**
-     * 이력 유형 (MEMO, SYSTEM, SMS, MAIL, ALARM)
-     */
-    private String type;
+	/**
+	 * 이력 유형 (MEMO, SYSTEM, SMS, MAIL, ALARM)
+	 */
+	private String type;
 
-    /**
-     * 알림 내용
-     */
-    private String content;
+	/**
+	 * 알림 내용
+	 */
+	private String content;
 
-    /**
-     * 서비스 유형
-     */
-    private ServiceType serviceType;
+	/**
+	 * 서비스 유형
+	 */
+	private ServiceType serviceType;
 
 }

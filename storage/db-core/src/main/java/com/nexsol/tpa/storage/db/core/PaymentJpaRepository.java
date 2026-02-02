@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public interface PaymentJpaRepository extends JpaRepository<TravelInsurePaymentEntity, Long> {
 
-    Optional<TravelInsurePaymentEntity> findByContractId(Long contractId);
+	Optional<TravelInsurePaymentEntity> findByContractId(Long contractId);
 
-    List<TravelInsurePaymentEntity> findByContractIdIn(List<Long> contractIds);
+	List<TravelInsurePaymentEntity> findByContractIdIn(List<Long> contractIds);
 
 }

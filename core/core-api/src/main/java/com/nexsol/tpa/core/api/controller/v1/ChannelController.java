@@ -17,16 +17,16 @@ import java.util.List;
 @RequestMapping("/v1/admin/travel")
 public class ChannelController {
 
-    private final ChannelService channelService;
+	private final ChannelService channelService;
 
-    @GetMapping("/partner/{partnerId}/channel")
-    public ApiResponse<List<ChannelResponse>> getChannels(@PathVariable Long partnerId) {
-        List<ChannelResponse> channels = channelService.getChannels(partnerId, ServiceType.TRAVEL)
-            .stream()
-            .map(ChannelResponse::of)
-            .toList();
+	@GetMapping("/partner/{partnerId}/channel")
+	public ApiResponse<List<ChannelResponse>> getChannels(@PathVariable Long partnerId) {
+		List<ChannelResponse> channels = channelService.getChannels(partnerId, ServiceType.TRAVEL)
+			.stream()
+			.map(ChannelResponse::of)
+			.toList();
 
-        return ApiResponse.success(channels);
-    }
+		return ApiResponse.success(channels);
+	}
 
 }

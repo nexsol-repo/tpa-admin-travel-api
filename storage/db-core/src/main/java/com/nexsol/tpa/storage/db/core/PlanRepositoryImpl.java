@@ -12,26 +12,26 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlanRepositoryImpl implements PlanRepository {
 
-    private final TravelInsurancePlanJpaRepository planJpaRepository;
+	private final TravelInsurancePlanJpaRepository planJpaRepository;
 
-    @Override
-    public List<Plan> findAllActive() {
-        return planJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
-    }
+	@Override
+	public List<Plan> findAllActive() {
+		return planJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
+	}
 
-    @Override
-    public Optional<Plan> findById(Long id) {
-        return planJpaRepository.findById(id).map(this::toDomain);
-    }
+	@Override
+	public Optional<Plan> findById(Long id) {
+		return planJpaRepository.findById(id).map(this::toDomain);
+	}
 
-    @Override
-    public List<Plan> findAllActiveByInsurerId(Long insurerId) {
-        return planJpaRepository.findByInsurerIdAndIsActiveTrue(insurerId).stream().map(this::toDomain).toList();
-    }
+	@Override
+	public List<Plan> findAllActiveByInsurerId(Long insurerId) {
+		return planJpaRepository.findByInsurerIdAndIsActiveTrue(insurerId).stream().map(this::toDomain).toList();
+	}
 
-    private Plan toDomain(TravelInsurancePlanEntity entity) {
-        return new Plan(entity.getId(), entity.getPlanCode(), entity.getPlanName(), entity.getProductName(),
-                entity.getPlanFullName(), entity.getInsurerId());
-    }
+	private Plan toDomain(TravelInsurancePlanEntity entity) {
+		return new Plan(entity.getId(), entity.getPlanCode(), entity.getPlanName(), entity.getProductName(),
+				entity.getPlanFullName(), entity.getInsurerId());
+	}
 
 }

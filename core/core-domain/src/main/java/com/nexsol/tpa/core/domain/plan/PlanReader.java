@@ -13,18 +13,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlanReader {
 
-    private final PlanRepository planRepository;
+	private final PlanRepository planRepository;
 
-    public Optional<Plan> read(Long id) {
-        return planRepository.findById(id);
-    }
+	public Optional<Plan> read(Long id) {
+		return planRepository.findById(id);
+	}
 
-    public List<Plan> readAllActive() {
-        return planRepository.findAllActive();
-    }
+	public List<Plan> readAllActive() {
+		return planRepository.findAllActive();
+	}
 
-    public List<Plan> readAllActiveByInsurerId(Long insurerId) {
-        return planRepository.findAllActiveByInsurerId(insurerId);
-    }
+	public List<Plan> readAllActiveByInsurerId(Long insurerId) {
+		return planRepository.findAllActiveByInsurerId(insurerId);
+	}
 
 }

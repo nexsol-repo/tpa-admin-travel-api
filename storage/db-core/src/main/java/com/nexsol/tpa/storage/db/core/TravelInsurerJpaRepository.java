@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface TravelInsurerJpaRepository extends JpaRepository<TravelInsurerEntity, Long> {
 
-    List<TravelInsurerEntity> findByIsActiveTrue();
+	List<TravelInsurerEntity> findByIsActiveTrue();
 
 }

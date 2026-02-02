@@ -7,23 +7,23 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 public record ContractSearchRequest(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-        @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
 
-        // [Changed] Code 대신 Name 사용 (UI 드롭다운에서 이름을 보낸다고 가정)
-        String partnerName, String channelName, String insurerName,
+		// [Changed] Code 대신 Name 사용 (UI 드롭다운에서 이름을 보낸다고 가정)
+		String partnerName, String channelName, String insurerName,
 
-        ContractStatus status,
+		ContractStatus status,
 
-        String applicantName) {
-    public ContractSearchCriteria toCriteria() {
-        return ContractSearchCriteria.builder()
-            .startDate(startDate)
-            .endDate(endDate)
-            .partnerName(partnerName)
-            .channelName(channelName)
-            .insurerName(insurerName)
-            .status(status)
-            .applicantName(applicantName)
-            .build();
-    }
+		String applicantName) {
+	public ContractSearchCriteria toCriteria() {
+		return ContractSearchCriteria.builder()
+			.startDate(startDate)
+			.endDate(endDate)
+			.partnerName(partnerName)
+			.channelName(channelName)
+			.insurerName(insurerName)
+			.status(status)
+			.applicantName(applicantName)
+			.build();
+	}
 }

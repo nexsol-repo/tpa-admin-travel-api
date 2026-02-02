@@ -7,6 +7,6 @@ import com.nexsol.tpa.core.enums.ServiceType;
  */
 public interface SystemLogRegistrar {
 
-    void register(Long contractId, String logMessage, ServiceType serviceType);
+	void register(Long contractId, String logMessage, ServiceType serviceType);
 
 }

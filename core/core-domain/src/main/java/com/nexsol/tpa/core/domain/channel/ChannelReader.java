@@ -13,14 +13,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChannelReader {
 
-    private final ChannelRepository channelRepository;
+	private final ChannelRepository channelRepository;
 
-    public List<Channel> readAllActive() {
-        return channelRepository.findAllActive();
-    }
+	public List<Channel> readAllActive() {
+		return channelRepository.findAllActive();
+	}
 
-    public List<Channel> readAll(Long partnerId, ServiceType serviceType) {
-        return channelRepository.findAll(partnerId, serviceType);
-    }
+	public List<Channel> readAll(Long partnerId, ServiceType serviceType) {
+		return channelRepository.findAll(partnerId, serviceType);
+	}
 
 }

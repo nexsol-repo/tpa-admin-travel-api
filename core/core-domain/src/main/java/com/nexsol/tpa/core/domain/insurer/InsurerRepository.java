@@ -7,6 +7,6 @@ import java.util.List;
  */
 public interface InsurerRepository {
 
-    List<Insurer> findAllActive();
+	List<Insurer> findAllActive();
 
 }

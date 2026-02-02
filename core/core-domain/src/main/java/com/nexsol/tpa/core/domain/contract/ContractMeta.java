@@ -8,5 +8,5 @@ import java.time.LocalDateTime;
 
 @Builder
 public record ContractMeta(String policyNumber, String policyLink, SubscriptionOrigin origin,
-        LocalDateTime applicationDate, InsurancePeriod period) {
+		LocalDateTime applicationDate, InsurancePeriod period) {
 }

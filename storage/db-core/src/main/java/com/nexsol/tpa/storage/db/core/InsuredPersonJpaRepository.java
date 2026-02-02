@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface InsuredPersonJpaRepository extends JpaRepository<TravelInsurePeopleEntity, Long> {
 
-    List<TravelInsurePeopleEntity> findAllByContractIdAndDeletedAtIsNull(Long contractId);
+	List<TravelInsurePeopleEntity> findAllByContractIdAndDeletedAtIsNull(Long contractId);
 
-    List<TravelInsurePeopleEntity> findAllByContractIdInAndDeletedAtIsNull(List<Long> contractIds);
+	List<TravelInsurePeopleEntity> findAllByContractIdInAndDeletedAtIsNull(List<Long> contractIds);
 
-    void deleteAllByContractId(Long contractId);
+	void deleteAllByContractId(Long contractId);
 
 }

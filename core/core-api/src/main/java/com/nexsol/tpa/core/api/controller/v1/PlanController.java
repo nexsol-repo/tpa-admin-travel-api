@@ -16,21 +16,21 @@ import java.util.List;
 @RequestMapping("/v1/admin/travel")
 public class PlanController {
 
-    private final PlanService planService;
+	private final PlanService planService;
 
-    @GetMapping("/plan")
-    public ApiResponse<List<PlanResponse>> getPlans(@RequestParam(required = false) Long insurerId) {
+	@GetMapping("/plan")
+	public ApiResponse<List<PlanResponse>> getPlans(@RequestParam(required = false) Long insurerId) {
 
-        List<PlanResponse> plans;
+		List<PlanResponse> plans;
 
-        if (insurerId != null) {
-            plans = planService.getActivePlansByInsurerId(insurerId).stream().map(PlanResponse::of).toList();
-        }
-        else {
-            plans = planService.getActivePlans().stream().map(PlanResponse::of).toList();
-        }
+		if (insurerId != null) {
+			plans = planService.getActivePlansByInsurerId(insurerId).stream().map(PlanResponse::of).toList();
+		}
+		else {
+			plans = planService.getActivePlans().stream().map(PlanResponse::of).toList();
+		}
 
-        return ApiResponse.success(plans);
-    }
+		return ApiResponse.success(plans);
+	}
 
 }

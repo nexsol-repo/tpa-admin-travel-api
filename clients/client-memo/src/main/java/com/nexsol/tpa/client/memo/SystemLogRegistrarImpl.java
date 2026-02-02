@@ -13,16 +13,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SystemLogRegistrarImpl implements SystemLogRegistrar {
 
-    private final MemoClient memoClient;
+	private final MemoClient memoClient;
 
-    @Override
-    public void register(Long contractId, String logMessage, ServiceType serviceType) {
-        if (logMessage == null || logMessage.isBlank()) {
-            return;
-        }
+	@Override
+	public void register(Long contractId, String logMessage, ServiceType serviceType) {
+		if (logMessage == null || logMessage.isBlank()) {
+			return;
+		}
 
-        SystemLogRequest request = SystemLogRequest.builder().content(logMessage).serviceType(serviceType).build();
-        memoClient.createSystemLog(contractId, request);
-    }
+		SystemLogRequest request = SystemLogRequest.builder().content(logMessage).serviceType(serviceType).build();
+		memoClient.createSystemLog(contractId, request);
+	}
 
 }

@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelPartnerEntity extends BaseEntity {
 
-    private String partnerCode;
+	private String partnerCode;
 
-    private String partnerName;
+	private String partnerName;
 
-    private String businessRegistrationNumber;
+	private String businessRegistrationNumber;
 
-    private String ceoName;
+	private String ceoName;
 
-    private String address;
+	private String address;
 
-    private String serviceType;
+	private String serviceType;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private boolean isActive;
+	@Column(columnDefinition = "TINYINT(1)")
+	private boolean isActive;
 
 }

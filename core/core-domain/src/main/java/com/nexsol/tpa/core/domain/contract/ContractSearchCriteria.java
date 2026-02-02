@@ -7,8 +7,8 @@ import java.time.LocalDate;
 
 @Builder
 public record ContractSearchCriteria(LocalDate startDate, LocalDate endDate, String partnerName, String channelName,
-        String insurerName, ContractStatus status, String applicantName) {
-    public static ContractSearchCriteria empty() {
-        return ContractSearchCriteria.builder().build();
-    }
+		String insurerName, ContractStatus status, String applicantName) {
+	public static ContractSearchCriteria empty() {
+		return ContractSearchCriteria.builder().build();
+	}
 }

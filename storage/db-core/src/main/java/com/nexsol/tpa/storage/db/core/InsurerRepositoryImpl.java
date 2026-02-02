@@ -11,15 +11,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InsurerRepositoryImpl implements InsurerRepository {
 
-    private final TravelInsurerJpaRepository travelInsurerJpaRepository;
+	private final TravelInsurerJpaRepository travelInsurerJpaRepository;
 
-    @Override
-    public List<Insurer> findAllActive() {
-        return travelInsurerJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
-    }
+	@Override
+	public List<Insurer> findAllActive() {
+		return travelInsurerJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
+	}
 
-    private Insurer toDomain(TravelInsurerEntity entity) {
-        return new Insurer(entity.getId(), entity.getInsurerCode(), entity.getInsurerName());
-    }
+	private Insurer toDomain(TravelInsurerEntity entity) {
+		return new Insurer(entity.getId(), entity.getInsurerCode(), entity.getInsurerName());
+	}
 
 }

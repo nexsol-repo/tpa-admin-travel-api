@@ -16,16 +16,16 @@ import java.util.List;
 @RequestMapping("/v1/admin/travel")
 public class PartnerController {
 
-    private final PartnerService partnerService;
+	private final PartnerService partnerService;
 
-    @GetMapping("/partner")
-    public ApiResponse<List<PartnerResponse>> getPartners() {
-        List<PartnerResponse> partners = partnerService.getActivePartners(ServiceType.TRAVEL)
-            .stream()
-            .map(PartnerResponse::of)
-            .toList();
+	@GetMapping("/partner")
+	public ApiResponse<List<PartnerResponse>> getPartners() {
+		List<PartnerResponse> partners = partnerService.getActivePartners(ServiceType.TRAVEL)
+			.stream()
+			.map(PartnerResponse::of)
+			.toList();
 
-        return ApiResponse.success(partners);
-    }
+		return ApiResponse.success(partners);
+	}
 
 }

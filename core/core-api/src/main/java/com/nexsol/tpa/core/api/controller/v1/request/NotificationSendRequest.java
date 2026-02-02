@@ -8,8 +8,8 @@ import com.nexsol.tpa.core.enums.NotificationType;
  */
 public record NotificationSendRequest(NotificationType type, String link) {
 
-    public NotificationSendCommand toCommand(Long contractId) {
-        return NotificationSendCommand.builder().contractId(contractId).type(type).link(link).build();
-    }
+	public NotificationSendCommand toCommand(Long contractId) {
+		return NotificationSendCommand.builder().contractId(contractId).type(type).link(link).build();
+	}
 
 }

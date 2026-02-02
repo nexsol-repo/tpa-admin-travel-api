@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "memo-service", url = "${external.memo-service.url}")
 public interface MemoClient {
 
-    @PostMapping("/v1/admin/memo/{contractId}")
-    void createMemo(@PathVariable("contractId") Long contractId, @RequestBody MemoRequest request);
+	@PostMapping("/v1/admin/memo/{contractId}")
+	void createMemo(@PathVariable("contractId") Long contractId, @RequestBody MemoRequest request);
 
-    @PostMapping("/v1/admin/memo/{contractId}/system-log")
-    void createSystemLog(@PathVariable("contractId") Long contractId, @RequestBody SystemLogRequest request);
+	@PostMapping("/v1/admin/memo/{contractId}/system-log")
+	void createSystemLog(@PathVariable("contractId") Long contractId, @RequestBody SystemLogRequest request);
 
-    @PostMapping("/v1/admin/memo/{contractId}/notification")
-    void createNotification(@PathVariable("contractId") Long contractId, @RequestBody NotificationRequest request);
+	@PostMapping("/v1/admin/memo/{contractId}/notification")
+	void createNotification(@PathVariable("contractId") Long contractId, @RequestBody NotificationRequest request);
 
 }

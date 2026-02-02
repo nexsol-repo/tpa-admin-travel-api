@@ -15,48 +15,48 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiControllerAdvice {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiControllerAdvice.class);
+	private static final Logger log = LoggerFactory.getLogger(ApiControllerAdvice.class);
 
-    @ExceptionHandler(CoreException.class)
-    public ResponseEntity<ApiResponse<Object>> handleCoreException(CoreException e) {
+	@ExceptionHandler(CoreException.class)
+	public ResponseEntity<ApiResponse<Object>> handleCoreException(CoreException e) {
 
-        CoreErrorType errorType = e.getErrorType();
+		CoreErrorType errorType = e.getErrorType();
 
-        logError(errorType, e);
+		logError(errorType, e);
 
-        ApiResponse<Object> apiResponse = ApiResponse.error(errorType, null);
+		ApiResponse<Object> apiResponse = ApiResponse.error(errorType, null);
 
-        HttpStatus status = mapKindToHttpStatus(errorType.getKind());
+		HttpStatus status = mapKindToHttpStatus(errorType.getKind());
 
-        return new ResponseEntity<>(apiResponse, status);
-    }
+		return new ResponseEntity<>(apiResponse, status);
+	}
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
-        log.error("Exception : {}", e.getMessage(), e);
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ApiResponse<Object>> handleException(Exception e) {
+		log.error("Exception : {}", e.getMessage(), e);
 
-        ApiResponse<Object> apiResponse = ApiResponse.error(CoreErrorType.NOT_FOUND_DATA, null);
+		ApiResponse<Object> apiResponse = ApiResponse.error(CoreErrorType.NOT_FOUND_DATA, null);
 
-        return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+		return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
-    private void logError(CoreErrorType errorType, Exception e) {
-        switch (errorType.getLevel()) {
-            case ERROR -> log.error("CoreException : {}", e.getMessage(), e);
-            case WARN -> log.warn("CoreException : {}", e.getMessage(), e);
-            default -> log.info("CoreException : {}", e.getMessage(), e);
-        }
-    }
+	private void logError(CoreErrorType errorType, Exception e) {
+		switch (errorType.getLevel()) {
+			case ERROR -> log.error("CoreException : {}", e.getMessage(), e);
+			case WARN -> log.warn("CoreException : {}", e.getMessage(), e);
+			default -> log.info("CoreException : {}", e.getMessage(), e);
+		}
+	}
 
-    /**
-     * 도메인 에러의 Kind를 HTTP Status로 번역
-     */
-    private HttpStatus mapKindToHttpStatus(CoreErrorKind kind) {
-        return switch (kind) {
-            case CLIENT_ERROR -> HttpStatus.BAD_REQUEST; // 400
-            case SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR; // 500
-            // (향후 UNAUTHORIZED, FORBIDDEN 등 Kind가 추가되면 여기만 수정)
-        };
-    }
+	/**
+	 * 도메인 에러의 Kind를 HTTP Status로 번역
+	 */
+	private HttpStatus mapKindToHttpStatus(CoreErrorKind kind) {
+		return switch (kind) {
+			case CLIENT_ERROR -> HttpStatus.BAD_REQUEST; // 400
+			case SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR; // 500
+			// (향후 UNAUTHORIZED, FORBIDDEN 등 Kind가 추가되면 여기만 수정)
+		};
+	}
 
 }

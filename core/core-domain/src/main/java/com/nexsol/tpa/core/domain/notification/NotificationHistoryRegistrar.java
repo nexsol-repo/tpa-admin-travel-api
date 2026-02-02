@@ -7,14 +7,14 @@ import com.nexsol.tpa.core.enums.ServiceType;
  */
 public interface NotificationHistoryRegistrar {
 
-    /**
-     * SMS 발송 이력 등록
-     */
-    void registerSms(Long contractId, String message, ServiceType serviceType);
+	/**
+	 * SMS 발송 이력 등록
+	 */
+	void registerSms(Long contractId, String message, ServiceType serviceType);
 
-    /**
-     * 이메일 발송 이력 등록
-     */
-    void registerEmail(Long contractId, String message, ServiceType serviceType);
+	/**
+	 * 이메일 발송 이력 등록
+	 */
+	void registerEmail(Long contractId, String message, ServiceType serviceType);
 
 }

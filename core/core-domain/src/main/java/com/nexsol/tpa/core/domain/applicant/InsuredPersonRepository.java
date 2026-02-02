@@ -7,12 +7,12 @@ import java.util.List;
  */
 public interface InsuredPersonRepository {
 
-    List<InsuredPerson> findAllByContractId(Long contractId);
+	List<InsuredPerson> findAllByContractId(Long contractId);
 
-    void softDeleteByIds(List<Long> ids);
+	void softDeleteByIds(List<Long> ids);
 
-    void updateAll(List<InsuredPerson> people);
+	void updateAll(List<InsuredPerson> people);
 
-    void createAll(Long contractId, List<InsuredPerson> people);
+	void createAll(Long contractId, List<InsuredPerson> people);
 
 }

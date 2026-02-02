@@ -15,21 +15,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NotificationSenderImpl implements NotificationSender {
 
-    private final SmsSender smsSender;
+	private final SmsSender smsSender;
 
-    private final TravelEmailSender travelEmailSender;
+	private final TravelEmailSender travelEmailSender;
 
-    @Override
-    public void sendEmail(String toEmail, NotificationType type, String link, String name) {
-        travelEmailSender.send(toEmail, type, link, name);
-        log.info("이메일 발송 완료: {} -> {}", type, toEmail);
-    }
+	@Override
+	public void sendEmail(String toEmail, NotificationType type, String link, String name) {
+		travelEmailSender.send(toEmail, type, link, name);
+		log.info("이메일 발송 완료: {} -> {}", type, toEmail);
+	}
 
-    @Override
-    public void sendSms(String phoneNumber, NotificationType type, String link, String name) {
-        String message = type.formatSmsMessage(name, link);
-        smsSender.sendSms(phoneNumber, message);
-        log.info("SMS 발송 완료: {} -> {}", type, phoneNumber);
-    }
+	@Override
+	public void sendSms(String phoneNumber, NotificationType type, String link, String name) {
+		String message = type.formatSmsMessage(name, link);
+		smsSender.sendSms(phoneNumber, message);
+		log.info("SMS 발송 완료: {} -> {}", type, phoneNumber);
+	}
 
 }

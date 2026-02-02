@@ -13,7 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public abstract class ContextTest {
 
-    @MockitoBean
-    protected MemoRegistrar memoRegistrar;
+	@MockitoBean
+	protected MemoRegistrar memoRegistrar;
 
 }

@@ -9,8 +9,8 @@ import java.util.List;
  */
 public interface ChannelRepository {
 
-    List<Channel> findAllActive();
+	List<Channel> findAllActive();
 
-    List<Channel> findAll(Long partnerId, ServiceType serviceType);
+	List<Channel> findAll(Long partnerId, ServiceType serviceType);
 
 }

@@ -13,14 +13,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PartnerReader {
 
-    private final PartnerRepository partnerRepository;
+	private final PartnerRepository partnerRepository;
 
-    public List<Partner> readAllActive() {
-        return partnerRepository.findAllActive();
-    }
+	public List<Partner> readAllActive() {
+		return partnerRepository.findAllActive();
+	}
 
-    public List<Partner> readAllActiveByServiceType(ServiceType serviceType) {
-        return partnerRepository.findAllActiveByServiceType(serviceType);
-    }
+	public List<Partner> readAllActiveByServiceType(ServiceType serviceType) {
+		return partnerRepository.findAllActiveByServiceType(serviceType);
+	}
 
 }

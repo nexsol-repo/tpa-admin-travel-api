@@ -13,28 +13,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelInsurancePlanEntity extends BaseEntity {
 
-    @Column(name = "plan_name")
-    private String planName;
+	@Column(name = "plan_name")
+	private String planName;
 
-    @Column(name = "insurance_product_name")
-    private String productName;
+	@Column(name = "insurance_product_name")
+	private String productName;
 
-    @Column(name = "plan_full_name")
-    private String planFullName;
+	@Column(name = "plan_full_name")
+	private String planFullName;
 
-    @Column(name = "plan_code")
-    private String planCode;
+	@Column(name = "plan_code")
+	private String planCode;
 
-    @Column(name = "unit_product_code")
-    private String unitProductCode;
+	@Column(name = "unit_product_code")
+	private String unitProductCode;
 
-    @Column(name = "plan_group_code")
-    private String planGroupCode;
+	@Column(name = "plan_group_code")
+	private String planGroupCode;
 
-    @Column(name = "insurer_id")
-    private Long insurerId;
+	@Column(name = "insurer_id")
+	private Long insurerId;
 
-    @Column(name = "is_active", columnDefinition = "TINYINT(1)")
-    private boolean isActive;
+	@Column(name = "is_active", columnDefinition = "TINYINT(1)")
+	private boolean isActive;
 
 }

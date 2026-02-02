@@ -12,23 +12,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChannelRepositoryImpl implements ChannelRepository {
 
-    private final ChannelJpaRepository channelJpaRepository;
+	private final ChannelJpaRepository channelJpaRepository;
 
-    @Override
-    public List<Channel> findAllActive() {
-        return channelJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
-    }
+	@Override
+	public List<Channel> findAllActive() {
+		return channelJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
+	}
 
-    @Override
-    public List<Channel> findAll(Long partnerId, ServiceType serviceType) {
-        return channelJpaRepository.findAllByPartnerIdAndServiceType(partnerId, serviceType.name())
-            .stream()
-            .map(this::toDomain)
-            .toList();
-    }
+	@Override
+	public List<Channel> findAll(Long partnerId, ServiceType serviceType) {
+		return channelJpaRepository.findAllByPartnerIdAndServiceType(partnerId, serviceType.name())
+			.stream()
+			.map(this::toDomain)
+			.toList();
+	}
 
-    private Channel toDomain(TravelChannelEntity entity) {
-        return new Channel(entity.getId(), entity.getPartnerId(), entity.getChannelCode(), entity.getChannelName());
-    }
+	private Channel toDomain(TravelChannelEntity entity) {
+		return new Channel(entity.getId(), entity.getPartnerId(), entity.getChannelCode(), entity.getChannelName());
+	}
 
 }

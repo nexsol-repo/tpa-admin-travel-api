@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface ChannelJpaRepository extends JpaRepository<TravelChannelEntity, Long> {
 
-    List<TravelChannelEntity> findByIsActiveTrue();
+	List<TravelChannelEntity> findByIsActiveTrue();
 
-    @Query(value = "SELECT * FROM tpa_channel " + "WHERE partner_id = :partnerId "
-            + "AND JSON_CONTAINS(service_type, JSON_QUOTE(:serviceType)) " + "AND is_active = 1", nativeQuery = true)
-    List<TravelChannelEntity> findAllByPartnerIdAndServiceType(@Param("partnerId") Long partnerId,
-            @Param("serviceType") String serviceType);
+	@Query(value = "SELECT * FROM tpa_channel " + "WHERE partner_id = :partnerId "
+			+ "AND JSON_CONTAINS(service_type, JSON_QUOTE(:serviceType)) " + "AND is_active = 1", nativeQuery = true)
+	List<TravelChannelEntity> findAllByPartnerIdAndServiceType(@Param("partnerId") Long partnerId,
+			@Param("serviceType") String serviceType);
 
 }

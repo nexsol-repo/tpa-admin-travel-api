@@ -13,19 +13,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class RestDocsTest {
 
-    protected MockMvc mockMvc;
+	protected MockMvc mockMvc;
 
-    private RestDocumentationContextProvider restDocumentation;
+	private RestDocumentationContextProvider restDocumentation;
 
-    @BeforeEach
-    public void setUp(RestDocumentationContextProvider restDocumentation) {
-        this.restDocumentation = restDocumentation;
-    }
+	@BeforeEach
+	public void setUp(RestDocumentationContextProvider restDocumentation) {
+		this.restDocumentation = restDocumentation;
+	}
 
-    protected MockMvc mockController(Object controller) {
-        return MockMvcBuilders.standaloneSetup(controller)
-            .apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
-            .build();
-    }
+	protected MockMvc mockController(Object controller) {
+		return MockMvcBuilders.standaloneSetup(controller)
+			.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
+			.build();
+	}
 
 }

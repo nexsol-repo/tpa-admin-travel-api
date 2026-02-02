@@ -13,26 +13,26 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NotificationHistoryRegistrarImpl implements NotificationHistoryRegistrar {
 
-    private final MemoClient memoClient;
+	private final MemoClient memoClient;
 
-    @Override
-    public void registerSms(Long contractId, String message, ServiceType serviceType) {
-        NotificationRequest request = NotificationRequest.builder()
-            .type("SMS")
-            .content(message)
-            .serviceType(serviceType)
-            .build();
-        memoClient.createNotification(contractId, request);
-    }
+	@Override
+	public void registerSms(Long contractId, String message, ServiceType serviceType) {
+		NotificationRequest request = NotificationRequest.builder()
+			.type("SMS")
+			.content(message)
+			.serviceType(serviceType)
+			.build();
+		memoClient.createNotification(contractId, request);
+	}
 
-    @Override
-    public void registerEmail(Long contractId, String message, ServiceType serviceType) {
-        NotificationRequest request = NotificationRequest.builder()
-            .type("MAIL")
-            .content(message)
-            .serviceType(serviceType)
-            .build();
-        memoClient.createNotification(contractId, request);
-    }
+	@Override
+	public void registerEmail(Long contractId, String message, ServiceType serviceType) {
+		NotificationRequest request = NotificationRequest.builder()
+			.type("MAIL")
+			.content(message)
+			.serviceType(serviceType)
+			.build();
+		memoClient.createNotification(contractId, request);
+	}
 
 }

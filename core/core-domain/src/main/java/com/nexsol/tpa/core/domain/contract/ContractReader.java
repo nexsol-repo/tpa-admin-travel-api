@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ContractReader {
 
-    private final ContractRepository contractRepository;
+	private final ContractRepository contractRepository;
 
-    public InsuranceContract read(Long contractId) {
-        return contractRepository.findById(contractId)
-            .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
-    }
+	public InsuranceContract read(Long contractId) {
+		return contractRepository.findById(contractId)
+			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
+	}
 
 }

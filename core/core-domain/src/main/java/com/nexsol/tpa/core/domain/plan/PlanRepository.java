@@ -8,10 +8,10 @@ import java.util.Optional;
  */
 public interface PlanRepository {
 
-    Optional<Plan> findById(Long id);
+	Optional<Plan> findById(Long id);
 
-    List<Plan> findAllActive();
+	List<Plan> findAllActive();
 
-    List<Plan> findAllActiveByInsurerId(Long insurerId);
+	List<Plan> findAllActiveByInsurerId(Long insurerId);
 
 }

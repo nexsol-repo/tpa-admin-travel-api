@@ -28,269 +28,280 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ContractRepositoryImpl implements ContractRepository {
 
-    private static final class Fields {
+	private static final class Fields {
 
-        static final String ID = "id";
-        static final String APPLY_DATE = "applyDate";
-        static final String INSURE_START_DATE = "insureStartDate";
-        static final String INSURE_END_DATE = "insureEndDate";
-        static final String PARTNER_NAME = "partnerName";
-        static final String CHANNEL_NAME = "channelName";
-        static final String INSURER_NAME = "insurerName";
-        static final String STATUS = "status";
-        static final String APPLICANT_NAME = "applicantName";
-        static final String INSURED_PEOPLE_NUMBER = "insuredPeopleNumber";
+		static final String ID = "id";
+		static final String APPLY_DATE = "applyDate";
+		static final String INSURE_START_DATE = "insureStartDate";
+		static final String INSURE_END_DATE = "insureEndDate";
+		static final String PARTNER_NAME = "partnerName";
+		static final String CHANNEL_NAME = "channelName";
+		static final String INSURER_NAME = "insurerName";
+		static final String STATUS = "status";
+		static final String APPLICANT_NAME = "applicantName";
+		static final String INSURED_PEOPLE_NUMBER = "insuredPeopleNumber";
 
-    }
+	}
 
-    private final TravelContractJpaRepository travelContractJpaRepository;
+	private final TravelContractJpaRepository travelContractJpaRepository;
 
-    private final PaymentJpaRepository paymentJpaRepository;
+	private final PaymentJpaRepository paymentJpaRepository;
 
-    private final InsuredPersonJpaRepository insuredPersonJpaRepository;
+	private final InsuredPersonJpaRepository insuredPersonJpaRepository;
 
-    private final TravelInsurancePlanJpaRepository planJpaRepository;
+	private final TravelInsurancePlanJpaRepository planJpaRepository;
 
-    private final TravelContractMapper travelContractMapper;
+	private final TravelContractMapper travelContractMapper;
 
-    @Override
-    public Optional<InsuranceContract> findById(Long contractId) {
-        var contractEntityOptional = travelContractJpaRepository.findById(contractId);
+	@Override
+	public Optional<InsuranceContract> findById(Long contractId) {
+		var contractEntityOptional = travelContractJpaRepository.findById(contractId);
 
-        if (contractEntityOptional.isEmpty()) {
-            return Optional.empty();
-        }
+		if (contractEntityOptional.isEmpty()) {
+			return Optional.empty();
+		}
 
-        TravelContractEntity contract = contractEntityOptional.get();
+		TravelContractEntity contract = contractEntityOptional.get();
 
-        var payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
-        var people = insuredPersonJpaRepository.findAllByContractIdAndDeletedAtIsNull(contractId);
-        var plan = fetchPlan(contract.getPlanId());
+		var payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
+		var people = insuredPersonJpaRepository.findAllByContractIdAndDeletedAtIsNull(contractId);
+		var plan = fetchPlan(contract.getPlanId());
 
-        return Optional.of(travelContractMapper.toDomain(contract, payment, people, plan));
-    }
+		return Optional.of(travelContractMapper.toDomain(contract, payment, people, plan));
+	}
 
-    private TravelInsurancePlanEntity fetchPlan(Long planId) {
-        if (planId == null) {
-            return null;
-        }
-        return planJpaRepository.findById(planId).orElse(null);
-    }
+	private TravelInsurancePlanEntity fetchPlan(Long planId) {
+		if (planId == null) {
+			return null;
+		}
+		return planJpaRepository.findById(planId).orElse(null);
+	}
 
-    @Override
-    public Long create(InsuranceContract contract) {
-        // 1. 계약 엔티티 생성 및 저장
-        TravelContractEntity contractEntity = travelContractMapper.toEntity(contract);
-        TravelContractEntity savedContract = travelContractJpaRepository.save(contractEntity);
-        Long contractId = savedContract.getId();
+	@Override
+	public Long create(InsuranceContract contract) {
+		// 1. 계약 엔티티 생성 및 저장
+		TravelContractEntity contractEntity = travelContractMapper.toEntity(contract);
+		TravelContractEntity savedContract = travelContractJpaRepository.save(contractEntity);
+		Long contractId = savedContract.getId();
 
-        // 2. 피보험자(동반자) 엔티티 생성 및 저장
-        if (contract.insuredPeople() != null && !contract.insuredPeople().isEmpty()) {
-            List<TravelInsurePeopleEntity> peopleEntities = contract.insuredPeople()
-                .stream()
-                .map(person -> TravelInsurePeopleEntity.create(contractId, person))
-                .toList();
-            insuredPersonJpaRepository.saveAll(peopleEntities);
-        }
+		// 2. 피보험자(동반자) 엔티티 생성 및 저장
+		if (contract.insuredPeople() != null && !contract.insuredPeople().isEmpty()) {
+			List<TravelInsurePeopleEntity> peopleEntities = contract.insuredPeople()
+				.stream()
+				.map(person -> TravelInsurePeopleEntity.create(contractId, person))
+				.toList();
+			insuredPersonJpaRepository.saveAll(peopleEntities);
+		}
 
-        // 3. 결제 정보 엔티티 생성 및 저장
-        if (contract.paymentInfo() != null) {
-            TravelInsurePaymentEntity paymentEntity = TravelInsurePaymentEntity.create(contractId,
-                    contract.paymentInfo());
-            paymentJpaRepository.save(paymentEntity);
-        }
+		// 3. 결제 정보 엔티티 생성 및 저장
+		if (contract.paymentInfo() != null) {
+			TravelInsurePaymentEntity paymentEntity = TravelInsurePaymentEntity.create(contractId,
+					contract.paymentInfo());
+			paymentJpaRepository.save(paymentEntity);
+		}
 
-        return contractId;
-    }
+		return contractId;
+	}
 
-    @Override
-    public PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage) {
-        Pageable pageable = createPageable(sortPage);
-        Page<TravelContractEntity> contractPage = travelContractJpaRepository.findAll(createSpecification(criteria),
-                pageable);
+	@Override
+	public PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage) {
+		Pageable pageable = createPageable(sortPage);
+		Page<TravelContractEntity> contractPage = travelContractJpaRepository.findAll(createSpecification(criteria),
+				pageable);
 
-        if (contractPage.isEmpty()) {
-            return PageResult.of(List.of(), 0, sortPage.size(), sortPage.page());
-        }
+		if (contractPage.isEmpty()) {
+			return PageResult.of(List.of(), 0, sortPage.size(), sortPage.page());
+		}
 
-        List<InsuranceContract> content = mapToContracts(contractPage.getContent());
+		List<InsuranceContract> content = mapToContracts(contractPage.getContent());
 
-        return new PageResult<>(content, contractPage.getTotalElements(), contractPage.getTotalPages(),
-                contractPage.getNumber(), contractPage.hasNext());
-    }
+		return new PageResult<>(content, contractPage.getTotalElements(), contractPage.getTotalPages(),
+				contractPage.getNumber(), contractPage.hasNext());
+	}
 
-    private Pageable createPageable(SortPage sortPage) {
-        Sort sort = Sort.by(Sort.Direction.DESC, Fields.ID);
+	private Pageable createPageable(SortPage sortPage) {
+		Sort sort = Sort.by(Sort.Direction.DESC, Fields.ID);
 
-        if (StringUtils.hasText(sortPage.sortBy())) {
-            Sort.Direction direction = (sortPage.direction() != null && sortPage.direction().isAscending())
-                    ? Sort.Direction.ASC : Sort.Direction.DESC;
-            sort = Sort.by(direction, mapSortProperty(sortPage.sortBy()));
-        }
+		if (StringUtils.hasText(sortPage.sortBy())) {
+			Sort.Direction direction = (sortPage.direction() != null && sortPage.direction().isAscending())
+					? Sort.Direction.ASC : Sort.Direction.DESC;
+			sort = Sort.by(direction, mapSortProperty(sortPage.sortBy()));
+		}
 
-        return PageRequest.of(sortPage.page(), sortPage.size(), sort);
-    }
+		return PageRequest.of(sortPage.page(), sortPage.size(), sort);
+	}
 
-    private List<InsuranceContract> mapToContracts(List<TravelContractEntity> contracts) {
-        List<Long> contractIds = contracts.stream().map(TravelContractEntity::getId).toList();
-        List<Long> planIds = contracts.stream()
-            .map(TravelContractEntity::getPlanId)
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
+	private List<InsuranceContract> mapToContracts(List<TravelContractEntity> contracts) {
+		List<Long> contractIds = contracts.stream().map(TravelContractEntity::getId).toList();
+		List<Long> planIds = contracts.stream()
+			.map(TravelContractEntity::getPlanId)
+			.filter(Objects::nonNull)
+			.distinct()
+			.toList();
 
-        Map<Long, TravelInsurePaymentEntity> paymentMap = fetchPaymentMap(contractIds);
-        Map<Long, List<TravelInsurePeopleEntity>> peopleMap = fetchPeopleMap(contractIds);
-        Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
+		Map<Long, TravelInsurePaymentEntity> paymentMap = fetchPaymentMap(contractIds);
+		Map<Long, List<TravelInsurePeopleEntity>> peopleMap = fetchPeopleMap(contractIds);
+		Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
 
-        return contracts.stream()
-            .map(c -> travelContractMapper.toDomain(c, paymentMap.get(c.getId()),
-                    peopleMap.getOrDefault(c.getId(), Collections.emptyList()), planMap.get(c.getPlanId())))
-            .toList();
-    }
+		return contracts.stream()
+			.map(c -> travelContractMapper.toDomain(c, paymentMap.get(c.getId()),
+					peopleMap.getOrDefault(c.getId(), Collections.emptyList()), planMap.get(c.getPlanId())))
+			.toList();
+	}
 
-    private Map<Long, TravelInsurePaymentEntity> fetchPaymentMap(List<Long> contractIds) {
-        return paymentJpaRepository.findByContractIdIn(contractIds)
-            .stream()
-            .collect(Collectors.toMap(TravelInsurePaymentEntity::getContractId, payment -> payment,
-                    (existing, replacement) -> existing));
-    }
+	private Map<Long, TravelInsurePaymentEntity> fetchPaymentMap(List<Long> contractIds) {
+		return paymentJpaRepository.findByContractIdIn(contractIds)
+			.stream()
+			.collect(Collectors.toMap(TravelInsurePaymentEntity::getContractId, payment -> payment,
+					(existing, replacement) -> existing));
+	}
 
-    private Map<Long, List<TravelInsurePeopleEntity>> fetchPeopleMap(List<Long> contractIds) {
-        return insuredPersonJpaRepository.findAllByContractIdInAndDeletedAtIsNull(contractIds)
-            .stream()
-            .collect(Collectors.groupingBy(TravelInsurePeopleEntity::getContractId));
-    }
+	private Map<Long, List<TravelInsurePeopleEntity>> fetchPeopleMap(List<Long> contractIds) {
+		return insuredPersonJpaRepository.findAllByContractIdInAndDeletedAtIsNull(contractIds)
+			.stream()
+			.collect(Collectors.groupingBy(TravelInsurePeopleEntity::getContractId));
+	}
 
-    private Map<Long, TravelInsurancePlanEntity> fetchPlanMap(List<Long> planIds) {
-        if (planIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        return planJpaRepository.findByIdIn(planIds)
-            .stream()
-            .collect(Collectors.toMap(TravelInsurancePlanEntity::getId, plan -> plan));
-    }
+	private Map<Long, TravelInsurancePlanEntity> fetchPlanMap(List<Long> planIds) {
+		if (planIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		return planJpaRepository.findByIdIn(planIds)
+			.stream()
+			.collect(Collectors.toMap(TravelInsurancePlanEntity::getId, plan -> plan));
+	}
 
-    @Override
-    public Long save(InsuranceContract contract) {
-        TravelContractEntity entity = travelContractJpaRepository.findById(contract.contractId())
-            .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
+	@Override
+	public Long save(InsuranceContract contract) {
+		TravelContractEntity entity = travelContractJpaRepository.findById(contract.contractId())
+			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
-        applyContractChanges(entity, contract);
+		applyContractChanges(entity, contract);
 
-        // 피보험자 수 (동반자 수 기반으로 계산)
-        entity.updateInsuredCount(contract.calculateTotalInsuredCount());
+		// 피보험자 수 (동반자 수 기반으로 계산)
+		entity.updateInsuredCount(contract.calculateTotalInsuredCount());
 
-        TravelContractEntity saved = travelContractJpaRepository.save(entity);
+		TravelContractEntity saved = travelContractJpaRepository.save(entity);
 
-        // 동반자 저장은 InsuredPeopleUpdater (Implement Layer)에서 처리
-        savePayment(contract.contractId(), contract.paymentInfo());
+		// 동반자 저장은 InsuredPeopleUpdater (Implement Layer)에서 처리
+		savePayment(contract.contractId(), contract.paymentInfo());
 
-        return saved.getId();
-    }
+		return saved.getId();
+	}
 
-    private void applyContractChanges(TravelContractEntity entity, InsuranceContract contract) {
-        if (contract.status() != null) {
-            entity.updateStatus(contract.status().name());
-        }
-        if (contract.applicant() != null) {
-            entity.updateApplicant(contract.applicant());
-        }
-        if (contract.metaInfo() != null) {
-            entity.updateInsurancePeriod(contract.metaInfo().period());
-            entity.updateSubscriptionOrigin(contract.metaInfo().origin());
-            entity.updatePolicyNumber(contract.metaInfo().policyNumber());
-            entity.updatePolicyLink(contract.metaInfo().policyLink());
-            entity.updateApplyDate(contract.metaInfo().applicationDate());
-        }
-        // 플랜 및 여행 국가 정보 수정
-        if (contract.productPlan() != null) {
-            entity.updatePlanId(contract.productPlan().planId());
-            entity.updateCountryName(contract.productPlan().travelCountry());
-            entity.updateCountryCode(contract.productPlan().countryCode());
-        }
-        // 담당자 ID 수정
-        if (contract.employeeId() != null) {
-            entity.updateEmployeeId(contract.employeeId());
-        }
-    }
+	@Override
+	public List<InsuranceContract> findAll(ContractSearchCriteria criteria) {
+		Specification<TravelContractEntity> spec = createSpecification(criteria);
 
-    private void savePayment(Long contractId, PaymentInfo paymentInfo) {
-        if (paymentInfo == null) {
-            return;
-        }
+		Sort sort = Sort.by(Sort.Direction.DESC, Fields.ID);
 
-        paymentJpaRepository.findByContractId(contractId).ifPresent(entity -> {
-            entity.updatePaymentInfo(contractId, paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
-            // Dirty Checking에 의해 트랜잭션 종료 시 업데이트 되지만, 명시적 save도 가능
-            paymentJpaRepository.save(entity);
-        });
-    }
+		List<TravelContractEntity> entities = travelContractJpaRepository.findAll(spec, sort);
 
-    private InsuranceContract fetchAndMapContract(Long contractId) {
-        TravelContractEntity contract = travelContractJpaRepository.findById(contractId)
-            .orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
-        TravelInsurePaymentEntity payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
-        List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository
-            .findAllByContractIdAndDeletedAtIsNull(contractId);
-        TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
+		return mapToContracts(entities);
+	}
 
-        return travelContractMapper.toDomain(contract, payment, people, plan);
-    }
+	private void applyContractChanges(TravelContractEntity entity, InsuranceContract contract) {
+		if (contract.status() != null) {
+			entity.updateStatus(contract.status().name());
+		}
+		if (contract.applicant() != null) {
+			entity.updateApplicant(contract.applicant());
+		}
+		if (contract.metaInfo() != null) {
+			entity.updateInsurancePeriod(contract.metaInfo().period());
+			entity.updateSubscriptionOrigin(contract.metaInfo().origin());
+			entity.updatePolicyNumber(contract.metaInfo().policyNumber());
+			entity.updatePolicyLink(contract.metaInfo().policyLink());
+			entity.updateApplyDate(contract.metaInfo().applicationDate());
+		}
+		// 플랜 및 여행 국가 정보 수정
+		if (contract.productPlan() != null) {
+			entity.updatePlanId(contract.productPlan().planId());
+			entity.updateCountryName(contract.productPlan().travelCountry());
+			entity.updateCountryCode(contract.productPlan().countryCode());
+		}
+		// 담당자 ID 수정
+		if (contract.employeeId() != null) {
+			entity.updateEmployeeId(contract.employeeId());
+		}
+	}
 
-    private String mapSortProperty(String requestProperty) {
-        return switch (requestProperty) {
-            case "startDate", "insuranceStartDate" -> Fields.INSURE_START_DATE;
-            case "endDate", "insuranceEndDate" -> Fields.INSURE_END_DATE;
-            case "applicationDate" -> Fields.APPLY_DATE;
-            case "insuredCount", "insuredPeopleNumber" -> Fields.INSURED_PEOPLE_NUMBER;
-            default -> requestProperty;
-        };
-    }
+	private void savePayment(Long contractId, PaymentInfo paymentInfo) {
+		if (paymentInfo == null) {
+			return;
+		}
 
-    private Specification<TravelContractEntity> createSpecification(ContractSearchCriteria criteria) {
-        return Specification.where(applyDateFrom(criteria))
-            .and(applyDateTo(criteria))
-            .and(partnerNameEquals(criteria))
-            .and(channelNameEquals(criteria))
-            .and(insurerNameEquals(criteria))
-            .and(statusEquals(criteria))
-            .and(applicantNameContains(criteria));
-    }
+		paymentJpaRepository.findByContractId(contractId).ifPresent(entity -> {
+			entity.updatePaymentInfo(contractId, paymentInfo.method(), paymentInfo.paidAt(), paymentInfo.canceledAt());
+			// Dirty Checking에 의해 트랜잭션 종료 시 업데이트 되지만, 명시적 save도 가능
+			paymentJpaRepository.save(entity);
+		});
+	}
 
-    private Specification<TravelContractEntity> applyDateFrom(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> criteria.startDate() == null ? null
-                : cb.greaterThanOrEqualTo(root.get(Fields.APPLY_DATE), criteria.startDate().atStartOfDay());
-    }
+	private InsuranceContract fetchAndMapContract(Long contractId) {
+		TravelContractEntity contract = travelContractJpaRepository.findById(contractId)
+			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
+		TravelInsurePaymentEntity payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
+		List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository
+			.findAllByContractIdAndDeletedAtIsNull(contractId);
+		TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
 
-    private Specification<TravelContractEntity> applyDateTo(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> criteria.endDate() == null ? null
-                : cb.lessThan(root.get(Fields.APPLY_DATE), criteria.endDate().plusDays(1).atStartOfDay());
-    }
+		return travelContractMapper.toDomain(contract, payment, people, plan);
+	}
 
-    private Specification<TravelContractEntity> partnerNameEquals(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> StringUtils.hasText(criteria.partnerName())
-                ? cb.equal(root.get(Fields.PARTNER_NAME), criteria.partnerName()) : null;
-    }
+	private String mapSortProperty(String requestProperty) {
+		return switch (requestProperty) {
+			case "startDate", "insuranceStartDate" -> Fields.INSURE_START_DATE;
+			case "endDate", "insuranceEndDate" -> Fields.INSURE_END_DATE;
+			case "applicationDate" -> Fields.APPLY_DATE;
+			case "insuredCount", "insuredPeopleNumber" -> Fields.INSURED_PEOPLE_NUMBER;
+			default -> requestProperty;
+		};
+	}
 
-    private Specification<TravelContractEntity> channelNameEquals(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> StringUtils.hasText(criteria.channelName())
-                ? cb.equal(root.get(Fields.CHANNEL_NAME), criteria.channelName()) : null;
-    }
+	private Specification<TravelContractEntity> createSpecification(ContractSearchCriteria criteria) {
+		return Specification.where(applyDateFrom(criteria))
+			.and(applyDateTo(criteria))
+			.and(partnerNameEquals(criteria))
+			.and(channelNameEquals(criteria))
+			.and(insurerNameEquals(criteria))
+			.and(statusEquals(criteria))
+			.and(applicantNameContains(criteria));
+	}
 
-    private Specification<TravelContractEntity> insurerNameEquals(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> StringUtils.hasText(criteria.insurerName())
-                ? cb.equal(root.get(Fields.INSURER_NAME), criteria.insurerName()) : null;
-    }
+	private Specification<TravelContractEntity> applyDateFrom(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> criteria.startDate() == null ? null
+				: cb.greaterThanOrEqualTo(root.get(Fields.APPLY_DATE), criteria.startDate().atStartOfDay());
+	}
 
-    private Specification<TravelContractEntity> statusEquals(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> criteria.status() == null ? null
-                : cb.equal(root.get(Fields.STATUS), criteria.status().name());
-    }
+	private Specification<TravelContractEntity> applyDateTo(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> criteria.endDate() == null ? null
+				: cb.lessThan(root.get(Fields.APPLY_DATE), criteria.endDate().plusDays(1).atStartOfDay());
+	}
 
-    private Specification<TravelContractEntity> applicantNameContains(ContractSearchCriteria criteria) {
-        return (root, query, cb) -> StringUtils.hasText(criteria.applicantName())
-                ? cb.like(root.get(Fields.APPLICANT_NAME), "%" + criteria.applicantName() + "%") : null;
-    }
+	private Specification<TravelContractEntity> partnerNameEquals(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> StringUtils.hasText(criteria.partnerName())
+				? cb.equal(root.get(Fields.PARTNER_NAME), criteria.partnerName()) : null;
+	}
+
+	private Specification<TravelContractEntity> channelNameEquals(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> StringUtils.hasText(criteria.channelName())
+				? cb.equal(root.get(Fields.CHANNEL_NAME), criteria.channelName()) : null;
+	}
+
+	private Specification<TravelContractEntity> insurerNameEquals(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> StringUtils.hasText(criteria.insurerName())
+				? cb.equal(root.get(Fields.INSURER_NAME), criteria.insurerName()) : null;
+	}
+
+	private Specification<TravelContractEntity> statusEquals(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> criteria.status() == null ? null
+				: cb.equal(root.get(Fields.STATUS), criteria.status().name());
+	}
+
+	private Specification<TravelContractEntity> applicantNameContains(ContractSearchCriteria criteria) {
+		return (root, query, cb) -> StringUtils.hasText(criteria.applicantName())
+				? cb.like(root.get(Fields.APPLICANT_NAME), "%" + criteria.applicantName() + "%") : null;
+	}
 
 }

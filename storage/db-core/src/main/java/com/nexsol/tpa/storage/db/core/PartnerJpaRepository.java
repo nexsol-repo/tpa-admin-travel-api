@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface PartnerJpaRepository extends JpaRepository<TravelPartnerEntity, Long> {
 
-    List<TravelPartnerEntity> findByIsActiveTrue();
+	List<TravelPartnerEntity> findByIsActiveTrue();
 
-    @Query(value = "SELECT * FROM tpa_partner " + "WHERE JSON_CONTAINS(service_type, JSON_QUOTE(:serviceType)) "
-            + "AND is_active = 1", nativeQuery = true)
-    List<TravelPartnerEntity> findAllActiveByServiceType(@Param("serviceType") String serviceType);
+	@Query(value = "SELECT * FROM tpa_partner " + "WHERE JSON_CONTAINS(service_type, JSON_QUOTE(:serviceType)) "
+			+ "AND is_active = 1", nativeQuery = true)
+	List<TravelPartnerEntity> findAllActiveByServiceType(@Param("serviceType") String serviceType);
 
 }

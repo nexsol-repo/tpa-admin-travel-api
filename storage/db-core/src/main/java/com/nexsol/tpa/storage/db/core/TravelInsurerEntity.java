@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelInsurerEntity extends BaseEntity {
 
-    private String insurerCode;
+	private String insurerCode;
 
-    private String insurerName;
+	private String insurerName;
 
-    private String apiBaseUrl;
+	private String apiBaseUrl;
 
-    @Column(columnDefinition = "TINYINT(1)")
-    private boolean isActive;
+	@Column(columnDefinition = "TINYINT(1)")
+	private boolean isActive;
 
 }

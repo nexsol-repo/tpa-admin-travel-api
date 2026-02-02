@@ -12,32 +12,32 @@ import java.util.List;
  */
 @Builder
 public record ContractUpdateCommand(Long contractId, ContractStatus status, ApplicantUpdateCommand applicant,
-        PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
-        SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String travelCountry, String countryCode,
-        String policyNumber, String policyLink, LocalDateTime applicationDate, String memo, Long employeeId) {
+		PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
+		SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String travelCountry, String countryCode,
+		String policyNumber, String policyLink, LocalDateTime applicationDate, String memo, Long employeeId) {
 
-    /**
-     * 가입 출처 정보 수정 명령 (보험사, 채널, 제휴사 - id와 name 필요)
-     */
-    @Builder
-    public record SubscriptionOriginUpdateCommand(Long insurerId, String insurerName, Long channelId,
-            String channelName, Long partnerId, String partnerName) {
-    }
+	/**
+	 * 가입 출처 정보 수정 명령 (보험사, 채널, 제휴사 - id와 name 필요)
+	 */
+	@Builder
+	public record SubscriptionOriginUpdateCommand(Long insurerId, String insurerName, Long channelId,
+			String channelName, Long partnerId, String partnerName) {
+	}
 
-    @Builder
-    public record ApplicantUpdateCommand(String name, String phoneNumber, String email) {
-    }
+	@Builder
+	public record ApplicantUpdateCommand(String name, String phoneNumber, String email) {
+	}
 
-    @Builder
-    public record PeriodUpdateCommand(LocalDateTime startDate, LocalDateTime endDate) {
-    }
+	@Builder
+	public record PeriodUpdateCommand(LocalDateTime startDate, LocalDateTime endDate) {
+	}
 
-    @Builder
-    public record InsuredPersonUpdateCommand(Long id, String name, String englishName, String residentNumber,
-            String passportNumber, String policyNumber, String gender, BigDecimal premium) {
-    }
+	@Builder
+	public record InsuredPersonUpdateCommand(Long id, String name, String englishName, String residentNumber,
+			String passportNumber, String policyNumber, String gender, BigDecimal premium) {
+	}
 
-    @Builder
-    public record PaymentUpdateCommand(String method, LocalDateTime paidAt, LocalDateTime canceledAt) {
-    }
+	@Builder
+	public record PaymentUpdateCommand(String method, LocalDateTime paidAt, LocalDateTime canceledAt) {
+	}
 }

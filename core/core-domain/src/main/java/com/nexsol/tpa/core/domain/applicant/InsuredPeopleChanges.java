@@ -7,12 +7,12 @@ import java.util.List;
  */
 public record InsuredPeopleChanges(List<Long> toDelete, List<InsuredPerson> toUpdate, List<InsuredPerson> toCreate) {
 
-    public boolean hasChanges() {
-        return !toDelete.isEmpty() || !toUpdate.isEmpty() || !toCreate.isEmpty();
-    }
+	public boolean hasChanges() {
+		return !toDelete.isEmpty() || !toUpdate.isEmpty() || !toCreate.isEmpty();
+	}
 
-    public boolean isEmpty() {
-        return toDelete.isEmpty() && toUpdate.isEmpty() && toCreate.isEmpty();
-    }
+	public boolean isEmpty() {
+		return toDelete.isEmpty() && toUpdate.isEmpty() && toCreate.isEmpty();
+	}
 
 }

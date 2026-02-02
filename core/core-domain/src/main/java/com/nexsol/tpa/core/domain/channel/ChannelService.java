@@ -13,14 +13,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChannelService {
 
-    private final ChannelReader channelReader;
+	private final ChannelReader channelReader;
 
-    public List<Channel> getActiveChannels() {
-        return channelReader.readAllActive();
-    }
+	public List<Channel> getActiveChannels() {
+		return channelReader.readAllActive();
+	}
 
-    public List<Channel> getChannels(Long partnerId, ServiceType serviceType) {
-        return channelReader.readAll(partnerId, serviceType);
-    }
+	public List<Channel> getChannels(Long partnerId, ServiceType serviceType) {
+		return channelReader.readAll(partnerId, serviceType);
+	}
 
 }

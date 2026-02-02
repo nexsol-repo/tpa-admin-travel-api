@@ -12,10 +12,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InsurerService {
 
-    private final InsurerReader insurerReader;
+	private final InsurerReader insurerReader;
 
-    public List<Insurer> getActiveInsurers() {
-        return insurerReader.readAllActive();
-    }
+	public List<Insurer> getActiveInsurers() {
+		return insurerReader.readAllActive();
+	}
 
 }

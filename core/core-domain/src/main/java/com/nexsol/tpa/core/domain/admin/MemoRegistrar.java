@@ -7,6 +7,6 @@ import com.nexsol.tpa.core.enums.ServiceType;
  */
 public interface MemoRegistrar {
 
-    void register(Long contractId, String content, ServiceType serviceType);
+	void register(Long contractId, String content, ServiceType serviceType);
 
 }

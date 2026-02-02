@@ -22,99 +22,99 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class NotificationControllerTest extends RestDocsTest {
 
-    private NotificationService notificationService;
+	private NotificationService notificationService;
 
-    @BeforeEach
-    public void setUp(RestDocumentationContextProvider restDocumentation) {
-        notificationService = mock(NotificationService.class);
+	@BeforeEach
+	public void setUp(RestDocumentationContextProvider restDocumentation) {
+		notificationService = mock(NotificationService.class);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new NotificationController(notificationService))
-            .apply(documentationConfiguration(restDocumentation))
-            .build();
-    }
+		mockMvc = MockMvcBuilders.standaloneSetup(new NotificationController(notificationService))
+			.apply(documentationConfiguration(restDocumentation))
+			.build();
+	}
 
-    @Test
-    @DisplayName("이메일 발송 API 문서화")
-    void sendEmail() throws Exception {
-        // Given
-        Long contractId = 1L;
-        doNothing().when(notificationService).sendEmail(any());
+	@Test
+	@DisplayName("이메일 발송 API 문서화")
+	void sendEmail() throws Exception {
+		// Given
+		Long contractId = 1L;
+		doNothing().when(notificationService).sendEmail(any());
 
-        String requestBody = """
-                {
-                    "type": "CERTIFICATE",
-                    "link": "https://travel.tpakorea.com/certificate/123"
-                }
-                """;
+		String requestBody = """
+				{
+				    "type": "CERTIFICATE",
+				    "link": "https://travel.tpakorea.com/certificate/123"
+				}
+				""";
 
-        // When & Then
-        mockMvc
-            .perform(post("/v1/admin/travel/contract/{contractId}/notification/email", contractId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isOk())
-            .andDo(document("notification-email", pathParameters(parameterWithName("contractId").description("계약 ID")),
-                    requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
-                            fieldWithPath("link").description("발송할 링크 URL")),
-                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
-                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
-                            fieldWithPath("data").description("응답 데이터 (성공 시 null)").optional())));
-    }
+		// When & Then
+		mockMvc
+			.perform(post("/v1/admin/travel/contract/{contractId}/notification/email", contractId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andDo(document("notification-email", pathParameters(parameterWithName("contractId").description("계약 ID")),
+					requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
+							fieldWithPath("link").description("발송할 링크 URL")),
+					responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+							fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+							fieldWithPath("data").description("응답 데이터 (성공 시 null)").optional())));
+	}
 
-    @Test
-    @DisplayName("SMS 발송 API 문서화")
-    void sendSms() throws Exception {
-        // Given
-        Long contractId = 1L;
-        doNothing().when(notificationService).sendSms(any());
+	@Test
+	@DisplayName("SMS 발송 API 문서화")
+	void sendSms() throws Exception {
+		// Given
+		Long contractId = 1L;
+		doNothing().when(notificationService).sendSms(any());
 
-        String requestBody = """
-                {
-                    "type": "REJOIN",
-                    "link": "https://travel.tpakorea.com/rejoin/123"
-                }
-                """;
+		String requestBody = """
+				{
+				    "type": "REJOIN",
+				    "link": "https://travel.tpakorea.com/rejoin/123"
+				}
+				""";
 
-        // When & Then
-        mockMvc
-            .perform(post("/v1/admin/travel/contract/{contractId}/notification/sms", contractId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isOk())
-            .andDo(document("notification-sms", pathParameters(parameterWithName("contractId").description("계약 ID")),
-                    requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
-                            fieldWithPath("link").description("발송할 링크 URL")),
-                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
-                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
-                            fieldWithPath("data").description("응답 데이터 (성공 시 null)").optional())));
-    }
+		// When & Then
+		mockMvc
+			.perform(post("/v1/admin/travel/contract/{contractId}/notification/sms", contractId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andDo(document("notification-sms", pathParameters(parameterWithName("contractId").description("계약 ID")),
+					requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
+							fieldWithPath("link").description("발송할 링크 URL")),
+					responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+							fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+							fieldWithPath("data").description("응답 데이터 (성공 시 null)").optional())));
+	}
 
-    @Test
-    @DisplayName("이메일 + SMS 동시 발송 API 문서화")
-    void sendAll() throws Exception {
-        // Given
-        Long contractId = 1L;
-        doNothing().when(notificationService).sendAll(any());
+	@Test
+	@DisplayName("이메일 + SMS 동시 발송 API 문서화")
+	void sendAll() throws Exception {
+		// Given
+		Long contractId = 1L;
+		doNothing().when(notificationService).sendAll(any());
 
-        String requestBody = """
-                {
-                    "type": "CERTIFICATE",
-                    "link": "https://travel.tpakorea.com/certificate/123"
-                }
-                """;
+		String requestBody = """
+				{
+				    "type": "CERTIFICATE",
+				    "link": "https://travel.tpakorea.com/certificate/123"
+				}
+				""";
 
-        // When & Then
-        mockMvc
-            .perform(post("/v1/admin/travel/contract/{contractId}/notification/all", contractId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isOk())
-            .andDo(document("notification-all", pathParameters(parameterWithName("contractId").description("계약 ID")),
-                    requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
-                            fieldWithPath("link").description("발송할 링크 URL")),
-                    responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
-                            fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
-                            fieldWithPath("data").description("응답 데이터 (성공 시 null)").optional())));
-    }
+		// When & Then
+		mockMvc
+			.perform(post("/v1/admin/travel/contract/{contractId}/notification/all", contractId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andDo(document("notification-all", pathParameters(parameterWithName("contractId").description("계약 ID")),
+					requestFields(fieldWithPath("type").description("알림 유형 (REJOIN: 재가입 안내, CERTIFICATE: 가입확인서 안내)"),
+							fieldWithPath("link").description("발송할 링크 URL")),
+					responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
+							fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
+							fieldWithPath("data").description("응답 데이터 (성공 시 null)").optional())));
+	}
 
 }

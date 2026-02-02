@@ -9,8 +9,8 @@ import java.util.List;
  */
 public interface PartnerRepository {
 
-    List<Partner> findAllActive();
+	List<Partner> findAllActive();
 
-    List<Partner> findAllActiveByServiceType(ServiceType serviceType);
+	List<Partner> findAllActiveByServiceType(ServiceType serviceType);
 
 }

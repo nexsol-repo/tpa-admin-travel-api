@@ -13,16 +13,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MemoRegistrarImpl implements MemoRegistrar {
 
-    private final MemoClient memoClient;
+	private final MemoClient memoClient;
 
-    @Override
-    public void register(Long contractId, String content, ServiceType serviceType) {
-        if (content == null || content.isBlank()) {
-            return;
-        }
+	@Override
+	public void register(Long contractId, String content, ServiceType serviceType) {
+		if (content == null || content.isBlank()) {
+			return;
+		}
 
-        MemoRequest request = MemoRequest.builder().content(content).serviceType(serviceType).build();
-        memoClient.createMemo(contractId, request);
-    }
+		MemoRequest request = MemoRequest.builder().content(content).serviceType(serviceType).build();
+		memoClient.createMemo(contractId, request);
+	}
 
 }

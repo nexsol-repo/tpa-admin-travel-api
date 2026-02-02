@@ -14,18 +14,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlanService {
 
-    private final PlanReader planReader;
+	private final PlanReader planReader;
 
-    public Plan getPlan(Long id) {
-        return planReader.read(id).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
-    }
+	public Plan getPlan(Long id) {
+		return planReader.read(id).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+	}
 
-    public List<Plan> getActivePlans() {
-        return planReader.readAllActive();
-    }
+	public List<Plan> getActivePlans() {
+		return planReader.readAllActive();
+	}
 
-    public List<Plan> getActivePlansByInsurerId(Long insurerId) {
-        return planReader.readAllActiveByInsurerId(insurerId);
-    }
+	public List<Plan> getActivePlansByInsurerId(Long insurerId) {
+		return planReader.readAllActiveByInsurerId(insurerId);
+	}
 
 }

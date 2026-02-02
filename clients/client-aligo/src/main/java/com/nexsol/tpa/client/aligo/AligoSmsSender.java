@@ -14,41 +14,41 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AligoSmsSender implements SmsSender {
 
-    private final AligoClient aligoClient;
+	private final AligoClient aligoClient;
 
-    @Value("${external.aligo.key}")
-    private String apiKey;
+	@Value("${external.aligo.key}")
+	private String apiKey;
 
-    @Value("${external.aligo.user-id}")
-    private String userId;
+	@Value("${external.aligo.user-id}")
+	private String userId;
 
-    @Value("${external.aligo.sender}")
-    private String senderNumber;
+	@Value("${external.aligo.sender}")
+	private String senderNumber;
 
-    @Override
-    public void sendSms(String phoneNumber, String message) {
-        // [수정] HashMap -> LinkedMultiValueMap 변경
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("key", apiKey);
-        params.add("user_id", userId);
-        params.add("sender", senderNumber);
-        params.add("receiver", phoneNumber);
-        params.add("msg", message);
+	@Override
+	public void sendSms(String phoneNumber, String message) {
+		// [수정] HashMap -> LinkedMultiValueMap 변경
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("key", apiKey);
+		params.add("user_id", userId);
+		params.add("sender", senderNumber);
+		params.add("receiver", phoneNumber);
+		params.add("msg", message);
 
-        try {
-            Map<String, Object> response = aligoClient.sendSms(params);
+		try {
+			Map<String, Object> response = aligoClient.sendSms(params);
 
-            // 응답 처리 로직 유지
-            if (!"1".equals(String.valueOf(response.get("result_code")))) {
-                String errorMsg = (String) response.get("message");
-                log.error("알리고 SMS 발송 실패: {}", errorMsg);
-                throw new RuntimeException("알리고 SMS 발송 실패: " + errorMsg);
-            }
-        }
-        catch (Exception e) {
-            log.error("SMS 발송 중 예외 발생: {}", phoneNumber, e);
-            throw new RuntimeException("SMS 발송 중 시스템 오류 발생", e);
-        }
-    }
+			// 응답 처리 로직 유지
+			if (!"1".equals(String.valueOf(response.get("result_code")))) {
+				String errorMsg = (String) response.get("message");
+				log.error("알리고 SMS 발송 실패: {}", errorMsg);
+				throw new RuntimeException("알리고 SMS 발송 실패: " + errorMsg);
+			}
+		}
+		catch (Exception e) {
+			log.error("SMS 발송 중 예외 발생: {}", phoneNumber, e);
+			throw new RuntimeException("SMS 발송 중 시스템 오류 발생", e);
+		}
+	}
 
 }
