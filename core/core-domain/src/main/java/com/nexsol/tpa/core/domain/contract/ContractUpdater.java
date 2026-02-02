@@ -160,7 +160,7 @@ public class ContractUpdater {
 
 		return Applicant.builder()
 			.name(command.name() != null ? command.name() : existing.name())
-			.residentNumber(existing.residentNumber())
+			.residentNumber(command.residentNumber() != null ? command.residentNumber() : existing.residentNumber())
 			.phoneNumber(command.phoneNumber() != null ? command.phoneNumber() : existing.phoneNumber())
 			.email(command.email() != null ? command.email() : existing.email())
 			.build();

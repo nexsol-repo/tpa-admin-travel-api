@@ -357,6 +357,7 @@ public class ContractControllerTest extends RestDocsTest {
 				    "policyLink": "https://insurance.example.com/policy/15540-97223",
 				    "applicant": {
 				        "name": "홍길동수정",
+				        "residentNumber": "910504-1234567",
 				        "phoneNumber": "010-1111-2222",
 				        "email": "updated@abc.com"
 				    },
@@ -537,6 +538,7 @@ public class ContractControllerTest extends RestDocsTest {
 
 				fieldWithPath("applicant").description("가입자(피보험자) 정보 (부분 수정 가능)").optional(),
 				fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(),
+				fieldWithPath("applicant.residentNumber").description("주민등록번호").optional(),
 				fieldWithPath("applicant.phoneNumber").description("연락처").optional(),
 				fieldWithPath("applicant.email").description("이메일").optional(),
 

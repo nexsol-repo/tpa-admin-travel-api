@@ -25,7 +25,7 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
 	}
 
 	@Builder
-	public record ApplicantUpdateCommand(String name, String phoneNumber, String email) {
+	public record ApplicantUpdateCommand(String name, String residentNumber, String phoneNumber, String email) {
 	}
 
 	@Builder

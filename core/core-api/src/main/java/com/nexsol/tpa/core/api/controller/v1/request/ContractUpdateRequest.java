@@ -30,10 +30,11 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
 		}
 	}
 
-	public record ApplicantRequest(String name, String phoneNumber, String email) {
+	public record ApplicantRequest(String name, String residentNumber, String phoneNumber, String email) {
 		public ContractUpdateCommand.ApplicantUpdateCommand toCommand() {
 			return ContractUpdateCommand.ApplicantUpdateCommand.builder()
 				.name(name)
+				.residentNumber(residentNumber)
 				.phoneNumber(phoneNumber)
 				.email(email)
 				.build();
