@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "travel_insurer")
+@Table(name = "tpa_insurer")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TravelInsurerEntity extends BaseEntity {
@@ -18,6 +18,8 @@ public class TravelInsurerEntity extends BaseEntity {
 	private String insurerName;
 
 	private String apiBaseUrl;
+
+	private String serviceType;
 
 	@Column(columnDefinition = "TINYINT(1)")
 	private boolean isActive;

@@ -2,6 +2,7 @@ package com.nexsol.tpa.storage.db.core;
 
 import com.nexsol.tpa.core.domain.insurer.Insurer;
 import com.nexsol.tpa.core.domain.insurer.InsurerRepository;
+import com.nexsol.tpa.core.enums.ServiceType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +17,14 @@ public class InsurerRepositoryImpl implements InsurerRepository {
 	@Override
 	public List<Insurer> findAllActive() {
 		return travelInsurerJpaRepository.findByIsActiveTrue().stream().map(this::toDomain).toList();
+	}
+
+	@Override
+	public List<Insurer> findAllActiveByServiceType(ServiceType serviceType) {
+		return travelInsurerJpaRepository.findAllActiveByServiceType(serviceType.name())
+			.stream()
+			.map(this::toDomain)
+			.toList();
 	}
 
 	private Insurer toDomain(TravelInsurerEntity entity) {
