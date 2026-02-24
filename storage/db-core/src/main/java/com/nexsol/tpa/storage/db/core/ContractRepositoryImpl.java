@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.nexsol.tpa.core.enums.ContractStatus;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -295,8 +296,12 @@ public class ContractRepositoryImpl implements ContractRepository {
 	}
 
 	private Specification<TravelContractEntity> statusEquals(ContractSearchCriteria criteria) {
-		return (root, query, cb) -> criteria.status() == null ? null
-				: cb.equal(root.get(Fields.STATUS), criteria.status().name());
+		return (root, query, cb) -> {
+			if (criteria.status() != null) {
+				return cb.equal(root.get(Fields.STATUS), criteria.status().name());
+			}
+			return cb.notEqual(root.get(Fields.STATUS), ContractStatus.PENDING.name());
+		};
 	}
 
 	private Specification<TravelContractEntity> applicantNameContains(ContractSearchCriteria criteria) {
