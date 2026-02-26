@@ -1,43 +1,33 @@
 package com.nexsol.tpa.core.support;
 
-public record SortPage(int page, int size, Sort sort) {
+public record SortPage(Integer page, Integer size, String sortBy, // [Refactor] property
+																	// -> sortBy (최상위로 이동)
+		Direction direction // [Refactor] sort.direction -> direction (최상위로 이동)
+) {
 
-    // 정렬 개념 (필드명 + 방향)
-    public record Sort(String property, Direction direction) {
-        public static Sort of(String property, Direction direction) {
-            return new Sort(property, direction);
-        }
-    }
+	public enum Direction {
 
-    // 방향 개념 (SortPage 내부로 이동)
-    public enum Direction {
+		ASC, DESC;
 
-        ASC, DESC;
+		public boolean isAscending() {
+			return this == ASC;
+		}
 
-        public boolean isAscending() {
-            return this == ASC;
-        }
+	}
 
-    }
+	public SortPage {
+		// page가 null이거나 0보다 작으면 0으로 초기화
+		if (page == null || page < 0) {
+			page = 0;
+		}
+		// size가 null이거나 1보다 작으면 10으로 초기화
+		if (size == null || size < 1) {
+			size = 10;
+		}
+		// sortBy, direction은 null일 수 있음 (Repository에서 처리)
+	}
 
-    public SortPage {
-        if (page < 0)
-            page = 0;
-        if (size < 1)
-            size = 10;
-    }
-
-    public long offset() {
-        return (long) page * size;
-    }
-
-    // 정렬 없이 페이징만 요청할 때
-    public static SortPage of(int page, int size) {
-        return new SortPage(page, size, null);
-    }
-
-    // 정렬 포함 요청
-    public static SortPage of(int page, int size, String property, Direction direction) {
-        return new SortPage(page, size, new Sort(property, direction));
-    }
+	public long offset() {
+		return (long) page * size;
+	}
 }

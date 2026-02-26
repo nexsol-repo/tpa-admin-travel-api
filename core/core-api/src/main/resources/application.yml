@@ -4,11 +4,22 @@ spring.profiles.active: local
 spring:
   config:
     import:
-      - monitoring.yml
+      - optional:file:.env[.properties]
       - logging.yml
       - db-core.yml
-      - client-example.yml
   web.resources.add-mappings: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_EMAIL}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   tomcat:
@@ -17,22 +28,38 @@ server:
       max: 600
       min-spare: 100
 
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    com.nexsol.tpa.client.aligo: DEBUG
+jwt:
+  secret: ${JWT_SECRET:default_secret_key_here} # .env의 값을 읽거나 기본값 사용
+  expiration-seconds: 36000
+  issuer: "nexsol-admin"
+external:
+  memo-service:
+    url: ${MEMO_SERVICE_URL}
+  aligo:
+    key: ${ALIGO_API_KEY}
+    user-id: ${ALIGO_USER_ID}
+    sender: ${ALIGO_PHONE}
+
 ---
 spring.config.activate.on-profile: local
 
 
 ---
 spring.config.activate.on-profile: local-dev
-
-
+spring:
+  jmx:
+    enabled: false
 ---
 spring.config.activate.on-profile: dev
 
 
----
-spring.config.activate.on-profile: staging
-
 
 ---
-spring.config.activate.on-profile: live
+spring.config.activate.on-profile: prod
 

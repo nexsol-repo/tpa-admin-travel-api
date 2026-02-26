@@ -6,10 +6,14 @@ dependencies {
     implementation project(":core:core-domain")
     implementation project(":support:monitoring")
     implementation project(":support:logging")
-    implementation project(":storage:db-core")
-    implementation project(":clients:client-example")
+    runtimeOnly project(":storage:db-core")
+    runtimeOnly project(":clients:client-memo")
+    runtimeOnly project(":clients:client-aligo")
+    runtimeOnly project(":support:mailer")
+
 
     testImplementation project(":tests:api-docs")
-    
+
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
 }

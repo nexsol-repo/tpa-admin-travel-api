@@ -13,21 +13,21 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
 
-    @Bean
-    @Override
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(10000);
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(10);
-        return executor;
-    }
+	@Bean
+	@Override
+	public Executor getAsyncExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(10);
+		executor.setMaxPoolSize(10);
+		executor.setQueueCapacity(10000);
+		executor.setWaitForTasksToCompleteOnShutdown(true);
+		executor.setAwaitTerminationSeconds(10);
+		return executor;
+	}
 
-    @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return new AsyncExceptionHandler();
-    }
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		return new AsyncExceptionHandler();
+	}
 
 }

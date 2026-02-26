@@ -1,0 +1,12 @@
+package com.nexsol.tpa.core.domain.contract;
+
+import com.nexsol.tpa.core.domain.product.InsurancePeriod;
+import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
+import lombok.Builder;
+
+import java.time.LocalDateTime;
+
+@Builder
+public record ContractMeta(String policyNumber, String policyLink, SubscriptionOrigin origin,
+		LocalDateTime applicationDate, InsurancePeriod period) {
+}
