@@ -156,6 +156,9 @@ public class TravelContractMapper {
 	}
 
 	private ContractStatus determineStatus(TravelContractEntity entity, TravelInsurePaymentEntity payment) {
+		if (payment != null && "CANCELED".equals(payment.getStatus())) {
+			return ContractStatus.CANCELED;
+		}
 		if (entity.getStatus() != null) {
 			try {
 				return ContractStatus.valueOf(entity.getStatus());
@@ -163,9 +166,6 @@ public class TravelContractMapper {
 			catch (IllegalArgumentException e) {
 				// Fallback
 			}
-		}
-		if (payment != null && "CANCELED".equals(payment.getStatus())) {
-			return ContractStatus.CANCELED;
 		}
 		return ContractStatus.COMPLETED;
 	}
