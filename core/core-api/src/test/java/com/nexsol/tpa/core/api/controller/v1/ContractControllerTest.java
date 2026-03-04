@@ -31,6 +31,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -97,10 +98,7 @@ public class ContractControllerTest extends RestDocsTest {
 					.insurerName("메리츠")
 					.build())
 				.applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0)) // 2024.02.01
-				.period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), // 2024.03.15
-						// 17:00
-						LocalDateTime.of(2025, 3, 14, 19, 0) // 2025.03.14 19:00
-				))
+				.period(new InsurancePeriod(LocalDate.of(2024, 3, 15), LocalDate.of(2025, 3, 14)))
 				.build())
 			// 2. 상품 및 플랜 정보
 			.productPlan(ProductPlan.builder().productName("해외여행보험").planName("알뜰 플랜").travelCountry("일본").build())
@@ -247,8 +245,8 @@ public class ContractControllerTest extends RestDocsTest {
 				    "countryCode": "JP",
 				    "applicationDate": "2024-02-01T00:00:00",
 				    "period": {
-				        "startDate": "2024-03-15T17:00:00",
-				        "endDate": "2025-03-14T19:00:00"
+				        "startDate": "2024-03-15",
+				        "endDate": "2025-03-14"
 				    },
 				    "policyNumber": "15540-97222",
 				    "applicant": {
@@ -362,8 +360,8 @@ public class ContractControllerTest extends RestDocsTest {
 				        "email": "updated@abc.com"
 				    },
 				    "period": {
-				        "startDate": "2024-04-01T10:00:00",
-				        "endDate": "2025-04-01T10:00:00"
+				        "startDate": "2024-04-01",
+				        "endDate": "2025-04-01"
 				    },
 				    "insuredPeople": [
 				        {
@@ -425,8 +423,8 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.insuranceSection.subscription.channel").description("채널"),
 				fieldWithPath("data.insuranceSection.subscription.insurer").description("보험사"),
 				fieldWithPath("data.insuranceSection.term.applicationDate").description("신청 일시"),
-				fieldWithPath("data.insuranceSection.term.startDate").description("보험 시작 일시"),
-				fieldWithPath("data.insuranceSection.term.endDate").description("보험 종료 일시"),
+				fieldWithPath("data.insuranceSection.term.startDate").description("보험 시작일"),
+				fieldWithPath("data.insuranceSection.term.endDate").description("보험 종료일"),
 				fieldWithPath("data.insuranceSection.status.statusName").description("계약 상태 (한글)"),
 				fieldWithPath("data.insuranceSection.status.statusCode").description("계약 상태 코드"),
 				fieldWithPath("data.insuranceSection.status.insuredCount").description("총 가입 인원수"),
@@ -483,8 +481,8 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)"),
 
 				fieldWithPath("period").description("보험 기간 (출발일/도착일)"),
-				fieldWithPath("period.startDate").description("출발일시 (yyyy-MM-dd'T'HH:mm:ss)"),
-				fieldWithPath("period.endDate").description("도착일시 (yyyy-MM-dd'T'HH:mm:ss)"),
+				fieldWithPath("period.startDate").description("출발일 (yyyy-MM-dd)"),
+				fieldWithPath("period.endDate").description("도착일 (yyyy-MM-dd)"),
 
 				fieldWithPath("policyNumber").description("증권번호"),
 
@@ -543,8 +541,8 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("applicant.email").description("이메일").optional(),
 
 				fieldWithPath("period").description("보험 기간 (부분 수정 가능)").optional(),
-				fieldWithPath("period.startDate").description("보험 시작 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
-				fieldWithPath("period.endDate").description("보험 종료 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
+				fieldWithPath("period.startDate").description("보험 시작일 (yyyy-MM-dd)").optional(),
+				fieldWithPath("period.endDate").description("보험 종료일 (yyyy-MM-dd)").optional(),
 
 				fieldWithPath("insuredPeople").description("동반자 목록 (보낸 ID만 유지, 나머지 삭제)").optional(),
 				fieldWithPath("insuredPeople[].id").description("동반자 ID (기존 동반자 수정 시 필수)").optional(),
@@ -577,7 +575,7 @@ public class ContractControllerTest extends RestDocsTest {
 					.insurerName("메리츠")
 					.build())
 				.applicationDate(LocalDateTime.of(2024, 2, 1, 0, 0))
-				.period(new InsurancePeriod(LocalDateTime.of(2024, 3, 15, 17, 0), LocalDateTime.of(2025, 3, 14, 19, 0)))
+				.period(new InsurancePeriod(LocalDate.of(2024, 3, 15), LocalDate.of(2025, 3, 14)))
 				.build())
 			.productPlan(ProductPlan.builder().productName("해외여행보험").planName("알뜰 플랜").travelCountry("일본").build())
 			.applicant(Applicant.builder()

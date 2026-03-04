@@ -4,13 +4,14 @@ import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
 public record ContractResponse(Long contractId, String contractStatus, String contractStatusCode, String policyNumber,
 		String partnerName, String channelName, String insurerName, String applicantName, String applicantPhone,
-		int insuredCount, BigDecimal totalPremium, LocalDateTime applicationDate, LocalDateTime insuranceStartDate,
-		LocalDateTime insuranceEndDate) {
+		int insuredCount, BigDecimal totalPremium, LocalDateTime applicationDate, LocalDate insuranceStartDate,
+		LocalDate insuranceEndDate) {
 	public static ContractResponse of(InsuranceContract domain) {
 		return ContractResponse.builder()
 			.contractId(domain.contractId())

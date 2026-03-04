@@ -4,6 +4,7 @@ import com.nexsol.tpa.core.enums.ContractStatus;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
 	}
 
 	@Builder
-	public record PeriodUpdateCommand(LocalDateTime startDate, LocalDateTime endDate) {
+	public record PeriodUpdateCommand(LocalDate startDate, LocalDate endDate) {
 	}
 
 	@Builder
