@@ -17,9 +17,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * 계약 생성 도구 클래스 (Implement Layer) 생성 로직의 상세 구현을 담당
- */
 @Component
 @RequiredArgsConstructor
 public class ContractCreator {
@@ -117,9 +114,12 @@ public class ContractCreator {
 		if (command.companions() == null || command.companions().isEmpty()) {
 			// 동반자 정보가 없으면 가입자 본인을 피보험자로 등록
 			if (command.applicant() != null) {
+				BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
+						? command.payment().totalAmount() : BigDecimal.ZERO;
 				return List.of(InsuredPerson.builder()
 					.name(command.applicant().name())
 					.residentNumber(command.applicant().residentNumber())
+					.individualPremium(premium)
 					.build());
 			}
 			return List.of();
