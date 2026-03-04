@@ -114,9 +114,12 @@ public class ContractCreator {
 		if (command.companions() == null || command.companions().isEmpty()) {
 			// 동반자 정보가 없으면 가입자 본인을 피보험자로 등록
 			if (command.applicant() != null) {
+				BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
+						? command.payment().totalAmount() : BigDecimal.ZERO;
 				return List.of(InsuredPerson.builder()
 					.name(command.applicant().name())
 					.residentNumber(command.applicant().residentNumber())
+					.individualPremium(premium)
 					.build());
 			}
 			return List.of();
