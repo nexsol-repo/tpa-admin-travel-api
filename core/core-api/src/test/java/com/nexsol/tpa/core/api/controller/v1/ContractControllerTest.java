@@ -171,7 +171,8 @@ public class ContractControllerTest extends RestDocsTest {
 							parameterWithName("partnerName").description("제휴사명 (전체 일치)").optional(),
 							parameterWithName("channelName").description("채널명 (전체 일치)").optional(),
 							parameterWithName("insurerName").description("보험사명 (전체 일치)").optional(),
-							parameterWithName("status").description("계약 상태").optional(),
+							parameterWithName("status").description("계약 상태 (COMPLETED: 가입완료, CANCELED: 임의해지, EXPIRED: 기간만료). 미전송 시 3가지 상태 전체 조회. " +
+								"가입완료=보험종료일 미경과 & 결제취소 아님, 임의해지=결제 취소된 계약, 기간만료=보험종료일 경과 & 결제취소 아님").optional(),
 							parameterWithName("applicantName").description("가입자명 (부분 일치)").optional()),
 					responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
 							fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
@@ -321,7 +322,7 @@ public class ContractControllerTest extends RestDocsTest {
 					parameterWithName("partnerName").description("제휴사명").optional(),
 					parameterWithName("channelName").description("채널명").optional(),
 					parameterWithName("insurerName").description("보험사명").optional(),
-					parameterWithName("status").description("계약 상태").optional(),
+					parameterWithName("status").description("계약 상태 (COMPLETED: 가입완료, CANCELED: 임의해지, EXPIRED: 기간만료). 미전송 시 전체 조회").optional(),
 					parameterWithName("applicantName").description("가입자명").optional(),
 
 					// 엑셀 전용 파라미터
