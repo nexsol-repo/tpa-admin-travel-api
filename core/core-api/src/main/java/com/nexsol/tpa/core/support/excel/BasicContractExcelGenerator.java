@@ -71,8 +71,8 @@ public class BasicContractExcelGenerator implements ContractExcelGenerator {
 				row.createCell(cellIdx++).setCellValue(contract.applicant().phoneNumber());
 
 				row.createCell(cellIdx++).setCellValue(contract.metaInfo().applicationDate().format(dateFmt));
-				row.createCell(cellIdx++).setCellValue(contract.metaInfo().period().startDate().format(dateTimeFmt));
-				row.createCell(cellIdx++).setCellValue(contract.metaInfo().period().endDate().format(dateTimeFmt));
+				row.createCell(cellIdx++).setCellValue(contract.metaInfo().period().startDate().format(dateFmt));
+				row.createCell(cellIdx++).setCellValue(contract.metaInfo().period().endDate().format(dateFmt));
 
 				row.createCell(cellIdx++).setCellValue(contract.metaInfo().origin().insurerName());
 

@@ -5,6 +5,7 @@ import com.nexsol.tpa.core.enums.ContractStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,8 +42,8 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
 		}
 	}
 
-	public record PeriodRequest(@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime startDate,
-			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime endDate) {
+	public record PeriodRequest(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
 		public ContractUpdateCommand.PeriodUpdateCommand toCommand() {
 			return ContractUpdateCommand.PeriodUpdateCommand.builder().startDate(startDate).endDate(endDate).build();
 		}

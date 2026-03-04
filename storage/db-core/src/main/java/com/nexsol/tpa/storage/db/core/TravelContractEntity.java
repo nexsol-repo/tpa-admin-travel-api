@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -57,9 +58,11 @@ public class TravelContractEntity extends BaseEntity {
 
 	private LocalDateTime applyDate;
 
-	private LocalDateTime insureStartDate;
+	@Column(columnDefinition = "date")
+	private LocalDate insureStartDate;
 
-	private LocalDateTime insureEndDate;
+	@Column(columnDefinition = "date")
+	private LocalDate insureEndDate;
 
 	private BigDecimal totalPremium;
 
@@ -96,7 +99,7 @@ public class TravelContractEntity extends BaseEntity {
 		this.insureEndDate = updateIfNotNull(this.insureEndDate, period.endDate());
 	}
 
-	public void updateInsurancePeriod(LocalDateTime startDate, LocalDateTime endDate) {
+	public void updateInsurancePeriod(LocalDate startDate, LocalDate endDate) {
 		this.insureStartDate = updateIfNotNull(this.insureStartDate, startDate);
 		this.insureEndDate = updateIfNotNull(this.insureEndDate, endDate);
 	}

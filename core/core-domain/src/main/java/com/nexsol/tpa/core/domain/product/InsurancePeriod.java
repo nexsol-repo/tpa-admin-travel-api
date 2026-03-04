@@ -2,11 +2,11 @@ package com.nexsol.tpa.core.domain.product;
 
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Builder
-public record InsurancePeriod(LocalDateTime startDate, LocalDateTime endDate) {
-	public boolean isValid(LocalDateTime now) {
+public record InsurancePeriod(LocalDate startDate, LocalDate endDate) {
+	public boolean isValid(LocalDate now) {
 		return now.isAfter(startDate) && now.isBefore(endDate);
 	}
 }

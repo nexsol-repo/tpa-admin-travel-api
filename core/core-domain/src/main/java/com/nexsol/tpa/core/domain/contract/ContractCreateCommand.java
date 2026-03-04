@@ -4,6 +4,7 @@ import com.nexsol.tpa.core.enums.ContractStatus;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public record ContractCreateCommand(ContractStatus status, SubscriptionOriginCom
 	 * 보험 기간 정보
 	 */
 	@Builder
-	public record PeriodCommand(LocalDateTime startDate, LocalDateTime endDate) {
+	public record PeriodCommand(LocalDate startDate, LocalDate endDate) {
 	}
 
 	/**
