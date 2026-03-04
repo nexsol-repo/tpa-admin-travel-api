@@ -14,12 +14,16 @@ public record ContractDetailResponse(Long contractId, InsuranceSection insurance
 		PaymentInfo paymentSection, List<CompanionInfo> companions) {
 
 	public static ContractDetailResponse of(InsuranceContract domain) {
+		List<CompanionInfo> companions = (domain.insuredPeople() != null && domain.insuredPeople().size() > 1)
+				? domain.insuredPeople().stream().map(CompanionInfo::of).toList()
+				: List.of();
+
 		return ContractDetailResponse.builder()
 			.contractId(domain.contractId())
 			.insuranceSection(InsuranceSection.toInsuranceSection(domain))
 			.applicantSection(ApplicantInfo.toApplicantInfo(domain.applicant()))
 			.paymentSection(PaymentInfo.toPaymentInfo(domain.paymentInfo()))
-			.companions(domain.insuredPeople().stream().map(CompanionInfo::of).toList())
+			.companions(companions)
 			.build();
 	}
 }
