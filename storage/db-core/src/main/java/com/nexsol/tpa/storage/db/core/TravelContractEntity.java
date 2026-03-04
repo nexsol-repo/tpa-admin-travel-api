@@ -58,10 +58,8 @@ public class TravelContractEntity extends BaseEntity {
 
 	private LocalDateTime applyDate;
 
-	@Column(columnDefinition = "date")
 	private LocalDate insureStartDate;
 
-	@Column(columnDefinition = "date")
 	private LocalDate insureEndDate;
 
 	private BigDecimal totalPremium;
