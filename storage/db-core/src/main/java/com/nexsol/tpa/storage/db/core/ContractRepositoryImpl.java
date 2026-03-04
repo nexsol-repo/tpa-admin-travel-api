@@ -18,6 +18,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.Root;
+
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -297,10 +302,32 @@ public class ContractRepositoryImpl implements ContractRepository {
 
 	private Specification<TravelContractEntity> statusEquals(ContractSearchCriteria criteria) {
 		return (root, query, cb) -> {
-			if (criteria.status() != null) {
-				return cb.equal(root.get(Fields.STATUS), criteria.status().name());
+			LocalDate today = LocalDate.now();
+			Predicate isCompleted = cb.equal(root.get(Fields.STATUS), ContractStatus.COMPLETED.name());
+
+			// payment.status = 'CANCELED' 인 계약을 찾는 서브쿼리
+			Subquery<Long> canceledPaymentSubquery = query.subquery(Long.class);
+			Root<TravelInsurePaymentEntity> paymentRoot = canceledPaymentSubquery
+				.from(TravelInsurePaymentEntity.class);
+			canceledPaymentSubquery.select(paymentRoot.get("contractId"))
+				.where(cb.equal(paymentRoot.get("contractId"), root.get(Fields.ID)),
+						cb.equal(paymentRoot.get("status"), "CANCELED"));
+
+			Predicate isPaymentCanceled = cb.exists(canceledPaymentSubquery);
+			Predicate isEndDatePassed = cb.lessThan(root.get(Fields.INSURE_END_DATE), today);
+			Predicate isEndDateNotPassed = cb.greaterThanOrEqualTo(root.get(Fields.INSURE_END_DATE), today);
+
+			if (criteria.status() == null) {
+				// 기본: 가입완료 + 임의해지 + 기간만료 (= contract.status가 COMPLETED인 모든 건)
+				return isCompleted;
 			}
-			return cb.notEqual(root.get(Fields.STATUS), ContractStatus.PENDING.name());
+
+			return switch (criteria.status()) {
+				case COMPLETED -> cb.and(isCompleted, cb.not(isPaymentCanceled), isEndDateNotPassed);
+				case CANCELED -> cb.and(isCompleted, isPaymentCanceled);
+				case EXPIRED -> cb.and(isCompleted, cb.not(isPaymentCanceled), isEndDatePassed);
+				default -> cb.equal(root.get(Fields.STATUS), criteria.status().name());
+			};
 		};
 	}
 
