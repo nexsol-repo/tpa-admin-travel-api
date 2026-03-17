@@ -25,6 +25,9 @@ public record ContractCreateRequest(
 		// 결제 정보
 		PaymentRequest payment,
 
+		// 환불 정보
+		RefundRequest refund,
+
 		// 동반자 정보
 		List<CompanionRequest> companions,
 
@@ -89,6 +92,25 @@ public record ContractCreateRequest(
 	}
 
 	/**
+	 * 환불 정보
+	 */
+	public record RefundRequest(BigDecimal refundAmount, String refundMethod, String bankName, String accountNumber,
+			String depositorName, String refundReason,
+			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime refundedAt) {
+		public ContractCreateCommand.RefundCommand toCommand() {
+			return ContractCreateCommand.RefundCommand.builder()
+				.refundAmount(refundAmount)
+				.refundMethod(refundMethod)
+				.bankName(bankName)
+				.accountNumber(accountNumber)
+				.depositorName(depositorName)
+				.refundReason(refundReason)
+				.refundedAt(refundedAt)
+				.build();
+		}
+	}
+
+	/**
 	 * 동반자 정보
 	 */
 	public record CompanionRequest(String residentNumber, String gender, String name, String englishName,
@@ -121,6 +143,7 @@ public record ContractCreateRequest(
 			.policyNumber(policyNumber)
 			.applicant(applicant != null ? applicant.toCommand() : null)
 			.payment(payment != null ? payment.toCommand() : null)
+			.refund(refund != null ? refund.toCommand() : null)
 			.companions(companions != null ? companions.stream().map(CompanionRequest::toCommand).toList() : null)
 			.memo(memo)
 			.employeeId(employeeId)

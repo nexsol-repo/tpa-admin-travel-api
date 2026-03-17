@@ -19,9 +19,4 @@ public interface TravelInsurancePlanJpaRepository extends JpaRepository<TravelIn
 	Optional<TravelInsurancePlanEntity> findByPlanNamePrefixAndAgeGroupId(@Param("planNamePrefix") String planNamePrefix,
 			@Param("ageGroupId") Long ageGroupId);
 
-	@Query("SELECT p FROM TravelInsurancePlanEntity p WHERE p.planFullName LIKE CONCAT(:planNamePrefix, '%') AND p.ageGroupId = :ageGroupId AND p.isLoss = :isLoss AND p.isActive = true")
-	Optional<TravelInsurancePlanEntity> findByPlanNamePrefixAndAgeGroupIdAndIsLoss(
-			@Param("planNamePrefix") String planNamePrefix, @Param("ageGroupId") Long ageGroupId,
-			@Param("isLoss") boolean isLoss);
-
 }

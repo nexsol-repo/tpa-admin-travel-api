@@ -4,6 +4,7 @@ import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPeopleUpdater;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.plan.Plan;
 import com.nexsol.tpa.core.domain.plan.PlanReader;
@@ -56,6 +57,7 @@ public class ContractUpdater {
 			.productPlan(updateProductPlan(existing, command))
 			.applicant(updateApplicant(existing.applicant(), command.applicant()))
 			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
+			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
 			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople(), command.planName(),
 					command.silsonExclude()))
 			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
@@ -174,6 +176,24 @@ public class ContractUpdater {
 			.travelCountry(travelCountry != null ? travelCountry : existingPlan.travelCountry())
 			.countryCode(countryCode != null ? countryCode : existingPlan.countryCode())
 			.coverageLink(existingPlan.coverageLink())
+			.build();
+	}
+
+	private RefundInfo updateRefund(RefundInfo existing, ContractUpdateCommand.RefundUpdateCommand command) {
+		if (command == null) {
+			return existing;
+		}
+		return RefundInfo.builder()
+			.refundAmount(command.refundAmount() != null ? command.refundAmount()
+					: (existing != null ? existing.refundAmount() : null))
+			.refundMethod(command.refundMethod() != null ? command.refundMethod()
+					: (existing != null ? existing.refundMethod() : null))
+			.bankName(command.bankName())
+			.accountNumber(command.accountNumber())
+			.depositorName(command.depositorName())
+			.refundReason(command.refundReason())
+			.refundedAt(command.refundedAt() != null ? command.refundedAt()
+					: (existing != null ? existing.refundedAt() : null))
 			.build();
 	}
 
