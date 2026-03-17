@@ -58,8 +58,7 @@ public class ContractUpdater {
 			.applicant(updateApplicant(existing.applicant(), command.applicant()))
 			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
 			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
-			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople(), command.planName(),
-					command.silsonExclude()))
+			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
 			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
 			.build();
 	}
@@ -210,7 +209,7 @@ public class ContractUpdater {
 	}
 
 	private List<InsuredPerson> updateInsuredPeople(List<InsuredPerson> existing,
-			List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands, String planName, Boolean silsonExclude) {
+			List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands) {
 
 		// null이면 기존 유지 (수정 안 함)
 		if (commands == null) {
@@ -222,16 +221,10 @@ public class ContractUpdater {
 			return List.of();
 		}
 
-		return commands.stream().map(c -> toInsuredPerson(c, planName, silsonExclude)).toList();
+		return commands.stream().map(this::toInsuredPerson).toList();
 	}
 
-	private InsuredPerson toInsuredPerson(ContractUpdateCommand.InsuredPersonUpdateCommand command, String planName,
-			Boolean silsonExclude) {
-		Long resolvedPlanId = null;
-		if (planName != null && command.residentNumber() != null) {
-			resolvedPlanId = planResolver.resolve(planName, command.residentNumber(), silsonExclude).id();
-		}
-
+	private InsuredPerson toInsuredPerson(ContractUpdateCommand.InsuredPersonUpdateCommand command) {
 		return InsuredPerson.builder()
 			.id(command.id())
 			.name(command.name())
@@ -241,7 +234,6 @@ public class ContractUpdater {
 			.individualPolicyNumber(command.policyNumber())
 			.gender(command.gender())
 			.individualPremium(command.premium())
-			.planId(resolvedPlanId)
 			.build();
 	}
 

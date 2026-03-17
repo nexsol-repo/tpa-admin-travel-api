@@ -20,9 +20,6 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 	@Column(name = "contract_id")
 	private Long contractId;
 
-	@Column(name = "plan_id")
-	private Long planId;
-
 	@Column(name = "insure_people_name")
 	private String name;
 
@@ -48,11 +45,9 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 	private java.time.LocalDateTime deletedAt;
 
 	@Builder
-	private TravelInsurePeopleEntity(Long contractId, Long planId, String name, String englishName,
-			String residentNumber, String passportNumber, String gender, BigDecimal insurePremium,
-			String policyNumber) {
+	private TravelInsurePeopleEntity(Long contractId, String name, String englishName, String residentNumber,
+			String passportNumber, String gender, BigDecimal insurePremium, String policyNumber) {
 		this.contractId = contractId;
-		this.planId = planId;
 		this.name = name;
 		this.englishName = englishName;
 		this.residentNumber = residentNumber;
@@ -68,7 +63,6 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 	public static TravelInsurePeopleEntity create(Long contractId, InsuredPerson person) {
 		return TravelInsurePeopleEntity.builder()
 			.contractId(contractId)
-			.planId(person.planId())
 			.name(person.name())
 			.englishName(person.englishName())
 			.residentNumber(person.residentNumber())
@@ -108,7 +102,6 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 			.gender(this.gender)
 			.individualPremium(this.insurePremium)
 			.individualPolicyNumber(this.policyNumber)
-			.planId(this.planId)
 			.build();
 	}
 

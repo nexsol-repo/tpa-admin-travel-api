@@ -146,29 +146,20 @@ public class ContractCreator {
 			if (command.applicant() != null) {
 				BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
 						? command.payment().totalAmount() : BigDecimal.ZERO;
-				Long resolvedPlanId = resolvePersonPlanId(command.planName(), command.applicant().residentNumber(),
-						command.silsonExclude());
 				return List.of(InsuredPerson.builder()
 					.name(command.applicant().name())
 					.residentNumber(command.applicant().residentNumber())
 					.individualPremium(premium)
-					.planId(resolvedPlanId)
 					.build());
 			}
 			return List.of();
 		}
 
-		return command.companions()
-			.stream()
-			.map(c -> buildInsuredPerson(command.planName(), command.silsonExclude(), c))
-			.toList();
+		return command.companions().stream().map(this::buildInsuredPerson).toList();
 	}
 
-	private InsuredPerson buildInsuredPerson(String planName, Boolean silsonExclude,
-			ContractCreateCommand.CompanionCommand companion) {
-		// 영문 성 + 영문 이름 조합
+	private InsuredPerson buildInsuredPerson(ContractCreateCommand.CompanionCommand companion) {
 		String fullEnglishName = buildFullEnglishName(companion.englishLastName(), companion.englishName());
-		Long resolvedPlanId = resolvePersonPlanId(planName, companion.residentNumber(), silsonExclude);
 
 		return InsuredPerson.builder()
 			.name(companion.name())
@@ -178,18 +169,7 @@ public class ContractCreator {
 			.gender(companion.gender())
 			.individualPremium(companion.premium())
 			.individualPolicyNumber(companion.policyNumber())
-			.planId(resolvedPlanId)
 			.build();
-	}
-
-	/**
-	 * planName이 있으면 주민번호로 개인별 planId를 resolve한다.
-	 */
-	private Long resolvePersonPlanId(String planName, String residentNumber, Boolean silsonExclude) {
-		if (planName != null && residentNumber != null) {
-			return planResolver.resolve(planName, residentNumber, silsonExclude).id();
-		}
-		return null;
 	}
 
 	private String buildFullEnglishName(String lastName, String firstName) {
