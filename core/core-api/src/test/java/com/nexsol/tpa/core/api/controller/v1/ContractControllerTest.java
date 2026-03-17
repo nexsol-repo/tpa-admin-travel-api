@@ -6,6 +6,7 @@ import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.contract.*;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
@@ -264,6 +265,7 @@ public class ContractControllerTest extends RestDocsTest {
 				        "paidAt": "2025-03-15T15:01:42",
 				        "canceledAt": null
 				    },
+				    "refund": null,
 				    "companions": [
 				        {
 				            "residentNumber": "910504-1234567",
@@ -383,6 +385,12 @@ public class ContractControllerTest extends RestDocsTest {
 				        "paidAt": "2025-03-15T15:01:42",
 				        "canceledAt": "2025-03-16T15:01:42"
 				    },
+				    "refund": {
+				        "refundAmount": 17000,
+				        "refundMethod": "CARD",
+				        "refundedAt": "2025-03-16T15:01:42",
+				        "refundReason": "임의 해지"
+				    },
 				    "applicationDate": "2024-02-01T00:00:00",
 				    "memo": "계약 상태 변경: 해지 처리 및 결제 취소"
 				}
@@ -453,7 +461,17 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.payment.paidAt").description("결제 일시"),
 				fieldWithPath("data.payment.canceledAt").description("해지(취소) 일시").optional(),
 
-				// 5. Companions
+				// 5. Refund Section
+				fieldWithPath("data.refund").description("환불 정보 (환불 시에만 존재)").optional(),
+				fieldWithPath("data.refund.refundAmount").description("환불 금액").optional(),
+				fieldWithPath("data.refund.refundMethod").description("환불 수단 (CARD, BANK, VBANK)").optional(),
+				fieldWithPath("data.refund.bankName").description("은행명 (계좌 환불 시)").optional(),
+				fieldWithPath("data.refund.accountNumber").description("계좌번호 (계좌 환불 시)").optional(),
+				fieldWithPath("data.refund.depositorName").description("예금주명 (계좌 환불 시)").optional(),
+				fieldWithPath("data.refund.refundReason").description("환불 사유").optional(),
+				fieldWithPath("data.refund.refundedAt").description("환불 처리 일시").optional(),
+
+				// 6. Companions
 				fieldWithPath("data.companions").description("동반자 목록"), // UI 용어 반영
 				fieldWithPath("data.companions[].id").description("동반자 ID"),
 				fieldWithPath("data.companions[].name").description("이름"),
@@ -506,6 +524,16 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("payment.totalAmount").description("결제 총액"),
 				fieldWithPath("payment.paidAt").description("결제일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 				fieldWithPath("payment.canceledAt").description("해지일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
+
+				// 환불 정보
+				fieldWithPath("refund").description("환불 정보 (환불 시에만 전송)").optional(),
+				fieldWithPath("refund.refundAmount").description("환불 금액").optional(),
+				fieldWithPath("refund.refundMethod").description("환불 수단 (CARD, BANK, VBANK)").optional(),
+				fieldWithPath("refund.bankName").description("은행명 (계좌 환불 시)").optional(),
+				fieldWithPath("refund.accountNumber").description("계좌번호 (계좌 환불 시)").optional(),
+				fieldWithPath("refund.depositorName").description("예금주명 (계좌 환불 시)").optional(),
+				fieldWithPath("refund.refundReason").description("환불 사유").optional(),
+				fieldWithPath("refund.refundedAt").description("환불 처리 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
 				// 동반자 정보
 				fieldWithPath("companions").description("동반자 목록"),
@@ -567,6 +595,15 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("payment.paidAt").description("결제 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 				fieldWithPath("payment.canceledAt").description("해지 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
+				fieldWithPath("refund").description("환불 정보 (환불 시에만 전송)").optional(),
+				fieldWithPath("refund.refundAmount").description("환불 금액").optional(),
+				fieldWithPath("refund.refundMethod").description("환불 수단 (CARD, BANK, VBANK)").optional(),
+				fieldWithPath("refund.bankName").description("은행명 (계좌 환불 시)").optional(),
+				fieldWithPath("refund.accountNumber").description("계좌번호 (계좌 환불 시)").optional(),
+				fieldWithPath("refund.depositorName").description("예금주명 (계좌 환불 시)").optional(),
+				fieldWithPath("refund.refundReason").description("환불 사유").optional(),
+				fieldWithPath("refund.refundedAt").description("환불 처리 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
+
 				fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
 				fieldWithPath("memo").description("수정 사유 메모").optional() };
@@ -599,6 +636,11 @@ public class ContractControllerTest extends RestDocsTest {
 				.totalAmount(BigDecimal.valueOf(17000))
 				.paidAt(LocalDateTime.of(2025, 3, 15, 15, 1, 42))
 				.canceledAt(LocalDateTime.of(2025, 3, 16, 15, 1, 42)) // 해지일 예시
+				.build())
+			.refundInfo(RefundInfo.builder()
+				.refundAmount(BigDecimal.valueOf(17000))
+				.refundMethod("CARD")
+				.refundedAt(LocalDateTime.of(2025, 3, 16, 15, 1, 42))
 				.build())
 			.insuredPeople(List.of(
 					InsuredPerson.builder()

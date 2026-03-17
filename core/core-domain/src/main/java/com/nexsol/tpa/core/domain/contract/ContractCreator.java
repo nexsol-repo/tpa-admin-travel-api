@@ -3,6 +3,7 @@ package com.nexsol.tpa.core.domain.contract;
 import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.plan.Plan;
 import com.nexsol.tpa.core.domain.plan.PlanReader;
@@ -41,6 +42,7 @@ public class ContractCreator {
 			.productPlan(buildProductPlan(command))
 			.applicant(buildApplicant(command.applicant()))
 			.paymentInfo(buildPaymentInfo(command.payment()))
+			.refundInfo(buildRefundInfo(command.refund()))
 			.insuredPeople(buildInsuredPeople(command))
 			.employeeId(command.employeeId())
 			.build();
@@ -123,6 +125,21 @@ public class ContractCreator {
 			.totalAmount(payment.totalAmount() != null ? payment.totalAmount() : BigDecimal.ZERO)
 			.paidAt(payment.paidAt())
 			.canceledAt(payment.canceledAt())
+			.build();
+	}
+
+	private RefundInfo buildRefundInfo(ContractCreateCommand.RefundCommand refund) {
+		if (refund == null) {
+			return null;
+		}
+		return RefundInfo.builder()
+			.refundAmount(refund.refundAmount())
+			.refundMethod(refund.refundMethod())
+			.bankName(refund.bankName())
+			.accountNumber(refund.accountNumber())
+			.depositorName(refund.depositorName())
+			.refundReason(refund.refundReason())
+			.refundedAt(refund.refundedAt())
 			.build();
 	}
 
