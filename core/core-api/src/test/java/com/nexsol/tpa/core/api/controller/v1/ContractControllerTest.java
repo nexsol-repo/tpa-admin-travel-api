@@ -112,6 +112,7 @@ public class ContractControllerTest extends RestDocsTest {
 				.build())
 			// 4. 결제 정보
 			.paymentInfo(PaymentInfo.builder()
+				.status("PAID")
 				.method("카드 결제")
 				.totalAmount(BigDecimal.valueOf(17000))
 				.paidAt(LocalDateTime.of(2025, 12, 24, 15, 1, 42))
@@ -471,6 +472,7 @@ public class ContractControllerTest extends RestDocsTest {
 
 				// 4. Payment Section
 				fieldWithPath("data.payment").description("결제 정보 섹션"),
+				fieldWithPath("data.payment.status").description("결제 상태 (READY, PAID, CANCELED)"),
 				fieldWithPath("data.payment.method").description("결제 수단"),
 				fieldWithPath("data.payment.totalAmount").description("결제 총액"),
 				fieldWithPath("data.payment.paidAt").description("결제 일시"),
@@ -653,6 +655,7 @@ public class ContractControllerTest extends RestDocsTest {
 				.email("contractor@abc.com")
 				.build())
 			.paymentInfo(PaymentInfo.builder()
+				.status("CANCELED")
 				.method("카드 결제")
 				.totalAmount(BigDecimal.valueOf(17000))
 				.paidAt(LocalDateTime.of(2025, 3, 15, 15, 1, 42))
