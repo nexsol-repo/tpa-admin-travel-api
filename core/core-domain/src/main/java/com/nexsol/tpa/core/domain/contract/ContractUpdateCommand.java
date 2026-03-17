@@ -14,9 +14,8 @@ import java.util.List;
 @Builder
 public record ContractUpdateCommand(Long contractId, ContractStatus status, ApplicantUpdateCommand applicant,
 		PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
-		RefundUpdateCommand refund,
-		SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String planName, Boolean silsonExclude,
-		String travelCountry, String countryCode, String policyNumber, String policyLink,
+		RefundUpdateCommand refund, SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String planName,
+		Boolean silsonExclude, String travelCountry, String countryCode, String policyNumber, String policyLink,
 		LocalDateTime applicationDate, String memo, Long employeeId) {
 
 	/**

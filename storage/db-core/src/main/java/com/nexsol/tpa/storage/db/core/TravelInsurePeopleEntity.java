@@ -49,7 +49,8 @@ public class TravelInsurePeopleEntity extends BaseEntity {
 
 	@Builder
 	private TravelInsurePeopleEntity(Long contractId, Long planId, String name, String englishName,
-			String residentNumber, String passportNumber, String gender, BigDecimal insurePremium, String policyNumber) {
+			String residentNumber, String passportNumber, String gender, BigDecimal insurePremium,
+			String policyNumber) {
 		this.contractId = contractId;
 		this.planId = planId;
 		this.name = name;

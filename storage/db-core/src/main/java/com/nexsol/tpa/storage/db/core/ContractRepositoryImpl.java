@@ -346,8 +346,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
 			// payment.status = 'CANCELED' 인 계약을 찾는 서브쿼리
 			Subquery<Long> canceledPaymentSubquery = query.subquery(Long.class);
-			Root<TravelInsurePaymentEntity> paymentRoot = canceledPaymentSubquery
-				.from(TravelInsurePaymentEntity.class);
+			Root<TravelInsurePaymentEntity> paymentRoot = canceledPaymentSubquery.from(TravelInsurePaymentEntity.class);
 			canceledPaymentSubquery.select(paymentRoot.get("contractId"))
 				.where(cb.equal(paymentRoot.get("contractId"), root.get(Fields.ID)),
 						cb.equal(paymentRoot.get("status"), "CANCELED"));
