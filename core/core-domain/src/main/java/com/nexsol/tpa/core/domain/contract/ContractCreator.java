@@ -6,6 +6,7 @@ import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.plan.Plan;
 import com.nexsol.tpa.core.domain.plan.PlanReader;
+import com.nexsol.tpa.core.domain.plan.PlanResolver;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import com.nexsol.tpa.core.enums.ContractStatus;
@@ -24,6 +25,8 @@ public class ContractCreator {
 	private final ContractRepository contractRepository;
 
 	private final PlanReader planReader;
+
+	private final PlanResolver planResolver;
 
 	public Long create(ContractCreateCommand command) {
 		InsuranceContract newContract = buildContract(command);
@@ -74,8 +77,7 @@ public class ContractCreator {
 	}
 
 	private ProductPlan buildProductPlan(ContractCreateCommand command) {
-		Plan plan = planReader.read(command.planId())
-			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+		Plan plan = resolvePlan(command);
 
 		return ProductPlan.builder()
 			.planId(plan.id())
@@ -84,6 +86,20 @@ public class ContractCreator {
 			.travelCountry(command.travelCountry())
 			.countryCode(command.countryCode())
 			.build();
+	}
+
+	/**
+	 * planName이 있으면 가입자 주민번호로 만나이를 계산하여 플랜을 찾고,
+	 * 없으면 기존처럼 planId로 직접 조회한다.
+	 */
+	private Plan resolvePlan(ContractCreateCommand command) {
+		if (command.planName() != null && command.applicant() != null
+				&& command.applicant().residentNumber() != null) {
+			return planResolver.resolve(command.planName(), command.applicant().residentNumber(),
+					command.silsonExclude());
+		}
+		return planReader.read(command.planId())
+			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
 	}
 
 	private Applicant buildApplicant(ContractCreateCommand.ApplicantCommand applicant) {
@@ -116,21 +132,29 @@ public class ContractCreator {
 			if (command.applicant() != null) {
 				BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
 						? command.payment().totalAmount() : BigDecimal.ZERO;
+				Long resolvedPlanId = resolvePersonPlanId(command.planName(), command.applicant().residentNumber(),
+						command.silsonExclude());
 				return List.of(InsuredPerson.builder()
 					.name(command.applicant().name())
 					.residentNumber(command.applicant().residentNumber())
 					.individualPremium(premium)
+					.planId(resolvedPlanId)
 					.build());
 			}
 			return List.of();
 		}
 
-		return command.companions().stream().map(this::buildInsuredPerson).toList();
+		return command.companions()
+			.stream()
+			.map(c -> buildInsuredPerson(command.planName(), command.silsonExclude(), c))
+			.toList();
 	}
 
-	private InsuredPerson buildInsuredPerson(ContractCreateCommand.CompanionCommand companion) {
+	private InsuredPerson buildInsuredPerson(String planName, Boolean silsonExclude,
+			ContractCreateCommand.CompanionCommand companion) {
 		// 영문 성 + 영문 이름 조합
 		String fullEnglishName = buildFullEnglishName(companion.englishLastName(), companion.englishName());
+		Long resolvedPlanId = resolvePersonPlanId(planName, companion.residentNumber(), silsonExclude);
 
 		return InsuredPerson.builder()
 			.name(companion.name())
@@ -140,7 +164,18 @@ public class ContractCreator {
 			.gender(companion.gender())
 			.individualPremium(companion.premium())
 			.individualPolicyNumber(companion.policyNumber())
+			.planId(resolvedPlanId)
 			.build();
+	}
+
+	/**
+	 * planName이 있으면 주민번호로 개인별 planId를 resolve한다.
+	 */
+	private Long resolvePersonPlanId(String planName, String residentNumber, Boolean silsonExclude) {
+		if (planName != null && residentNumber != null) {
+			return planResolver.resolve(planName, residentNumber, silsonExclude).id();
+		}
+		return null;
 	}
 
 	private String buildFullEnglishName(String lastName, String firstName) {

@@ -14,4 +14,8 @@ public interface PlanRepository {
 
 	List<Plan> findAllActiveByInsurerId(Long insurerId);
 
+	Optional<Plan> findByPlanNamePrefixAndAgeGroupId(String planNamePrefix, Long ageGroupId);
+
+	Optional<Plan> findByPlanNamePrefixAndAgeGroupIdAndIsLoss(String planNamePrefix, Long ageGroupId, boolean isLoss);
+
 }
