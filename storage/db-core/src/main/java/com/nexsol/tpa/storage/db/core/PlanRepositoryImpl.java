@@ -34,16 +34,9 @@ public class PlanRepositoryImpl implements PlanRepository {
 		return planJpaRepository.findByPlanNamePrefixAndAgeGroupId(planNamePrefix, ageGroupId).map(this::toDomain);
 	}
 
-	@Override
-	public Optional<Plan> findByPlanNamePrefixAndAgeGroupIdAndIsLoss(String planNamePrefix, Long ageGroupId,
-			boolean isLoss) {
-		return planJpaRepository.findByPlanNamePrefixAndAgeGroupIdAndIsLoss(planNamePrefix, ageGroupId, isLoss)
-			.map(this::toDomain);
-	}
-
 	private Plan toDomain(TravelInsurancePlanEntity entity) {
 		return new Plan(entity.getId(), entity.getPlanCode(), entity.getPlanName(), entity.getProductName(),
-				entity.getPlanFullName(), entity.getAgeGroupId(), entity.isLoss(), entity.getInsurerId());
+				entity.getPlanFullName(), entity.getAgeGroupId(), entity.getInsurerId());
 	}
 
 }

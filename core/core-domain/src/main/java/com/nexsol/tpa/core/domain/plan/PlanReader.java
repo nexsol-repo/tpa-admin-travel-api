@@ -31,9 +31,4 @@ public class PlanReader {
 		return planRepository.findByPlanNamePrefixAndAgeGroupId(planNamePrefix, ageGroupId);
 	}
 
-	public Optional<Plan> readByPlanNamePrefixAndAgeGroupIdAndIsLoss(String planNamePrefix, Long ageGroupId,
-			boolean isLoss) {
-		return planRepository.findByPlanNamePrefixAndAgeGroupIdAndIsLoss(planNamePrefix, ageGroupId, isLoss);
-	}
-
 }

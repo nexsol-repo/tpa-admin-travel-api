@@ -37,9 +37,6 @@ public class TravelInsurancePlanEntity extends BaseEntity {
 	@Column(name = "insurer_id")
 	private Long insurerId;
 
-	@Column(name = "is_loss", columnDefinition = "TINYINT(1)")
-	private boolean isLoss;
-
 	@Column(name = "is_active", columnDefinition = "TINYINT(1)")
 	private boolean isActive;
 

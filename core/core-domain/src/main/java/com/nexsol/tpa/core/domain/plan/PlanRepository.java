@@ -16,6 +16,4 @@ public interface PlanRepository {
 
 	Optional<Plan> findByPlanNamePrefixAndAgeGroupId(String planNamePrefix, Long ageGroupId);
 
-	Optional<Plan> findByPlanNamePrefixAndAgeGroupIdAndIsLoss(String planNamePrefix, Long ageGroupId, boolean isLoss);
-
 }
