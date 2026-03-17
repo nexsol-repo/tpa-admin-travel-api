@@ -11,7 +11,7 @@ import java.util.List;
 
 @Builder
 public record ContractDetailResponse(Long contractId, InsuranceSection insuranceSection, ApplicantInfo applicantSection,
-		PaymentInfo paymentSection, List<CompanionInfo> companions) {
+		PaymentInfo payment, List<CompanionInfo> companions) {
 
 	public static ContractDetailResponse of(InsuranceContract domain) {
 		List<CompanionInfo> companions = (domain.insuredPeople() != null && domain.insuredPeople().size() > 1)
@@ -22,7 +22,7 @@ public record ContractDetailResponse(Long contractId, InsuranceSection insurance
 			.contractId(domain.contractId())
 			.insuranceSection(InsuranceSection.toInsuranceSection(domain))
 			.applicantSection(ApplicantInfo.toApplicantInfo(domain.applicant()))
-			.paymentSection(PaymentInfo.toPaymentInfo(domain.paymentInfo()))
+			.payment(PaymentInfo.toPaymentInfo(domain.paymentInfo()))
 			.companions(companions)
 			.build();
 	}

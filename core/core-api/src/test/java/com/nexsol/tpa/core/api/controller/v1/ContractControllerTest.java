@@ -447,11 +447,11 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.applicantSection.email").description("이메일"),
 
 				// 4. Payment Section
-				fieldWithPath("data.paymentSection").description("결제 정보 섹션"),
-				fieldWithPath("data.paymentSection.method").description("결제 수단"),
-				fieldWithPath("data.paymentSection.totalAmount").description("결제 총액"),
-				fieldWithPath("data.paymentSection.paidAt").description("결제 일시"),
-				fieldWithPath("data.paymentSection.canceledAt").description("해지(취소) 일시").optional(),
+				fieldWithPath("data.payment").description("결제 정보 섹션"),
+				fieldWithPath("data.payment.method").description("결제 수단"),
+				fieldWithPath("data.payment.totalAmount").description("결제 총액"),
+				fieldWithPath("data.payment.paidAt").description("결제 일시"),
+				fieldWithPath("data.payment.canceledAt").description("해지(취소) 일시").optional(),
 
 				// 5. Companions
 				fieldWithPath("data.companions").description("동반자 목록"), // UI 용어 반영
