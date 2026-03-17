@@ -241,7 +241,9 @@ public class ContractControllerTest extends RestDocsTest {
 				        "insurerId": 1,
 				        "insurerName": "메리츠"
 				    },
-				    "planId": 1,
+				    "planId": null,
+				    "planName": "가뿐한플랜",
+				    "silsonExclude": false,
 				    "travelCountry": "일본",
 				    "countryCode": "JP",
 				    "applicationDate": "2024-02-01T00:00:00",
@@ -349,7 +351,9 @@ public class ContractControllerTest extends RestDocsTest {
 				        "partnerId": 2,
 				        "partnerName": "TPA KOREA 2"
 				    },
-				    "planId": 2,
+				    "planId": null,
+				    "planName": "맘편한플랜",
+				    "silsonExclude": true,
 				    "travelCountry": "미국",
 				    "countryCode": "US",
 				    "policyNumber": "15540-97223",
@@ -443,11 +447,11 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.applicantSection.email").description("이메일"),
 
 				// 4. Payment Section
-				fieldWithPath("data.paymentSection").description("결제 정보 섹션"),
-				fieldWithPath("data.paymentSection.method").description("결제 수단"),
-				fieldWithPath("data.paymentSection.totalAmount").description("결제 총액"),
-				fieldWithPath("data.paymentSection.paidAt").description("결제 일시"),
-				fieldWithPath("data.paymentSection.canceledAt").description("해지(취소) 일시").optional(),
+				fieldWithPath("data.payment").description("결제 정보 섹션"),
+				fieldWithPath("data.payment.method").description("결제 수단"),
+				fieldWithPath("data.payment.totalAmount").description("결제 총액"),
+				fieldWithPath("data.payment.paidAt").description("결제 일시"),
+				fieldWithPath("data.payment.canceledAt").description("해지(취소) 일시").optional(),
 
 				// 5. Companions
 				fieldWithPath("data.companions").description("동반자 목록"), // UI 용어 반영
@@ -477,7 +481,10 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("subscriptionOrigin.insurerId").description("보험사 ID"),
 				fieldWithPath("subscriptionOrigin.insurerName").description("보험사명"),
 
-				fieldWithPath("planId").description("가입 플랜 ID"), fieldWithPath("travelCountry").description("여행 국가"),
+				fieldWithPath("planId").description("가입 플랜 ID (planName 사용 시 null 가능)").optional(),
+				fieldWithPath("planName").description("가입 플랜명 (가뿐한플랜, 맘편한플랜, 딱좋은플랜). planId 대신 사용하면 주민번호 기반 나이로 플랜 자동 매칭").optional(),
+				fieldWithPath("silsonExclude").description("실손제외 여부 (true: 실손제외, false: 실손포함). planName 사용 시 함께 전송").optional(),
+				fieldWithPath("travelCountry").description("여행 국가"),
 				fieldWithPath("countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)"),
 
@@ -529,7 +536,9 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("subscriptionOrigin.partnerId").description("제휴사 ID").optional(),
 				fieldWithPath("subscriptionOrigin.partnerName").description("제휴사명").optional(),
 
-				fieldWithPath("planId").description("플랜 ID").optional(),
+				fieldWithPath("planId").description("플랜 ID (planName 사용 시 null 가능)").optional(),
+				fieldWithPath("planName").description("가입 플랜명 (가뿐한플랜, 맘편한플랜, 딱좋은플랜). planId 대신 사용하면 주민번호 기반 나이로 플랜 자동 매칭").optional(),
+				fieldWithPath("silsonExclude").description("실손제외 여부 (true: 실손제외, false: 실손포함). planName 사용 시 함께 전송").optional(),
 				fieldWithPath("travelCountry").description("여행 국가").optional(),
 				fieldWithPath("countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("policyNumber").description("증권번호").optional(),

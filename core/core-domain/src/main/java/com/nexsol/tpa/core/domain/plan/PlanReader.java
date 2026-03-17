@@ -27,4 +27,13 @@ public class PlanReader {
 		return planRepository.findAllActiveByInsurerId(insurerId);
 	}
 
+	public Optional<Plan> readByPlanNamePrefixAndAgeGroupId(String planNamePrefix, Long ageGroupId) {
+		return planRepository.findByPlanNamePrefixAndAgeGroupId(planNamePrefix, ageGroupId);
+	}
+
+	public Optional<Plan> readByPlanNamePrefixAndAgeGroupIdAndIsLoss(String planNamePrefix, Long ageGroupId,
+			boolean isLoss) {
+		return planRepository.findByPlanNamePrefixAndAgeGroupIdAndIsLoss(planNamePrefix, ageGroupId, isLoss);
+	}
+
 }

@@ -1,8 +1,11 @@
 package com.nexsol.tpa.storage.db.core;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TravelInsurancePlanJpaRepository extends JpaRepository<TravelInsurancePlanEntity, Long> {
 
@@ -11,5 +14,14 @@ public interface TravelInsurancePlanJpaRepository extends JpaRepository<TravelIn
 	List<TravelInsurancePlanEntity> findByIsActiveTrue();
 
 	List<TravelInsurancePlanEntity> findByInsurerIdAndIsActiveTrue(Long insurerId);
+
+	@Query("SELECT p FROM TravelInsurancePlanEntity p WHERE p.planFullName LIKE CONCAT(:planNamePrefix, '%') AND p.ageGroupId = :ageGroupId AND p.isActive = true")
+	Optional<TravelInsurancePlanEntity> findByPlanNamePrefixAndAgeGroupId(@Param("planNamePrefix") String planNamePrefix,
+			@Param("ageGroupId") Long ageGroupId);
+
+	@Query("SELECT p FROM TravelInsurancePlanEntity p WHERE p.planFullName LIKE CONCAT(:planNamePrefix, '%') AND p.ageGroupId = :ageGroupId AND p.isLoss = :isLoss AND p.isActive = true")
+	Optional<TravelInsurancePlanEntity> findByPlanNamePrefixAndAgeGroupIdAndIsLoss(
+			@Param("planNamePrefix") String planNamePrefix, @Param("ageGroupId") Long ageGroupId,
+			@Param("isLoss") boolean isLoss);
 
 }
