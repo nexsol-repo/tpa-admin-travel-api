@@ -162,19 +162,21 @@ public class ContractControllerTest extends RestDocsTest {
 				.param("applicantName", "홍길동")
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andDo(document("contract-list",
-					queryParameters(parameterWithName("page").description("페이지 번호 (0부터 시작)").optional(),
-							parameterWithName("size").description("페이지 크기").optional(),
-							parameterWithName("sortBy").description("정렬 기준 필드 (예: partnerName)").optional(),
-							parameterWithName("direction").description("정렬 방향 (ASC, DESC)").optional(),
-							parameterWithName("startDate").description("조회 시작일 (yyyy-MM-dd)").optional(),
-							parameterWithName("endDate").description("조회 종료일 (yyyy-MM-dd)").optional(),
-							parameterWithName("partnerName").description("제휴사명 (전체 일치)").optional(),
-							parameterWithName("channelName").description("채널명 (전체 일치)").optional(),
-							parameterWithName("insurerName").description("보험사명 (전체 일치)").optional(),
-							parameterWithName("status").description("계약 상태 (COMPLETED: 가입완료, CANCELED: 임의해지, EXPIRED: 기간만료). 미전송 시 3가지 상태 전체 조회. " +
-								"가입완료=보험종료일 미경과 & 결제취소 아님, 임의해지=결제 취소된 계약, 기간만료=보험종료일 경과 & 결제취소 아님").optional(),
-							parameterWithName("applicantName").description("가입자명 (부분 일치)").optional()),
+			.andDo(document("contract-list", queryParameters(
+					parameterWithName("page").description("페이지 번호 (0부터 시작)").optional(),
+					parameterWithName("size").description("페이지 크기").optional(),
+					parameterWithName("sortBy").description("정렬 기준 필드 (예: partnerName)").optional(),
+					parameterWithName("direction").description("정렬 방향 (ASC, DESC)").optional(),
+					parameterWithName("startDate").description("조회 시작일 (yyyy-MM-dd)").optional(),
+					parameterWithName("endDate").description("조회 종료일 (yyyy-MM-dd)").optional(),
+					parameterWithName("partnerName").description("제휴사명 (전체 일치)").optional(),
+					parameterWithName("channelName").description("채널명 (전체 일치)").optional(),
+					parameterWithName("insurerName").description("보험사명 (전체 일치)").optional(),
+					parameterWithName("status")
+						.description("계약 상태 (COMPLETED: 가입완료, CANCELED: 임의해지, EXPIRED: 기간만료). 미전송 시 3가지 상태 전체 조회. "
+								+ "가입완료=보험종료일 미경과 & 결제취소 아님, 임의해지=결제 취소된 계약, 기간만료=보험종료일 경과 & 결제취소 아님")
+						.optional(),
+					parameterWithName("applicantName").description("가입자명 (부분 일치)").optional()),
 					responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
 							fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
 
@@ -265,7 +267,15 @@ public class ContractControllerTest extends RestDocsTest {
 				        "paidAt": "2025-03-15T15:01:42",
 				        "canceledAt": null
 				    },
-				    "refund": null,
+				    "refund": {
+				        "refundAmount": 17000,
+				        "refundMethod": "CARD",
+				        "bankName": null,
+				        "accountNumber": null,
+				        "depositorName": null,
+				        "refundReason": "단순 변심",
+				        "refundedAt": "2025-03-16T15:01:42"
+				    },
 				    "companions": [
 				        {
 				            "residentNumber": "910504-1234567",
@@ -326,7 +336,9 @@ public class ContractControllerTest extends RestDocsTest {
 					parameterWithName("partnerName").description("제휴사명").optional(),
 					parameterWithName("channelName").description("채널명").optional(),
 					parameterWithName("insurerName").description("보험사명").optional(),
-					parameterWithName("status").description("계약 상태 (COMPLETED: 가입완료, CANCELED: 임의해지, EXPIRED: 기간만료). 미전송 시 전체 조회").optional(),
+					parameterWithName("status")
+						.description("계약 상태 (COMPLETED: 가입완료, CANCELED: 임의해지, EXPIRED: 기간만료). 미전송 시 전체 조회")
+						.optional(),
 					parameterWithName("applicantName").description("가입자명").optional(),
 
 					// 엑셀 전용 파라미터
@@ -388,8 +400,11 @@ public class ContractControllerTest extends RestDocsTest {
 				    "refund": {
 				        "refundAmount": 17000,
 				        "refundMethod": "CARD",
-				        "refundedAt": "2025-03-16T15:01:42",
-				        "refundReason": "임의 해지"
+				        "bankName": null,
+				        "accountNumber": null,
+				        "depositorName": null,
+				        "refundReason": "임의 해지",
+				        "refundedAt": "2025-03-16T15:01:42"
 				    },
 				    "applicationDate": "2024-02-01T00:00:00",
 				    "memo": "계약 상태 변경: 해지 처리 및 결제 취소"
@@ -500,8 +515,11 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("subscriptionOrigin.insurerName").description("보험사명"),
 
 				fieldWithPath("planId").description("가입 플랜 ID (planName 사용 시 null 가능)").optional(),
-				fieldWithPath("planName").description("가입 플랜명 (가뿐한플랜, 맘편한플랜, 딱좋은플랜). planId 대신 사용하면 주민번호 기반 나이로 플랜 자동 매칭").optional(),
-				fieldWithPath("silsonExclude").description("실손제외 여부 (true: 실손제외, false: 실손포함). planName 사용 시 함께 전송").optional(),
+				fieldWithPath("planName")
+					.description("가입 플랜명 (가뿐한플랜, 맘편한플랜, 딱좋은플랜). planId 대신 사용하면 주민번호 기반 나이로 플랜 자동 매칭")
+					.optional(),
+				fieldWithPath("silsonExclude").description("실손제외 여부 (true: 실손제외, false: 실손포함). planName 사용 시 함께 전송")
+					.optional(),
 				fieldWithPath("travelCountry").description("여행 국가"),
 				fieldWithPath("countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("applicationDate").description("신청일 (yyyy-MM-dd'T'HH:mm:ss)"),
@@ -565,8 +583,11 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("subscriptionOrigin.partnerName").description("제휴사명").optional(),
 
 				fieldWithPath("planId").description("플랜 ID (planName 사용 시 null 가능)").optional(),
-				fieldWithPath("planName").description("가입 플랜명 (가뿐한플랜, 맘편한플랜, 딱좋은플랜). planId 대신 사용하면 주민번호 기반 나이로 플랜 자동 매칭").optional(),
-				fieldWithPath("silsonExclude").description("실손제외 여부 (true: 실손제외, false: 실손포함). planName 사용 시 함께 전송").optional(),
+				fieldWithPath("planName")
+					.description("가입 플랜명 (가뿐한플랜, 맘편한플랜, 딱좋은플랜). planId 대신 사용하면 주민번호 기반 나이로 플랜 자동 매칭")
+					.optional(),
+				fieldWithPath("silsonExclude").description("실손제외 여부 (true: 실손제외, false: 실손포함). planName 사용 시 함께 전송")
+					.optional(),
 				fieldWithPath("travelCountry").description("여행 국가").optional(),
 				fieldWithPath("countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("policyNumber").description("증권번호").optional(),

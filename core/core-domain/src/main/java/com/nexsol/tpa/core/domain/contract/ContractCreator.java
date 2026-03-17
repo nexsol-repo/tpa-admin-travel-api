@@ -91,17 +91,14 @@ public class ContractCreator {
 	}
 
 	/**
-	 * planName이 있으면 가입자 주민번호로 만나이를 계산하여 플랜을 찾고,
-	 * 없으면 기존처럼 planId로 직접 조회한다.
+	 * planName이 있으면 가입자 주민번호로 만나이를 계산하여 플랜을 찾고, 없으면 기존처럼 planId로 직접 조회한다.
 	 */
 	private Plan resolvePlan(ContractCreateCommand command) {
-		if (command.planName() != null && command.applicant() != null
-				&& command.applicant().residentNumber() != null) {
+		if (command.planName() != null && command.applicant() != null && command.applicant().residentNumber() != null) {
 			return planResolver.resolve(command.planName(), command.applicant().residentNumber(),
 					command.silsonExclude());
 		}
-		return planReader.read(command.planId())
-			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+		return planReader.read(command.planId()).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
 	}
 
 	private Applicant buildApplicant(ContractCreateCommand.ApplicantCommand applicant) {

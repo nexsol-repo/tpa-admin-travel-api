@@ -8,17 +8,18 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 
 /**
- * 플랜명 + 주민번호로 적합한 플랜을 찾는 도구 클래스
- * 1. plan_family 테이블에서 is_loss 조건으로 패밀리명 조회 (예: "가뿐한플랜B")
+ * 플랜명 + 주민번호로 적합한 플랜을 찾는 도구 클래스 1. plan_family 테이블에서 is_loss 조건으로 패밀리명 조회 (예: "가뿐한플랜B")
  * 2. 패밀리명 + age_group_id로 plan 테이블에서 실제 플랜 조회
  */
 @Component
 @RequiredArgsConstructor
 public class PlanResolver {
 
-	private static final Long AGE_GROUP_CHILD = 1L;   // 0~14세
-	private static final Long AGE_GROUP_ADULT = 2L;   // 15~69세
-	private static final Long AGE_GROUP_SENIOR = 3L;  // 70~80세
+	private static final Long AGE_GROUP_CHILD = 1L; // 0~14세
+
+	private static final Long AGE_GROUP_ADULT = 2L; // 15~69세
+
+	private static final Long AGE_GROUP_SENIOR = 3L; // 70~80세
 
 	private final PlanReader planReader;
 
@@ -48,8 +49,7 @@ public class PlanResolver {
 	}
 
 	/**
-	 * silsonExclude → is_loss 변환
-	 * silsonExclude=true → 실손제외 → is_loss=false
+	 * silsonExclude → is_loss 변환 silsonExclude=true → 실손제외 → is_loss=false
 	 * silsonExclude=false/null → 실손포함 → is_loss=true
 	 */
 	private boolean toIsLoss(Boolean silsonExclude) {

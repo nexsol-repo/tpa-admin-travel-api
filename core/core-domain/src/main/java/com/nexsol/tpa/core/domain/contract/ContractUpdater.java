@@ -146,8 +146,7 @@ public class ContractUpdater {
 		Long resolvedPlanId = existingPlan.planId();
 
 		// planName이 있으면 가입자 주민번호로 플랜 resolve
-		if (command.planName() != null && command.applicant() != null
-				&& command.applicant().residentNumber() != null) {
+		if (command.planName() != null && command.applicant() != null && command.applicant().residentNumber() != null) {
 			Plan plan = planResolver.resolve(command.planName(), command.applicant().residentNumber(),
 					command.silsonExclude());
 			resolvedPlanId = plan.id();
@@ -211,8 +210,7 @@ public class ContractUpdater {
 	}
 
 	private List<InsuredPerson> updateInsuredPeople(List<InsuredPerson> existing,
-			List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands, String planName,
-			Boolean silsonExclude) {
+			List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands, String planName, Boolean silsonExclude) {
 
 		// null이면 기존 유지 (수정 안 함)
 		if (commands == null) {

@@ -16,8 +16,7 @@ public record ContractDetailResponse(Long contractId, InsuranceSection insurance
 
 	public static ContractDetailResponse of(InsuranceContract domain) {
 		List<CompanionInfo> companions = (domain.insuredPeople() != null && domain.insuredPeople().size() > 1)
-				? domain.insuredPeople().stream().map(CompanionInfo::of).toList()
-				: List.of();
+				? domain.insuredPeople().stream().map(CompanionInfo::of).toList() : List.of();
 
 		return ContractDetailResponse.builder()
 			.contractId(domain.contractId())
