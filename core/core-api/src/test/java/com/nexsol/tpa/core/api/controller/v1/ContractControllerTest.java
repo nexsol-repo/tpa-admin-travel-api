@@ -395,6 +395,7 @@ public class ContractControllerTest extends RestDocsTest {
 				        }
 				    ],
 				    "payment": {
+				        "status": "CANCELED",
 				        "method": "카드 결제",
 				        "paidAt": "2025-03-15T15:01:42",
 				        "canceledAt": "2025-03-16T15:01:42"
@@ -576,7 +577,8 @@ public class ContractControllerTest extends RestDocsTest {
 	private FieldDescriptor[] getContractUpdateRequestFields() {
 		return new FieldDescriptor[] {
 				fieldWithPath("status").description("계약 상태 (PENDING, COMPLETED, CANCELED 등)").optional(),
-				fieldWithPath("statusName").description("계약 표시 상태명 (가입완료, 임의해지) - 전송 시 payment.status 자동 연동").optional(),
+				fieldWithPath("statusName").description("계약 표시 상태명 (가입완료, 임의해지) - 전송 시 payment.status 자동 연동")
+					.optional(),
 
 				fieldWithPath("subscriptionOrigin").description("가입 출처 정보 (보험사, 채널, 제휴사)").optional(),
 				fieldWithPath("subscriptionOrigin.insurerId").description("보험사 ID").optional(),
@@ -616,7 +618,8 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("insuredPeople[].gender").description("성별"),
 
 				fieldWithPath("payment").description("결제 정보 (부분 수정 가능)").optional(),
-				fieldWithPath("payment.status").description("결제 상태 (COMPLETED, CANCELED) - 직접 수정 시 statusName보다 우선").optional(),
+				fieldWithPath("payment.status").description("결제 상태 (COMPLETED, CANCELED) - 직접 수정 시 statusName보다 우선")
+					.optional(),
 				fieldWithPath("payment.method").description("결제 방법 (카드 결제 등)").optional(),
 				fieldWithPath("payment.paidAt").description("결제 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 				fieldWithPath("payment.canceledAt").description("해지 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
