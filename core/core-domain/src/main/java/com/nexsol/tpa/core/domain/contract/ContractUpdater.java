@@ -61,6 +61,7 @@ public class ContractUpdater {
 			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
 			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
 			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
+			.totalPremium(command.totalPremium() != null ? command.totalPremium() : existing.totalPremium())
 			.build();
 	}
 

@@ -85,6 +85,7 @@ public class TravelContractMapper {
 			.insuredPeople(safePeople.stream().map(TravelInsurePeopleEntity::toDomain).toList())
 			.employeeId(entity.getEmployeeId())
 			.insuredCount(entity.getInsuredPeopleNumber())
+			.totalPremium(entity.getTotalPremium())
 			.build();
 	}
 

@@ -374,6 +374,7 @@ public class ContractControllerTest extends RestDocsTest {
 				    "countryCode": "US",
 				    "policyNumber": "15540-97223",
 				    "policyLink": "https://insurance.example.com/policy/15540-97223",
+				    "totalPremium": 17000,
 				    "applicant": {
 				        "name": "홍길동수정",
 				        "residentNumber": "910504-1234567",
@@ -397,6 +398,7 @@ public class ContractControllerTest extends RestDocsTest {
 				    "payment": {
 				        "status": "CANCELED",
 				        "method": "카드 결제",
+				        "totalAmount": 17000,
 				        "paidAt": "2025-03-15T15:01:42",
 				        "canceledAt": "2025-03-16T15:01:42"
 				    },
@@ -603,6 +605,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("policyNumber").description("증권번호").optional(),
 				fieldWithPath("policyLink").description("증권주소").optional(),
+				fieldWithPath("totalPremium").description("납입보험료").optional(),
 
 				fieldWithPath("applicant").description("가입자(피보험자) 정보 (부분 수정 가능)").optional(),
 				fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(),
@@ -626,6 +629,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("payment.status").description("결제 상태 (COMPLETED, CANCELED) - 직접 수정 시 statusName보다 우선")
 					.optional(),
 				fieldWithPath("payment.method").description("결제 방법 (카드 결제 등)").optional(),
+				fieldWithPath("payment.totalAmount").description("결제 금액").optional(),
 				fieldWithPath("payment.paidAt").description("결제 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 				fieldWithPath("payment.canceledAt").description("해지 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
