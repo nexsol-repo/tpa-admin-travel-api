@@ -13,10 +13,12 @@ public record ContractResponse(Long contractId, String contractStatus, String co
 		int insuredCount, BigDecimal totalPremium, LocalDateTime applicationDate, LocalDate insuranceStartDate,
 		LocalDate insuranceEndDate) {
 	public static ContractResponse of(InsuranceContract domain) {
+		String displayStatus = resolveDisplayStatus(domain);
+		String displayStatusCode = resolveDisplayStatusCode(domain);
 		return ContractResponse.builder()
 			.contractId(domain.contractId())
-			.contractStatus(domain.status().getDescription())
-			.contractStatusCode(domain.status().name())
+			.contractStatus(displayStatus)
+			.contractStatusCode(displayStatusCode)
 			.policyNumber(domain.metaInfo().policyNumber())
 			.partnerName(domain.metaInfo().origin().partnerName())
 			.channelName(domain.metaInfo().origin().channelName())
@@ -29,5 +31,19 @@ public record ContractResponse(Long contractId, String contractStatus, String co
 			.insuranceStartDate(domain.metaInfo().period().startDate())
 			.insuranceEndDate(domain.metaInfo().period().endDate())
 			.build();
+	}
+
+	private static String resolveDisplayStatus(InsuranceContract domain) {
+		if (domain.paymentInfo() != null && "CANCELED".equals(domain.paymentInfo().status())) {
+			return "임의해지";
+		}
+		return domain.status().getDescription();
+	}
+
+	private static String resolveDisplayStatusCode(InsuranceContract domain) {
+		if (domain.paymentInfo() != null && "CANCELED".equals(domain.paymentInfo().status())) {
+			return "CANCELED";
+		}
+		return domain.status().name();
 	}
 }
