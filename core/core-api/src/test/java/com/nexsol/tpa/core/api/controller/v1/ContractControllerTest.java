@@ -447,7 +447,12 @@ public class ContractControllerTest extends RestDocsTest {
 				// 2. Insurance Section
 				fieldWithPath("data.insuranceSection").description("보험 가입 정보 섹션"),
 				fieldWithPath("data.insuranceSection.product.name").description("보험 상품명"),
-				fieldWithPath("data.insuranceSection.product.plan").description("플랜명"),
+				fieldWithPath("data.insuranceSection.product.plan").description("플랜명 (원본)"),
+				fieldWithPath("data.insuranceSection.product.displayPlanName")
+					.description("플랜 표시명 (가뿐한플랜, 가뿐한플랜(실손제외))")
+					.optional(),
+				fieldWithPath("data.insuranceSection.product.silsonExclude")
+					.description("실손제외 여부 (true: 실손제외, false: 실손포함)"),
 				fieldWithPath("data.insuranceSection.product.country").description("여행 국가"),
 				fieldWithPath("data.insuranceSection.product.countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("data.insuranceSection.subscription.partner").description("제휴사"),
