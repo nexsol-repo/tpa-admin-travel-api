@@ -152,8 +152,9 @@ public class TravelContractMapper {
 		if (familyName == null) {
 			return null;
 		}
-		// familyName에서 suffix(A, B 등) 제거 → "가뿐한플랜B" → "가뿐한플랜"
-		return familyName.replaceAll("[A-Z]$", "");
+		// "딱좋은플랜B 실손제외" → "딱좋은플랜B" → "딱좋은플랜"
+		// "가뿐한플랜B" → "가뿐한플랜"
+		return familyName.replace(" 실손제외", "").replaceAll("[A-Z]$", "");
 	}
 
 	private Applicant toApplicant(TravelContractEntity entity) {
