@@ -69,6 +69,8 @@ public class TravelContractEntity extends BaseEntity {
 
 	private Long employeeId;
 
+	private LocalDateTime deletedAt;
+
 	public void updateStatus(String status) {
 		if (status != null) {
 			this.status = status;
