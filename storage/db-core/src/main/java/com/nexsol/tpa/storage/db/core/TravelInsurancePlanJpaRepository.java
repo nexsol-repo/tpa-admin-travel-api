@@ -19,4 +19,8 @@ public interface TravelInsurancePlanJpaRepository extends JpaRepository<TravelIn
 	Optional<TravelInsurancePlanEntity> findByPlanNamePrefixAndAgeGroupId(
 			@Param("planNamePrefix") String planNamePrefix, @Param("ageGroupId") Long ageGroupId);
 
+	@Query("SELECT p FROM TravelInsurancePlanEntity p JOIN TravelInsurancePlanFamilyMapEntity m ON m.planId = p.id WHERE m.familyId = :familyId AND p.ageGroupId = :ageGroupId AND p.isActive = true")
+	Optional<TravelInsurancePlanEntity> findByFamilyIdAndAgeGroupId(@Param("familyId") Long familyId,
+			@Param("ageGroupId") Long ageGroupId);
+
 }

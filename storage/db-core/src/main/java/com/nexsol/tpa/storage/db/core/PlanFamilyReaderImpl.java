@@ -18,4 +18,10 @@ public class PlanFamilyReaderImpl implements PlanFamilyRepository {
 			.map(TravelInsurancePlanFamilyEntity::getFamilyName);
 	}
 
+	@Override
+	public Optional<Long> findFamilyIdByExactName(String familyName, boolean isLoss) {
+		return familyJpaRepository.findByFamilyNameAndIsLoss(familyName, isLoss)
+			.map(TravelInsurancePlanFamilyEntity::getId);
+	}
+
 }

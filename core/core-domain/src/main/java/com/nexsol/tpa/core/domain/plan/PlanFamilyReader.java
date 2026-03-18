@@ -23,16 +23,24 @@ public class PlanFamilyReader {
 
 	/**
 	 * 플랜 표시명과 실손여부로 패밀리명을 조회한다.
-	 * @param planName 플랜 표시명 (예: "가뿐한플랜")
-	 * @param isLoss 실손 포함 여부 (true: 실손포함, false: 실손제외)
-	 * @return 패밀리명 (예: "가뿐한플랜B" 또는 "가뿐한플랜B 실손제외")
 	 */
 	public Optional<String> findFamilyName(String planName, boolean isLoss) {
+		return planFamilyRepository.findFamilyNameByExactName(buildFamilyName(planName, isLoss), isLoss);
+	}
+
+	/**
+	 * 플랜 표시명과 실손여부로 패밀리 ID를 조회한다.
+	 */
+	public Optional<Long> findFamilyId(String planName, boolean isLoss) {
+		return planFamilyRepository.findFamilyIdByExactName(buildFamilyName(planName, isLoss), isLoss);
+	}
+
+	private String buildFamilyName(String planName, boolean isLoss) {
 		String familyName = planName + DEFAULT_SUFFIX;
 		if (!isLoss) {
 			familyName += SILSON_EXCLUDE_SUFFIX;
 		}
-		return planFamilyRepository.findFamilyNameByExactName(familyName, isLoss);
+		return familyName;
 	}
 
 }

@@ -31,4 +31,8 @@ public class PlanReader {
 		return planRepository.findByPlanNamePrefixAndAgeGroupId(planNamePrefix, ageGroupId);
 	}
 
+	public Optional<Plan> readByFamilyIdAndAgeGroupId(Long familyId, Long ageGroupId) {
+		return planRepository.findByFamilyIdAndAgeGroupId(familyId, ageGroupId);
+	}
+
 }
