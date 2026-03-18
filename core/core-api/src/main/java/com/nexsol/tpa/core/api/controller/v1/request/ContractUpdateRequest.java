@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
-		List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, RefundRequest refund,
+public record ContractUpdateRequest(ContractStatus status, String statusName, ApplicantRequest applicant,
+		PeriodRequest period, List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, RefundRequest refund,
 		SubscriptionOriginRequest subscriptionOrigin, Long planId, String planName, Boolean silsonExclude,
 		String travelCountry, String countryCode, String policyNumber, String policyLink,
 		@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, String memo) {
@@ -66,10 +66,12 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
 		}
 	}
 
-	public record PaymentRequest(String method, @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime paidAt,
+	public record PaymentRequest(String status, String method,
+			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime paidAt,
 			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime canceledAt) {
 		public ContractUpdateCommand.PaymentUpdateCommand toCommand() {
 			return ContractUpdateCommand.PaymentUpdateCommand.builder()
+				.status(status)
 				.method(method)
 				.paidAt(paidAt)
 				.canceledAt(canceledAt)
@@ -97,6 +99,7 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
 		return ContractUpdateCommand.builder()
 			.contractId(contractId)
 			.status(status)
+			.statusName(statusName)
 			.applicant(applicant != null ? applicant.toCommand() : null)
 			.period(period != null ? period.toCommand() : null)
 			.insuredPeople(

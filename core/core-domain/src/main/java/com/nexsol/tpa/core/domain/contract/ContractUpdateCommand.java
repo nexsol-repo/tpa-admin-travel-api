@@ -12,7 +12,8 @@ import java.util.List;
  * 계약 수정 명령 객체 Presentation Layer에서 Business Layer로 전달되는 개념 객체
  */
 @Builder
-public record ContractUpdateCommand(Long contractId, ContractStatus status, ApplicantUpdateCommand applicant,
+public record ContractUpdateCommand(Long contractId, ContractStatus status, String statusName,
+		ApplicantUpdateCommand applicant,
 		PeriodUpdateCommand period, List<InsuredPersonUpdateCommand> insuredPeople, PaymentUpdateCommand payment,
 		RefundUpdateCommand refund, SubscriptionOriginUpdateCommand subscriptionOrigin, Long planId, String planName,
 		Boolean silsonExclude, String travelCountry, String countryCode, String policyNumber, String policyLink,
@@ -40,7 +41,7 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Appl
 	}
 
 	@Builder
-	public record PaymentUpdateCommand(String method, LocalDateTime paidAt, LocalDateTime canceledAt) {
+	public record PaymentUpdateCommand(String status, String method, LocalDateTime paidAt, LocalDateTime canceledAt) {
 	}
 
 	@Builder
