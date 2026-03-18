@@ -100,7 +100,7 @@ public class ContractUpdater {
 		return PaymentInfo.builder()
 			.status(resolvedStatus)
 			.method(command != null && command.method() != null ? command.method() : currentMethod)
-			.totalAmount(currentAmount)
+			.totalAmount(command != null && command.totalAmount() != null ? command.totalAmount() : currentAmount)
 			.paidAt(command != null && command.paidAt() != null ? command.paidAt() : currentPaidAt)
 			.canceledAt(command != null ? command.canceledAt() : currentCanceledAt)
 			.build();

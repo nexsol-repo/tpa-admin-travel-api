@@ -66,13 +66,14 @@ public record ContractUpdateRequest(ContractStatus status, String statusName, Ap
 		}
 	}
 
-	public record PaymentRequest(String status, String method,
+	public record PaymentRequest(String status, String method, BigDecimal totalAmount,
 			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime paidAt,
 			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime canceledAt) {
 		public ContractUpdateCommand.PaymentUpdateCommand toCommand() {
 			return ContractUpdateCommand.PaymentUpdateCommand.builder()
 				.status(status)
 				.method(method)
+				.totalAmount(totalAmount)
 				.paidAt(paidAt)
 				.canceledAt(canceledAt)
 				.build();

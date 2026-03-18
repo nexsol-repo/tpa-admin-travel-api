@@ -40,7 +40,8 @@ public record ContractUpdateCommand(Long contractId, ContractStatus status, Stri
 	}
 
 	@Builder
-	public record PaymentUpdateCommand(String status, String method, LocalDateTime paidAt, LocalDateTime canceledAt) {
+	public record PaymentUpdateCommand(String status, String method, BigDecimal totalAmount, LocalDateTime paidAt,
+			LocalDateTime canceledAt) {
 	}
 
 	@Builder
