@@ -35,16 +35,12 @@ public class PlanResolver {
 	public Plan resolve(String planName, String residentNumber, Boolean silsonExclude) {
 		int age = calculateAge(residentNumber, LocalDate.now());
 		Long ageGroupId = determineAgeGroup(age);
-
-		// "가뿐한플랜(실손제외)" → baseName: "가뿐한플랜", silsonExclude 자동 판단
-		String baseName = extractBasePlanName(planName);
-		boolean resolvedSilsonExclude = (silsonExclude != null) ? silsonExclude : planName.contains("(실손제외)");
-		boolean isLoss = !resolvedSilsonExclude;
+		boolean isLoss = silsonExclude == null || !silsonExclude;
 
 		// 1. family 테이블에서 is_loss 조건으로 패밀리명 조회
-		String familyName = planFamilyReader.findFamilyName(baseName, isLoss)
+		String familyName = planFamilyReader.findFamilyName(planName, isLoss)
 			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA,
-					"플랜 패밀리를 찾을 수 없습니다: " + baseName + ", 실손제외: " + resolvedSilsonExclude));
+					"플랜 패밀리를 찾을 수 없습니다: " + planName + ", 실손제외: " + silsonExclude));
 
 		// 2. 패밀리명 + age_group_id로 플랜 조회
 		return planReader.readByPlanNamePrefixAndAgeGroupId(familyName, ageGroupId)
@@ -52,12 +48,6 @@ public class PlanResolver {
 					"플랜을 찾을 수 없습니다: " + familyName + ", 나이: " + age));
 	}
 
-	/**
-	 * "가뿐한플랜(실손제외)" → "가뿐한플랜"
-	 */
-	private String extractBasePlanName(String planName) {
-		return planName.replace("(실손제외)", "").trim();
-	}
 
 	/**
 	 * 주민번호에서 만나이를 계산한다.

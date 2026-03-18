@@ -135,7 +135,7 @@ public class TravelContractMapper {
 
 		String familyName = (family != null) ? family.getFamilyName() : null;
 		boolean isLoss = (family != null) && family.isLoss();
-		String displayPlanName = buildDisplayPlanName(familyName, isLoss);
+		String displayPlanName = buildDisplayPlanName(familyName);
 
 		return ProductPlan.builder()
 			.planId(plan.getId())
@@ -148,13 +148,12 @@ public class TravelContractMapper {
 			.build();
 	}
 
-	private String buildDisplayPlanName(String familyName, boolean isLoss) {
+	private String buildDisplayPlanName(String familyName) {
 		if (familyName == null) {
 			return null;
 		}
 		// familyName에서 suffix(A, B 등) 제거 → "가뿐한플랜B" → "가뿐한플랜"
-		String baseName = familyName.replaceAll("[A-Z]$", "");
-		return isLoss ? baseName : baseName + "(실손제외)";
+		return familyName.replaceAll("[A-Z]$", "");
 	}
 
 	private Applicant toApplicant(TravelContractEntity entity) {
