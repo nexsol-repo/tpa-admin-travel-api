@@ -37,15 +37,15 @@ public class PlanResolver {
 		Long ageGroupId = determineAgeGroup(age);
 		boolean isLoss = silsonExclude == null || !silsonExclude;
 
-		// 1. family 테이블에서 is_loss 조건으로 패밀리명 조회
-		String familyName = planFamilyReader.findFamilyName(planName, isLoss)
+		// 1. family 테이블에서 is_loss 조건으로 패밀리 ID 조회
+		Long familyId = planFamilyReader.findFamilyId(planName, isLoss)
 			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA,
 					"플랜 패밀리를 찾을 수 없습니다: " + planName + ", 실손제외: " + silsonExclude));
 
-		// 2. 패밀리명 + age_group_id로 플랜 조회
-		return planReader.readByPlanNamePrefixAndAgeGroupId(familyName, ageGroupId)
+		// 2. family_map + age_group_id로 플랜 조회
+		return planReader.readByFamilyIdAndAgeGroupId(familyId, ageGroupId)
 			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA,
-					"플랜을 찾을 수 없습니다: " + familyName + ", 나이: " + age));
+					"플랜을 찾을 수 없습니다: " + planName + ", 나이: " + age));
 	}
 
 

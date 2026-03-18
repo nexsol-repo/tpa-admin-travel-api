@@ -9,4 +9,6 @@ public interface PlanFamilyRepository {
 
 	Optional<String> findFamilyNameByExactName(String familyName, boolean isLoss);
 
+	Optional<Long> findFamilyIdByExactName(String familyName, boolean isLoss);
+
 }
