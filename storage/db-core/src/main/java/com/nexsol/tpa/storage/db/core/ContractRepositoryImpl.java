@@ -61,6 +61,10 @@ public class ContractRepositoryImpl implements ContractRepository {
 
 	private final TravelInsureRefundJpaRepository refundJpaRepository;
 
+	private final TravelInsurancePlanFamilyJpaRepository familyJpaRepository;
+
+	private final TravelInsurancePlanFamilyMapJpaRepository familyMapJpaRepository;
+
 	private final TravelContractMapper travelContractMapper;
 
 	@Override
@@ -77,8 +81,10 @@ public class ContractRepositoryImpl implements ContractRepository {
 		var refund = refundJpaRepository.findByContractId(contractId).orElse(null);
 		var people = insuredPersonJpaRepository.findAllByContractIdAndDeletedAtIsNull(contractId);
 		var plan = fetchPlan(contract.getPlanId());
+		var family = (contract.getPlanId() != null)
+				? familyJpaRepository.findByPlanId(contract.getPlanId()).orElse(null) : null;
 
-		return Optional.of(travelContractMapper.toDomain(contract, payment, refund, people, plan));
+		return Optional.of(travelContractMapper.toDomain(contract, payment, refund, people, plan, family));
 	}
 
 	private TravelInsurancePlanEntity fetchPlan(Long planId) {
@@ -161,10 +167,12 @@ public class ContractRepositoryImpl implements ContractRepository {
 		Map<Long, TravelInsureRefundEntity> refundMap = fetchRefundMap(contractIds);
 		Map<Long, List<TravelInsurePeopleEntity>> peopleMap = fetchPeopleMap(contractIds);
 		Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
+		Map<Long, TravelInsurancePlanFamilyEntity> familyByPlanIdMap = fetchFamilyMapByPlanId(planIds);
 
 		return contracts.stream()
 			.map(c -> travelContractMapper.toDomain(c, paymentMap.get(c.getId()), refundMap.get(c.getId()),
-					peopleMap.getOrDefault(c.getId(), Collections.emptyList()), planMap.get(c.getPlanId())))
+					peopleMap.getOrDefault(c.getId(), Collections.emptyList()), planMap.get(c.getPlanId()),
+					familyByPlanIdMap.get(c.getPlanId())))
 			.toList();
 	}
 
@@ -195,6 +203,29 @@ public class ContractRepositoryImpl implements ContractRepository {
 		return planJpaRepository.findByIdIn(planIds)
 			.stream()
 			.collect(Collectors.toMap(TravelInsurancePlanEntity::getId, plan -> plan));
+	}
+
+	private Map<Long, TravelInsurancePlanFamilyEntity> fetchFamilyMapByPlanId(List<Long> planIds) {
+		if (planIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		// planId → familyId 매핑
+		List<TravelInsurancePlanFamilyMapEntity> maps = familyMapJpaRepository.findByPlanIdIn(planIds);
+		Map<Long, Long> planToFamilyId = maps.stream()
+			.collect(Collectors.toMap(TravelInsurancePlanFamilyMapEntity::getPlanId,
+					TravelInsurancePlanFamilyMapEntity::getFamilyId, (a, b) -> a));
+
+		// familyId로 family 엔티티 배치 조회
+		List<Long> familyIds = planToFamilyId.values().stream().distinct().toList();
+		Map<Long, TravelInsurancePlanFamilyEntity> familyMap = familyJpaRepository.findAllById(familyIds)
+			.stream()
+			.collect(Collectors.toMap(TravelInsurancePlanFamilyEntity::getId, f -> f));
+
+		// planId → family 매핑
+		return planToFamilyId.entrySet()
+			.stream()
+			.filter(e -> familyMap.containsKey(e.getValue()))
+			.collect(Collectors.toMap(Map.Entry::getKey, e -> familyMap.get(e.getValue())));
 	}
 
 	@Override
@@ -292,8 +323,10 @@ public class ContractRepositoryImpl implements ContractRepository {
 		List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository
 			.findAllByContractIdAndDeletedAtIsNull(contractId);
 		TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
+		TravelInsurancePlanFamilyEntity family = (contract.getPlanId() != null)
+				? familyJpaRepository.findByPlanId(contract.getPlanId()).orElse(null) : null;
 
-		return travelContractMapper.toDomain(contract, payment, refund, people, plan);
+		return travelContractMapper.toDomain(contract, payment, refund, people, plan, family);
 	}
 
 	private String mapSortProperty(String requestProperty) {

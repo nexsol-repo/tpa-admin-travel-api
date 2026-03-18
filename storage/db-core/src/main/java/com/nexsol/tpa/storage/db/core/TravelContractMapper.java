@@ -66,7 +66,8 @@ public class TravelContractMapper {
 	 * 엔티티 -> 도메인 모델 변환
 	 */
 	public InsuranceContract toDomain(TravelContractEntity entity, TravelInsurePaymentEntity payment,
-			TravelInsureRefundEntity refund, List<TravelInsurePeopleEntity> people, TravelInsurancePlanEntity plan) {
+			TravelInsureRefundEntity refund, List<TravelInsurePeopleEntity> people, TravelInsurancePlanEntity plan,
+			TravelInsurancePlanFamilyEntity family) {
 		if (entity == null) {
 			return null;
 		}
@@ -77,7 +78,7 @@ public class TravelContractMapper {
 			.contractId(entity.getId())
 			.status(determineStatus(entity, payment))
 			.metaInfo(toContractMeta(entity))
-			.productPlan(toProductPlan(entity, plan))
+			.productPlan(toProductPlan(entity, plan, family))
 			.applicant(toApplicant(entity))
 			.paymentInfo(toPaymentInfo(entity, payment))
 			.refundInfo(refund != null ? refund.toDomain() : null)
@@ -88,7 +89,7 @@ public class TravelContractMapper {
 	}
 
 	public InsuranceContract toDomain(TravelContractEntity entity) {
-		return toDomain(entity, null, null, Collections.emptyList(), null);
+		return toDomain(entity, null, null, Collections.emptyList(), null, null);
 	}
 
 	private void mapMetaInfo(TravelContractEntity entity, ContractMeta meta) {
@@ -122,7 +123,8 @@ public class TravelContractMapper {
 			.build();
 	}
 
-	private ProductPlan toProductPlan(TravelContractEntity entity, TravelInsurancePlanEntity plan) {
+	private ProductPlan toProductPlan(TravelContractEntity entity, TravelInsurancePlanEntity plan,
+			TravelInsurancePlanFamilyEntity family) {
 		if (plan == null) {
 			return ProductPlan.builder()
 				.planId(entity.getPlanId())
@@ -130,13 +132,27 @@ public class TravelContractMapper {
 				.countryCode(entity.getCountryCode())
 				.build();
 		}
+
+		String familyName = (family != null) ? family.getFamilyName() : null;
+		boolean isLoss = (family != null) && family.isLoss();
+		String displayPlanName = buildDisplayPlanName(familyName, isLoss);
+
 		return ProductPlan.builder()
 			.planId(plan.getId())
 			.productName(plan.getProductName())
 			.planName(plan.getPlanName())
+			.displayPlanName(displayPlanName)
+			.silsonExclude(!isLoss)
 			.travelCountry(entity.getCountryName())
 			.countryCode(entity.getCountryCode())
 			.build();
+	}
+
+	private String buildDisplayPlanName(String familyName, boolean isLoss) {
+		if (familyName == null) {
+			return null;
+		}
+		return isLoss ? familyName : familyName + "(실손제외)";
 	}
 
 	private Applicant toApplicant(TravelContractEntity entity) {
