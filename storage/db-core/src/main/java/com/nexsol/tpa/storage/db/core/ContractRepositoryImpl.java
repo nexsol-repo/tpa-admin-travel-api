@@ -47,6 +47,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 		static final String STATUS = "status";
 		static final String APPLICANT_NAME = "applicantName";
 		static final String INSURED_PEOPLE_NUMBER = "insuredPeopleNumber";
+		static final String DELETED_AT = "deletedAt";
 
 	}
 
@@ -305,13 +306,18 @@ public class ContractRepositoryImpl implements ContractRepository {
 	}
 
 	private Specification<TravelContractEntity> createSpecification(ContractSearchCriteria criteria) {
-		return Specification.where(applyDateFrom(criteria))
+		return Specification.where(notDeleted())
+			.and(applyDateFrom(criteria))
 			.and(applyDateTo(criteria))
 			.and(partnerNameEquals(criteria))
 			.and(channelNameEquals(criteria))
 			.and(insurerNameEquals(criteria))
 			.and(statusEquals(criteria))
 			.and(applicantNameContains(criteria));
+	}
+
+	private Specification<TravelContractEntity> notDeleted() {
+		return (root, query, cb) -> cb.isNull(root.get(Fields.DELETED_AT));
 	}
 
 	private Specification<TravelContractEntity> applyDateFrom(ContractSearchCriteria criteria) {
