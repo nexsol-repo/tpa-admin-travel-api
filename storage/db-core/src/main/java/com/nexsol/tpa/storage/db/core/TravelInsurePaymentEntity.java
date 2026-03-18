@@ -42,8 +42,8 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 		return entity;
 	}
 
-	public void updatePaymentInfo(Long contractId, String status, String paymentMethod, LocalDateTime paymentDate,
-			LocalDateTime cancelDate) {
+	public void updatePaymentInfo(Long contractId, String status, String paymentMethod, BigDecimal paidAmount,
+			LocalDateTime paymentDate, LocalDateTime cancelDate) {
 		if (contractId != null) {
 			this.contractId = contractId;
 		}
@@ -52,6 +52,9 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 		}
 		if (paymentMethod != null) {
 			this.paymentMethod = paymentMethod;
+		}
+		if (paidAmount != null) {
+			this.paidAmount = paidAmount;
 		}
 		if (paymentDate != null) {
 			this.paymentDate = paymentDate;
