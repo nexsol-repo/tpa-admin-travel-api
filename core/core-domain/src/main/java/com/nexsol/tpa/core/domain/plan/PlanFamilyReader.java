@@ -1,18 +1,32 @@
 package com.nexsol.tpa.core.domain.plan;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.util.Optional;
 
 /**
- * 플랜 패밀리 조회 인터페이스 - is_loss 조건으로 패밀리명을 조회한다.
+ * 플랜 패밀리 조회 도구 클래스 (Implement Layer)
+ * 플랜명 + 실손여부로 패밀리명을 조회한다.
+ * 70세 이상을 제외하면 default suffix는 "B", 실손제외도 "B"
  */
-public interface PlanFamilyReader {
+@Component
+@RequiredArgsConstructor
+public class PlanFamilyReader {
+
+	private static final String DEFAULT_SUFFIX = "B";
+
+	private final PlanFamilyRepository planFamilyRepository;
 
 	/**
-	 * 플랜명 prefix와 is_loss 조건으로 패밀리명을 조회한다.
+	 * 플랜 표시명과 실손여부로 패밀리명을 조회한다.
 	 * @param planName 플랜 표시명 (예: "가뿐한플랜")
 	 * @param isLoss 실손 포함 여부
-	 * @return 패밀리명 (예: "가뿐한플랜A", "맘편한플랜B")
+	 * @return 패밀리명 (예: "가뿐한플랜B")
 	 */
-	Optional<String> findFamilyName(String planName, boolean isLoss);
+	public Optional<String> findFamilyName(String planName, boolean isLoss) {
+		String familyName = planName + DEFAULT_SUFFIX;
+		return planFamilyRepository.findFamilyNameByExactName(familyName, isLoss);
+	}
 
 }
