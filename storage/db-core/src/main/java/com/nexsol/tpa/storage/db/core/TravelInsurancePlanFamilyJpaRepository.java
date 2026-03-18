@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public interface TravelInsurancePlanFamilyJpaRepository extends JpaRepository<TravelInsurancePlanFamilyEntity, Long> {
 
-	@Query("SELECT f FROM TravelInsurancePlanFamilyEntity f WHERE f.familyName LIKE CONCAT(:planName, '%') AND f.isLoss = :isLoss AND f.isActive = true")
-	Optional<TravelInsurancePlanFamilyEntity> findByPlanNameAndIsLoss(@Param("planName") String planName,
+	@Query("SELECT f FROM TravelInsurancePlanFamilyEntity f WHERE f.familyName = :familyName AND f.isLoss = :isLoss AND f.isActive = true")
+	Optional<TravelInsurancePlanFamilyEntity> findByFamilyNameAndIsLoss(@Param("familyName") String familyName,
 			@Param("isLoss") boolean isLoss);
 
 	@Query("SELECT f FROM TravelInsurancePlanFamilyEntity f JOIN TravelInsurancePlanFamilyMapEntity m ON m.familyId = f.id WHERE m.planId = :planId")
