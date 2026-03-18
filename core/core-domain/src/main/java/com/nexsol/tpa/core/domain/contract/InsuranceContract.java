@@ -10,6 +10,7 @@ import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ import java.util.List;
 @Builder
 public record InsuranceContract(Long contractId, ContractStatus status, ContractMeta metaInfo, ProductPlan productPlan,
 		Applicant applicant, PaymentInfo paymentInfo, RefundInfo refundInfo, List<InsuredPerson> insuredPeople,
-		Long employeeId, Integer insuredCount
+		Long employeeId, Integer insuredCount, BigDecimal totalPremium
 
 ) {
 

@@ -278,6 +278,10 @@ public class ContractRepositoryImpl implements ContractRepository {
 			entity.updateCountryName(contract.productPlan().travelCountry());
 			entity.updateCountryCode(contract.productPlan().countryCode());
 		}
+		// 납입보험료 수정
+		if (contract.totalPremium() != null) {
+			entity.updateTotalPremium(contract.totalPremium());
+		}
 		// 담당자 ID 수정
 		if (contract.employeeId() != null) {
 			entity.updateEmployeeId(contract.employeeId());

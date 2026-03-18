@@ -8,7 +8,7 @@ public record ContractStatusInfo(String statusName, // 한글 상태명 (가입�
 		BigDecimal totalPremium // 총 보험료
 ) {
 	public static ContractStatusInfo toContractStatusInfo(InsuranceContract domain) {
-		BigDecimal total = (domain.paymentInfo() != null) ? domain.paymentInfo().totalAmount() : BigDecimal.ZERO;
+		BigDecimal total = (domain.totalPremium() != null) ? domain.totalPremium() : BigDecimal.ZERO;
 		String displayName = resolveDisplayName(domain);
 		String displayCode = resolveDisplayCode(domain);
 		return new ContractStatusInfo(displayName, displayCode, domain.insuredPeople().size(), total);
