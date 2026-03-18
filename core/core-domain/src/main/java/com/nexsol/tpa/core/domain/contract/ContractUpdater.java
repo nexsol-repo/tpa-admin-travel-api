@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -56,7 +57,7 @@ public class ContractUpdater {
 			.metaInfo(updateMeta(existing.metaInfo(), command))
 			.productPlan(updateProductPlan(existing, command))
 			.applicant(updateApplicant(existing.applicant(), command.applicant()))
-			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
+			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment(), command.statusName()))
 			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
 			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
 			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
@@ -67,21 +68,43 @@ public class ContractUpdater {
 		return command.status() != null ? command.status() : existing.status();
 	}
 
-	private PaymentInfo updatePayment(PaymentInfo existing, ContractUpdateCommand.PaymentUpdateCommand command) {
-		if (command == null) {
+	private PaymentInfo updatePayment(PaymentInfo existing, ContractUpdateCommand.PaymentUpdateCommand command,
+			String statusName) {
+		if (command == null && statusName == null) {
 			return existing;
 		}
 
-		// existing이 null인 경우(결제정보가 없는 상태에서 수정) 대비
+		String currentStatus = (existing != null) ? existing.status() : null;
 		String currentMethod = (existing != null) ? existing.method() : null;
-		BigDecimal currentAmount = (existing != null) ? existing.totalAmount() : java.math.BigDecimal.ZERO;
+		BigDecimal currentAmount = (existing != null) ? existing.totalAmount() : BigDecimal.ZERO;
+		LocalDateTime currentPaidAt = (existing != null) ? existing.paidAt() : null;
+		LocalDateTime currentCanceledAt = (existing != null) ? existing.canceledAt() : null;
+
+		// 1. payment.status 직접 수정이 우선
+		String resolvedStatus = currentStatus;
+		if (command != null && command.status() != null) {
+			resolvedStatus = command.status();
+		}
+		// 2. statusName(가입완료/임의해지)에 따라 payment.status 연동
+		else if (statusName != null) {
+			resolvedStatus = resolvePaymentStatusByName(statusName, currentStatus);
+		}
 
 		return PaymentInfo.builder()
-			.method(command.method() != null ? command.method() : currentMethod)
-			.totalAmount(currentAmount) // 금액 변경 로직은 별도로 없다면 기존 유지
-			.paidAt(command.paidAt() != null ? command.paidAt() : (existing != null ? existing.paidAt() : null))
-			.canceledAt(command.canceledAt()) // 취소일은 null이 올 수 있음 (취소 철회 등 고려)
+			.status(resolvedStatus)
+			.method(command != null && command.method() != null ? command.method() : currentMethod)
+			.totalAmount(currentAmount)
+			.paidAt(command != null && command.paidAt() != null ? command.paidAt() : currentPaidAt)
+			.canceledAt(command != null ? command.canceledAt() : currentCanceledAt)
 			.build();
+	}
+
+	private String resolvePaymentStatusByName(String statusName, String currentStatus) {
+		return switch (statusName) {
+			case "임의해지" -> "CANCELED";
+			case "가입완료" -> "COMPLETED";
+			default -> currentStatus;
+		};
 	}
 
 	private ContractMeta updateMeta(ContractMeta existing, ContractUpdateCommand command) {
