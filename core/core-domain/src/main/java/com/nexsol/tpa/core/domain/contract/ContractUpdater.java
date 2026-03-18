@@ -65,7 +65,14 @@ public class ContractUpdater {
 	}
 
 	private ContractStatus resolveStatus(InsuranceContract existing, ContractUpdateCommand command) {
-		return command.status() != null ? command.status() : existing.status();
+		if (command.status() != null) {
+			return command.status();
+		}
+		// statusName(가입완료/임의해지)은 둘 다 contract.status = COMPLETED
+		if (command.statusName() != null) {
+			return ContractStatus.COMPLETED;
+		}
+		return existing.status();
 	}
 
 	private PaymentInfo updatePayment(PaymentInfo existing, ContractUpdateCommand.PaymentUpdateCommand command,
