@@ -4,9 +4,11 @@ import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPeopleUpdater;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.plan.Plan;
 import com.nexsol.tpa.core.domain.plan.PlanReader;
+import com.nexsol.tpa.core.domain.plan.PlanResolver;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import com.nexsol.tpa.core.enums.ContractStatus;
@@ -29,6 +31,8 @@ public class ContractUpdater {
 
 	private final PlanReader planReader;
 
+	private final PlanResolver planResolver;
+
 	private final InsuredPeopleUpdater insuredPeopleUpdater;
 
 	public Long update(ContractUpdateCommand command) {
@@ -50,10 +54,10 @@ public class ContractUpdater {
 			.contractId(existing.contractId())
 			.status(resolveStatus(existing, command))
 			.metaInfo(updateMeta(existing.metaInfo(), command))
-			.productPlan(updateProductPlan(existing.productPlan(), command.planId(), command.travelCountry(),
-					command.countryCode()))
+			.productPlan(updateProductPlan(existing, command))
 			.applicant(updateApplicant(existing.applicant(), command.applicant()))
 			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
+			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
 			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
 			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
 			.build();
@@ -124,19 +128,39 @@ public class ContractUpdater {
 	}
 
 	/**
-	 * 플랜 정보 수정 (planId로 정보 재조회)
+	 * 플랜 정보 수정 - planName이 있으면 가입자 주민번호로 플랜 resolve, 없으면 planId로 직접 조회
 	 */
-	private ProductPlan updateProductPlan(ProductPlan existing, Long planId, String travelCountry, String countryCode) {
-		if (planId == null && travelCountry == null && countryCode == null) {
-			return existing;
+	private ProductPlan updateProductPlan(InsuranceContract existing, ContractUpdateCommand command) {
+		ProductPlan existingPlan = existing.productPlan();
+		Long planId = command.planId();
+		String travelCountry = command.travelCountry();
+		String countryCode = command.countryCode();
+
+		if (planId == null && command.planName() == null && travelCountry == null && countryCode == null) {
+			return existingPlan;
 		}
 
-		// planId가 있으면 플랜 정보 조회, 없으면 기존 유지
-		String productName = existing.productName();
-		String planName = existing.planName();
-		Long resolvedPlanId = existing.planId();
+		String productName = existingPlan.productName();
+		String planName = existingPlan.planName();
+		Long resolvedPlanId = existingPlan.planId();
 
-		if (planId != null) {
+		// planName이 있으면 가입자 주민번호로 플랜 resolve
+		if (command.planName() != null && command.applicant() != null && command.applicant().residentNumber() != null) {
+			Plan plan = planResolver.resolve(command.planName(), command.applicant().residentNumber(),
+					command.silsonExclude());
+			resolvedPlanId = plan.id();
+			productName = plan.fullName();
+			planName = plan.name();
+		}
+		else if (command.planName() != null && existing.applicant() != null
+				&& existing.applicant().residentNumber() != null) {
+			Plan plan = planResolver.resolve(command.planName(), existing.applicant().residentNumber(),
+					command.silsonExclude());
+			resolvedPlanId = plan.id();
+			productName = plan.fullName();
+			planName = plan.name();
+		}
+		else if (planId != null) {
 			Plan plan = planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
 			resolvedPlanId = plan.id();
 			productName = plan.fullName();
@@ -147,9 +171,27 @@ public class ContractUpdater {
 			.planId(resolvedPlanId)
 			.productName(productName)
 			.planName(planName)
-			.travelCountry(travelCountry != null ? travelCountry : existing.travelCountry())
-			.countryCode(countryCode != null ? countryCode : existing.countryCode())
-			.coverageLink(existing.coverageLink())
+			.travelCountry(travelCountry != null ? travelCountry : existingPlan.travelCountry())
+			.countryCode(countryCode != null ? countryCode : existingPlan.countryCode())
+			.coverageLink(existingPlan.coverageLink())
+			.build();
+	}
+
+	private RefundInfo updateRefund(RefundInfo existing, ContractUpdateCommand.RefundUpdateCommand command) {
+		if (command == null) {
+			return existing;
+		}
+		return RefundInfo.builder()
+			.refundAmount(command.refundAmount() != null ? command.refundAmount()
+					: (existing != null ? existing.refundAmount() : null))
+			.refundMethod(command.refundMethod() != null ? command.refundMethod()
+					: (existing != null ? existing.refundMethod() : null))
+			.bankName(command.bankName())
+			.accountNumber(command.accountNumber())
+			.depositorName(command.depositorName())
+			.refundReason(command.refundReason())
+			.refundedAt(command.refundedAt() != null ? command.refundedAt()
+					: (existing != null ? existing.refundedAt() : null))
 			.build();
 	}
 

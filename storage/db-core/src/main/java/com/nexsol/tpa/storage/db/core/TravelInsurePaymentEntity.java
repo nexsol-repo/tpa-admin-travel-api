@@ -62,6 +62,7 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
 	public PaymentInfo toDomain() {
 		return PaymentInfo.builder()
+			.status(this.status)
 			.method(this.paymentMethod)
 			.totalAmount(this.paidAmount)
 			.paidAt(this.paymentDate)
@@ -71,6 +72,7 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 
 	public PaymentInfo toDomain(BigDecimal fallbackAmount) {
 		return PaymentInfo.builder()
+			.status(this.status)
 			.method(this.paymentMethod)
 			.totalAmount(this.paidAmount != null ? this.paidAmount : fallbackAmount)
 			.paidAt(this.paymentDate)

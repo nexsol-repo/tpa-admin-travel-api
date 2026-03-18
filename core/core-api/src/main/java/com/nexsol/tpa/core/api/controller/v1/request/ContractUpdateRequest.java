@@ -10,8 +10,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ContractUpdateRequest(ContractStatus status, ApplicantRequest applicant, PeriodRequest period,
-		List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, SubscriptionOriginRequest subscriptionOrigin,
-		Long planId, String travelCountry, String countryCode, String policyNumber, String policyLink,
+		List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, RefundRequest refund,
+		SubscriptionOriginRequest subscriptionOrigin, Long planId, String planName, Boolean silsonExclude,
+		String travelCountry, String countryCode, String policyNumber, String policyLink,
 		@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, String memo) {
 
 	/**
@@ -76,6 +77,22 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
 		}
 	}
 
+	public record RefundRequest(BigDecimal refundAmount, String refundMethod, String bankName, String accountNumber,
+			String depositorName, String refundReason,
+			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime refundedAt) {
+		public ContractUpdateCommand.RefundUpdateCommand toCommand() {
+			return ContractUpdateCommand.RefundUpdateCommand.builder()
+				.refundAmount(refundAmount)
+				.refundMethod(refundMethod)
+				.bankName(bankName)
+				.accountNumber(accountNumber)
+				.depositorName(depositorName)
+				.refundReason(refundReason)
+				.refundedAt(refundedAt)
+				.build();
+		}
+	}
+
 	public ContractUpdateCommand toCommand(Long contractId, Long employeeId) {
 		return ContractUpdateCommand.builder()
 			.contractId(contractId)
@@ -85,8 +102,11 @@ public record ContractUpdateRequest(ContractStatus status, ApplicantRequest appl
 			.insuredPeople(
 					insuredPeople != null ? insuredPeople.stream().map(InsuredPersonRequest::toCommand).toList() : null)
 			.payment(payment != null ? payment.toCommand() : null)
+			.refund(refund != null ? refund.toCommand() : null)
 			.subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
 			.planId(planId)
+			.planName(planName)
+			.silsonExclude(silsonExclude)
 			.travelCountry(travelCountry)
 			.countryCode(countryCode)
 			.policyNumber(policyNumber)

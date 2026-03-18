@@ -14,15 +14,19 @@ import java.util.List;
  */
 public record ContractCreateRequest(
 		// 보험 가입 정보
-		ContractStatus status, SubscriptionOriginRequest subscriptionOrigin, Long planId, String travelCountry,
-		String countryCode, @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate,
-		PeriodRequest period, String policyNumber,
+		ContractStatus status, SubscriptionOriginRequest subscriptionOrigin, Long planId, String planName,
+		Boolean silsonExclude, String travelCountry, String countryCode,
+		@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, PeriodRequest period,
+		String policyNumber,
 
 		// 가입자(피보험자) 정보
 		ApplicantRequest applicant,
 
 		// 결제 정보
 		PaymentRequest payment,
+
+		// 환불 정보
+		RefundRequest refund,
 
 		// 동반자 정보
 		List<CompanionRequest> companions,
@@ -88,6 +92,25 @@ public record ContractCreateRequest(
 	}
 
 	/**
+	 * 환불 정보
+	 */
+	public record RefundRequest(BigDecimal refundAmount, String refundMethod, String bankName, String accountNumber,
+			String depositorName, String refundReason,
+			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime refundedAt) {
+		public ContractCreateCommand.RefundCommand toCommand() {
+			return ContractCreateCommand.RefundCommand.builder()
+				.refundAmount(refundAmount)
+				.refundMethod(refundMethod)
+				.bankName(bankName)
+				.accountNumber(accountNumber)
+				.depositorName(depositorName)
+				.refundReason(refundReason)
+				.refundedAt(refundedAt)
+				.build();
+		}
+	}
+
+	/**
 	 * 동반자 정보
 	 */
 	public record CompanionRequest(String residentNumber, String gender, String name, String englishName,
@@ -111,6 +134,8 @@ public record ContractCreateRequest(
 			.status(status)
 			.subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
 			.planId(planId)
+			.planName(planName)
+			.silsonExclude(silsonExclude)
 			.travelCountry(travelCountry)
 			.countryCode(countryCode)
 			.applicationDate(applicationDate)
@@ -118,6 +143,7 @@ public record ContractCreateRequest(
 			.policyNumber(policyNumber)
 			.applicant(applicant != null ? applicant.toCommand() : null)
 			.payment(payment != null ? payment.toCommand() : null)
+			.refund(refund != null ? refund.toCommand() : null)
 			.companions(companions != null ? companions.stream().map(CompanionRequest::toCommand).toList() : null)
 			.memo(memo)
 			.employeeId(employeeId)

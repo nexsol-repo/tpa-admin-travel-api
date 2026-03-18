@@ -4,6 +4,7 @@ import com.nexsol.tpa.core.domain.contract.ContractRepository;
 import com.nexsol.tpa.core.domain.contract.ContractSearchCriteria;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;
 import com.nexsol.tpa.core.support.PageResult;
@@ -46,6 +47,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 		static final String STATUS = "status";
 		static final String APPLICANT_NAME = "applicantName";
 		static final String INSURED_PEOPLE_NUMBER = "insuredPeopleNumber";
+		static final String DELETED_AT = "deletedAt";
 
 	}
 
@@ -56,6 +58,8 @@ public class ContractRepositoryImpl implements ContractRepository {
 	private final InsuredPersonJpaRepository insuredPersonJpaRepository;
 
 	private final TravelInsurancePlanJpaRepository planJpaRepository;
+
+	private final TravelInsureRefundJpaRepository refundJpaRepository;
 
 	private final TravelContractMapper travelContractMapper;
 
@@ -70,10 +74,11 @@ public class ContractRepositoryImpl implements ContractRepository {
 		TravelContractEntity contract = contractEntityOptional.get();
 
 		var payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
+		var refund = refundJpaRepository.findByContractId(contractId).orElse(null);
 		var people = insuredPersonJpaRepository.findAllByContractIdAndDeletedAtIsNull(contractId);
 		var plan = fetchPlan(contract.getPlanId());
 
-		return Optional.of(travelContractMapper.toDomain(contract, payment, people, plan));
+		return Optional.of(travelContractMapper.toDomain(contract, payment, refund, people, plan));
 	}
 
 	private TravelInsurancePlanEntity fetchPlan(Long planId) {
@@ -103,7 +108,14 @@ public class ContractRepositoryImpl implements ContractRepository {
 		if (contract.paymentInfo() != null) {
 			TravelInsurePaymentEntity paymentEntity = TravelInsurePaymentEntity.create(contractId,
 					contract.paymentInfo());
-			paymentJpaRepository.save(paymentEntity);
+			TravelInsurePaymentEntity savedPayment = paymentJpaRepository.save(paymentEntity);
+
+			// 4. 환불 정보 엔티티 생성 및 저장
+			if (contract.refundInfo() != null) {
+				TravelInsureRefundEntity refundEntity = TravelInsureRefundEntity.create(savedPayment.getId(),
+						contractId, contract.refundInfo());
+				refundJpaRepository.save(refundEntity);
+			}
 		}
 
 		return contractId;
@@ -146,11 +158,12 @@ public class ContractRepositoryImpl implements ContractRepository {
 			.toList();
 
 		Map<Long, TravelInsurePaymentEntity> paymentMap = fetchPaymentMap(contractIds);
+		Map<Long, TravelInsureRefundEntity> refundMap = fetchRefundMap(contractIds);
 		Map<Long, List<TravelInsurePeopleEntity>> peopleMap = fetchPeopleMap(contractIds);
 		Map<Long, TravelInsurancePlanEntity> planMap = fetchPlanMap(planIds);
 
 		return contracts.stream()
-			.map(c -> travelContractMapper.toDomain(c, paymentMap.get(c.getId()),
+			.map(c -> travelContractMapper.toDomain(c, paymentMap.get(c.getId()), refundMap.get(c.getId()),
 					peopleMap.getOrDefault(c.getId(), Collections.emptyList()), planMap.get(c.getPlanId())))
 			.toList();
 	}
@@ -159,6 +172,13 @@ public class ContractRepositoryImpl implements ContractRepository {
 		return paymentJpaRepository.findByContractIdIn(contractIds)
 			.stream()
 			.collect(Collectors.toMap(TravelInsurePaymentEntity::getContractId, payment -> payment,
+					(existing, replacement) -> existing));
+	}
+
+	private Map<Long, TravelInsureRefundEntity> fetchRefundMap(List<Long> contractIds) {
+		return refundJpaRepository.findByContractIdIn(contractIds)
+			.stream()
+			.collect(Collectors.toMap(TravelInsureRefundEntity::getContractId, refund -> refund,
 					(existing, replacement) -> existing));
 	}
 
@@ -191,6 +211,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
 		// 동반자 저장은 InsuredPeopleUpdater (Implement Layer)에서 처리
 		savePayment(contract.contractId(), contract.paymentInfo());
+		saveRefund(contract.contractId(), contract.refundInfo());
 
 		return saved.getId();
 	}
@@ -244,15 +265,34 @@ public class ContractRepositoryImpl implements ContractRepository {
 		});
 	}
 
+	private void saveRefund(Long contractId, RefundInfo refundInfo) {
+		if (refundInfo == null) {
+			return;
+		}
+
+		refundJpaRepository.findByContractId(contractId).ifPresentOrElse(entity -> {
+			entity.update(refundInfo);
+			refundJpaRepository.save(entity);
+		}, () -> {
+			// 환불 정보가 없으면 새로 생성 (paymentId 조회 필요)
+			paymentJpaRepository.findByContractId(contractId).ifPresent(payment -> {
+				TravelInsureRefundEntity newEntity = TravelInsureRefundEntity.create(payment.getId(), contractId,
+						refundInfo);
+				refundJpaRepository.save(newEntity);
+			});
+		});
+	}
+
 	private InsuranceContract fetchAndMapContract(Long contractId) {
 		TravelContractEntity contract = travelContractJpaRepository.findById(contractId)
 			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 		TravelInsurePaymentEntity payment = paymentJpaRepository.findByContractId(contractId).orElse(null);
+		TravelInsureRefundEntity refund = refundJpaRepository.findByContractId(contractId).orElse(null);
 		List<TravelInsurePeopleEntity> people = insuredPersonJpaRepository
 			.findAllByContractIdAndDeletedAtIsNull(contractId);
 		TravelInsurancePlanEntity plan = fetchPlan(contract.getPlanId());
 
-		return travelContractMapper.toDomain(contract, payment, people, plan);
+		return travelContractMapper.toDomain(contract, payment, refund, people, plan);
 	}
 
 	private String mapSortProperty(String requestProperty) {
@@ -266,13 +306,18 @@ public class ContractRepositoryImpl implements ContractRepository {
 	}
 
 	private Specification<TravelContractEntity> createSpecification(ContractSearchCriteria criteria) {
-		return Specification.where(applyDateFrom(criteria))
+		return Specification.where(notDeleted())
+			.and(applyDateFrom(criteria))
 			.and(applyDateTo(criteria))
 			.and(partnerNameEquals(criteria))
 			.and(channelNameEquals(criteria))
 			.and(insurerNameEquals(criteria))
 			.and(statusEquals(criteria))
 			.and(applicantNameContains(criteria));
+	}
+
+	private Specification<TravelContractEntity> notDeleted() {
+		return (root, query, cb) -> cb.isNull(root.get(Fields.DELETED_AT));
 	}
 
 	private Specification<TravelContractEntity> applyDateFrom(ContractSearchCriteria criteria) {
@@ -307,8 +352,7 @@ public class ContractRepositoryImpl implements ContractRepository {
 
 			// payment.status = 'CANCELED' 인 계약을 찾는 서브쿼리
 			Subquery<Long> canceledPaymentSubquery = query.subquery(Long.class);
-			Root<TravelInsurePaymentEntity> paymentRoot = canceledPaymentSubquery
-				.from(TravelInsurePaymentEntity.class);
+			Root<TravelInsurePaymentEntity> paymentRoot = canceledPaymentSubquery.from(TravelInsurePaymentEntity.class);
 			canceledPaymentSubquery.select(paymentRoot.get("contractId"))
 				.where(cb.equal(paymentRoot.get("contractId"), root.get(Fields.ID)),
 						cb.equal(paymentRoot.get("status"), "CANCELED"));

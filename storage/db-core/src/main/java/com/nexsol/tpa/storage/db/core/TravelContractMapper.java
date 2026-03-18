@@ -4,6 +4,7 @@ import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.contract.ContractMeta;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
@@ -65,7 +66,7 @@ public class TravelContractMapper {
 	 * 엔티티 -> 도메인 모델 변환
 	 */
 	public InsuranceContract toDomain(TravelContractEntity entity, TravelInsurePaymentEntity payment,
-			List<TravelInsurePeopleEntity> people, TravelInsurancePlanEntity plan) {
+			TravelInsureRefundEntity refund, List<TravelInsurePeopleEntity> people, TravelInsurancePlanEntity plan) {
 		if (entity == null) {
 			return null;
 		}
@@ -79,6 +80,7 @@ public class TravelContractMapper {
 			.productPlan(toProductPlan(entity, plan))
 			.applicant(toApplicant(entity))
 			.paymentInfo(toPaymentInfo(entity, payment))
+			.refundInfo(refund != null ? refund.toDomain() : null)
 			.insuredPeople(safePeople.stream().map(TravelInsurePeopleEntity::toDomain).toList())
 			.employeeId(entity.getEmployeeId())
 			.insuredCount(entity.getInsuredPeopleNumber())
@@ -86,7 +88,7 @@ public class TravelContractMapper {
 	}
 
 	public InsuranceContract toDomain(TravelContractEntity entity) {
-		return toDomain(entity, null, Collections.emptyList(), null);
+		return toDomain(entity, null, null, Collections.emptyList(), null);
 	}
 
 	private void mapMetaInfo(TravelContractEntity entity, ContractMeta meta) {

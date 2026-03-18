@@ -31,6 +31,9 @@ public class TravelInsurancePlanEntity extends BaseEntity {
 	@Column(name = "plan_group_code")
 	private String planGroupCode;
 
+	@Column(name = "age_group_id")
+	private Long ageGroupId;
+
 	@Column(name = "insurer_id")
 	private Long insurerId;
 

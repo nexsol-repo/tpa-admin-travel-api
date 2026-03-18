@@ -3,6 +3,7 @@ package com.nexsol.tpa.core.domain.contract;
 import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
+import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import com.nexsol.tpa.core.error.CoreErrorType;
@@ -17,8 +18,8 @@ import java.util.List;
  */
 @Builder
 public record InsuranceContract(Long contractId, ContractStatus status, ContractMeta metaInfo, ProductPlan productPlan,
-		Applicant applicant, PaymentInfo paymentInfo, List<InsuredPerson> insuredPeople, Long employeeId,
-		Integer insuredCount
+		Applicant applicant, PaymentInfo paymentInfo, RefundInfo refundInfo, List<InsuredPerson> insuredPeople,
+		Long employeeId, Integer insuredCount
 
 ) {
 
