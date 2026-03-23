@@ -51,7 +51,8 @@ public class PlanControllerTest extends RestDocsTest {
 							fieldWithPath("data[].value").description("플랜 코드"),
 							fieldWithPath("data[].label").description("플랜명"),
 							fieldWithPath("data[].fullName").description("플랜 전체명"),
-							fieldWithPath("data[].insurerId").description("보험사 ID"))));
+							fieldWithPath("data[].insurerId").description("보험사 ID"),
+							fieldWithPath("data[].familyId").description("플랜 패밀리 ID"))));
 	}
 
 	@Test
@@ -70,7 +71,7 @@ public class PlanControllerTest extends RestDocsTest {
 				.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
 			.andDo(document("plan-list-by-insurer",
-					queryParameters(parameterWithName("insurerId").description("보험사 ID (필터링용)")),
+					queryParameters(parameterWithName("insurerId").description("보험사 ID")),
 					responseFields(fieldWithPath("result").description("API 실행 결과 (SUCCESS/ERROR)"),
 							fieldWithPath("error").description("에러 정보 (성공 시 null)").optional(),
 							fieldWithPath("data").description("해당 보험사의 플랜 목록"),
@@ -78,7 +79,8 @@ public class PlanControllerTest extends RestDocsTest {
 							fieldWithPath("data[].value").description("플랜 코드"),
 							fieldWithPath("data[].label").description("플랜명"),
 							fieldWithPath("data[].fullName").description("플랜 전체명"),
-							fieldWithPath("data[].insurerId").description("보험사 ID"))));
+							fieldWithPath("data[].insurerId").description("보험사 ID"),
+							fieldWithPath("data[].familyId").description("플랜 패밀리 ID"))));
 	}
 
 }

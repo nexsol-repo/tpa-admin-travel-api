@@ -90,7 +90,7 @@ public class TravelInsuredEntity extends BaseEntity {
 	}
 
 	public void updatePersonInfo(String name, String englishName, String residentNumber, String passportNumber,
-			String gender, String phone, String email) {
+			String gender, String phone, String email, BigDecimal insurePremium) {
 		if (name != null) {
 			this.name = name;
 		}
@@ -111,6 +111,9 @@ public class TravelInsuredEntity extends BaseEntity {
 		}
 		if (email != null) {
 			this.email = email;
+		}
+		if (insurePremium != null) {
+			this.insurePremium = insurePremium;
 		}
 	}
 
