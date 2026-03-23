@@ -23,86 +23,70 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContractCreator {
 
-	private final ContractCommandRepository contractCommandRepository;
-
 	private final PlanReader planReader;
 
 	private final PlanResolver planResolver;
 
-	public Long create(ContractCreateCommand command) {
-		InsuranceContract newContract = buildContract(command);
-		return contractCommandRepository.create(newContract);
+	public InsuranceContract create(NewContract newContract) {
+		return buildContract(newContract);
 	}
 
-	private InsuranceContract buildContract(ContractCreateCommand command) {
+	private InsuranceContract buildContract(NewContract nc) {
 		return InsuranceContract.builder()
-			.contractId(null) // 신규 생성이므로 null
-			.status(command.status() != null ? command.status() : ContractStatus.PENDING)
-			.metaInfo(buildContractMeta(command))
-			.productPlan(buildProductPlan(command))
-			.applicant(buildApplicant(command.applicant()))
-			.paymentInfo(buildPaymentInfo(command.payment()))
-			.refundInfo(buildRefundInfo(command.refund()))
-			.insuredPeople(buildInsuredPeople(command))
-			.employeeId(command.employeeId())
+			.contractId(null)
+			.status(nc.status() != null ? nc.status() : ContractStatus.PENDING)
+			.metaInfo(buildContractMeta(nc))
+			.productPlan(buildProductPlan(nc))
+			.applicant(buildApplicant(nc.applicant()))
+			.paymentInfo(buildPaymentInfo(nc.payment()))
+			.refundInfo(buildRefundInfo(nc.refund()))
+			.insuredPeople(buildInsuredPeople(nc))
+			.employeeId(nc.employeeId())
 			.build();
 	}
 
-	private ContractMeta buildContractMeta(ContractCreateCommand command) {
+	private ContractMeta buildContractMeta(NewContract nc) {
+		ContractOrigin origin = nc.origin();
+		ContractPeriod period = nc.period();
 		return ContractMeta.builder()
-			.policyNumber(command.policyNumber())
-			.origin(buildSubscriptionOrigin(command.subscriptionOrigin()))
-			.applicationDate(command.applicationDate())
-			.period(buildInsurancePeriod(command.period()))
+			.policyNumber(nc.policyNumber())
+			.origin(origin != null ? SubscriptionOrigin.builder()
+				.partnerId(origin.partnerId())
+				.partnerName(origin.partnerName())
+				.channelId(origin.channelId())
+				.channelName(origin.channelName())
+				.insurerId(origin.insurerId())
+				.insurerName(origin.insurerName())
+				.build() : null)
+			.applicationDate(nc.applicationDate())
+			.period(period != null
+					? InsurancePeriod.builder().startDate(period.startDate()).endDate(period.endDate()).build() : null)
 			.build();
 	}
 
-	private SubscriptionOrigin buildSubscriptionOrigin(ContractCreateCommand.SubscriptionOriginCommand origin) {
-		if (origin == null) {
-			return null;
-		}
-		return SubscriptionOrigin.builder()
-			.partnerId(origin.partnerId())
-			.partnerName(origin.partnerName())
-			.channelId(origin.channelId())
-			.channelName(origin.channelName())
-			.insurerId(origin.insurerId())
-			.insurerName(origin.insurerName())
-			.build();
-	}
-
-	private InsurancePeriod buildInsurancePeriod(ContractCreateCommand.PeriodCommand period) {
-		if (period == null) {
-			return null;
-		}
-		return InsurancePeriod.builder().startDate(period.startDate()).endDate(period.endDate()).build();
-	}
-
-	private ProductPlan buildProductPlan(ContractCreateCommand command) {
-		Plan plan = resolvePlan(command);
-
+	private ProductPlan buildProductPlan(NewContract nc) {
+		Plan plan = resolvePlan(nc);
+		PlanSelection ps = nc.plan();
 		return ProductPlan.builder()
 			.planId(plan.id())
 			.familyId(plan.familyId())
 			.productName(plan.fullName())
 			.planName(plan.name())
-			.travelCountry(command.travelCountry())
-			.countryCode(command.countryCode())
+			.travelCountry(ps != null ? ps.travelCountry() : null)
+			.countryCode(ps != null ? ps.countryCode() : null)
 			.build();
 	}
 
-	/**
-	 * planName이 있으면 가입자 주민번호로 만나이를 계산하여 플랜을 찾고, 없으면 기존처럼 planId로 직접 조회한다.
-	 */
-	private Plan resolvePlan(ContractCreateCommand command) {
-		if (command.planName() != null && command.applicant() != null && command.applicant().residentNumber() != null) {
-			return planResolver.resolve(command.planName(), command.applicant().residentNumber(),
-					command.silsonExclude());
+	private Plan resolvePlan(NewContract nc) {
+		PlanSelection ps = nc.plan();
+		if (ps != null && ps.planName() != null && nc.applicant() != null && nc.applicant().residentNumber() != null) {
+			return planResolver.resolve(ps.planName(), nc.applicant().residentNumber(), ps.silsonExclude());
 		}
-		return planReader.read(command.planId()).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+		Long planId = (ps != null) ? ps.planId() : null;
+		return planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
 	}
 
-	private Applicant buildApplicant(ContractCreateCommand.ApplicantCommand applicant) {
+	private Applicant buildApplicant(ContractApplicant applicant) {
 		if (applicant == null) {
 			return null;
 		}
@@ -114,7 +98,7 @@ public class ContractCreator {
 			.build();
 	}
 
-	private PaymentInfo buildPaymentInfo(ContractCreateCommand.PaymentCommand payment) {
+	private PaymentInfo buildPaymentInfo(ContractPayment payment) {
 		if (payment == null) {
 			return null;
 		}
@@ -126,7 +110,7 @@ public class ContractCreator {
 			.build();
 	}
 
-	private RefundInfo buildRefundInfo(ContractCreateCommand.RefundCommand refund) {
+	private RefundInfo buildRefundInfo(ContractRefund refund) {
 		if (refund == null) {
 			return null;
 		}
@@ -141,34 +125,31 @@ public class ContractCreator {
 			.build();
 	}
 
-	private List<InsuredPerson> buildInsuredPeople(ContractCreateCommand command) {
+	private List<InsuredPerson> buildInsuredPeople(NewContract nc) {
 		List<InsuredPerson> insuredPeople = new java.util.ArrayList<>();
 
-		// 대표계약자를 isContractor=true 로 등록
-		if (command.applicant() != null) {
-			BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
-					? command.payment().totalAmount() : BigDecimal.ZERO;
+		if (nc.applicant() != null) {
+			BigDecimal premium = (nc.payment() != null && nc.payment().totalAmount() != null)
+					? nc.payment().totalAmount() : BigDecimal.ZERO;
 			insuredPeople.add(InsuredPerson.builder()
-				.name(command.applicant().name())
-				.residentNumber(command.applicant().residentNumber())
-				.phone(command.applicant().phoneNumber())
-				.email(command.applicant().email())
+				.name(nc.applicant().name())
+				.residentNumber(nc.applicant().residentNumber())
+				.phone(nc.applicant().phoneNumber())
+				.email(nc.applicant().email())
 				.isContractor(true)
 				.individualPremium(premium)
 				.build());
 		}
 
-		// 동반자 정보가 있으면 isContractor=false 로 추가
-		if (command.companions() != null && !command.companions().isEmpty()) {
-			command.companions().stream().map(this::buildInsuredPerson).forEach(insuredPeople::add);
+		if (nc.companions() != null && !nc.companions().isEmpty()) {
+			nc.companions().stream().map(this::buildInsuredPerson).forEach(insuredPeople::add);
 		}
 
 		return insuredPeople;
 	}
 
-	private InsuredPerson buildInsuredPerson(ContractCreateCommand.CompanionCommand companion) {
+	private InsuredPerson buildInsuredPerson(ContractCompanion companion) {
 		String fullEnglishName = buildFullEnglishName(companion.englishLastName(), companion.englishName());
-
 		return InsuredPerson.builder()
 			.name(companion.name())
 			.englishName(fullEnglishName)
@@ -177,7 +158,6 @@ public class ContractCreator {
 			.gender(companion.gender())
 			.isContractor(false)
 			.individualPremium(companion.premium())
-			.individualPolicyNumber(companion.policyNumber())
 			.build();
 	}
 

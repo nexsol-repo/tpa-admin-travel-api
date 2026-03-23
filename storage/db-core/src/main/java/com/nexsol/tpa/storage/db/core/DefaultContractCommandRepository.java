@@ -26,7 +26,14 @@ public class DefaultContractCommandRepository implements ContractCommandReposito
 	private final TravelContractMapper travelContractMapper;
 
 	@Override
-	public Long create(InsuranceContract contract) {
+	public Long save(InsuranceContract contract) {
+		if (contract.contractId() == null) {
+			return createNew(contract);
+		}
+		return update(contract);
+	}
+
+	private Long createNew(InsuranceContract contract) {
 		TravelContractEntity contractEntity = travelContractMapper.toEntity(contract);
 		TravelContractEntity savedContract = travelContractJpaRepository.save(contractEntity);
 		Long contractId = savedContract.getId();
@@ -53,8 +60,7 @@ public class DefaultContractCommandRepository implements ContractCommandReposito
 		return contractId;
 	}
 
-	@Override
-	public Long save(InsuranceContract contract) {
+	private Long update(InsuranceContract contract) {
 		TravelContractEntity entity = travelContractJpaRepository.findById(contract.contractId())
 			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
