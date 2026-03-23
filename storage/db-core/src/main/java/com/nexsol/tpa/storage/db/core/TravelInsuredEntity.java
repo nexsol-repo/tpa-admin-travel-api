@@ -50,16 +50,13 @@ public class TravelInsuredEntity extends BaseEntity {
 	@Column(name = "insure_premium")
 	private BigDecimal insurePremium;
 
-	@Column(name = "policy_number")
-	private String policyNumber;
-
 	@Column(name = "deleted_at")
 	private java.time.LocalDateTime deletedAt;
 
 	@Builder
 	private TravelInsuredEntity(Long contractId, Long planId, Boolean isContractor, String name, String englishName,
 			String residentNumber, String passportNumber, String gender, String phone, String email,
-			BigDecimal insurePremium, String policyNumber) {
+			BigDecimal insurePremium) {
 		this.contractId = contractId;
 		this.planId = planId;
 		this.isContractor = isContractor;
@@ -71,7 +68,6 @@ public class TravelInsuredEntity extends BaseEntity {
 		this.phone = phone;
 		this.email = email;
 		this.insurePremium = insurePremium;
-		this.policyNumber = policyNumber;
 	}
 
 	/**
@@ -90,7 +86,6 @@ public class TravelInsuredEntity extends BaseEntity {
 			.phone(person.phone())
 			.email(person.email())
 			.insurePremium(person.individualPremium())
-			.policyNumber(person.individualPolicyNumber())
 			.build();
 	}
 
@@ -132,7 +127,6 @@ public class TravelInsuredEntity extends BaseEntity {
 			.phone(this.phone)
 			.email(this.email)
 			.individualPremium(this.insurePremium)
-			.individualPolicyNumber(this.policyNumber)
 			.build();
 	}
 
