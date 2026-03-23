@@ -11,10 +11,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "travel_insure_payment")
+@Table(name = "travel_payment")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TravelInsurePaymentEntity extends BaseEntity {
+public class TravelPaymentEntity extends BaseEntity {
 
 	private Long contractId;
 
@@ -31,8 +31,8 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 	/**
 	 * 도메인 객체로부터 결제 엔티티 생성
 	 */
-	public static TravelInsurePaymentEntity create(Long contractId, PaymentInfo payment) {
-		TravelInsurePaymentEntity entity = new TravelInsurePaymentEntity();
+	public static TravelPaymentEntity create(Long contractId, PaymentInfo payment) {
+		TravelPaymentEntity entity = new TravelPaymentEntity();
 		entity.contractId = contractId;
 		entity.paymentMethod = payment.method();
 		entity.paidAmount = payment.totalAmount();

@@ -1,6 +1,5 @@
 package com.nexsol.tpa.storage.db.core;
 
-import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
 import jakarta.persistence.Column;
@@ -26,7 +25,8 @@ public class TravelContractEntity extends BaseEntity {
 
 	private Long insurerId;
 
-	private Long planId;
+	@Column(name = "family_id")
+	private Long familyId;
 
 	private String policyNumber;
 
@@ -37,18 +37,6 @@ public class TravelContractEntity extends BaseEntity {
 	private String channelName;
 
 	private String insurerName;
-
-	@Column(name = "contract_people_name")
-	private String applicantName;
-
-	@Column(name = "contract_people_resident_number")
-	private String applicantResidentNumber;
-
-	@Column(name = "contract_people_hp")
-	private String applicantPhone;
-
-	@Column(name = "contract_people_mail")
-	private String applicantEmail;
 
 	private String countryName;
 
@@ -64,9 +52,6 @@ public class TravelContractEntity extends BaseEntity {
 
 	private BigDecimal totalPremium;
 
-	@Column(name = "insured_people_number")
-	private Integer insuredPeopleNumber;
-
 	private Long employeeId;
 
 	private LocalDateTime deletedAt;
@@ -75,20 +60,6 @@ public class TravelContractEntity extends BaseEntity {
 		if (status != null) {
 			this.status = status;
 		}
-	}
-
-	public void updateApplicant(Applicant applicant) {
-		if (applicant == null) {
-			return;
-		}
-		this.applicantName = updateIfNotNull(this.applicantName, applicant.name());
-		this.applicantPhone = updateIfNotNull(this.applicantPhone, applicant.phoneNumber());
-		this.applicantEmail = updateIfNotNull(this.applicantEmail, applicant.email());
-		this.applicantResidentNumber = updateIfNotNull(this.applicantResidentNumber, applicant.residentNumber());
-	}
-
-	public void updateInsuredCount(int count) {
-		this.insuredPeopleNumber = count;
 	}
 
 	public void updateInsurancePeriod(InsurancePeriod period) {
@@ -116,8 +87,8 @@ public class TravelContractEntity extends BaseEntity {
 		this.insurerName = updateIfNotNull(this.insurerName, origin.insurerName());
 	}
 
-	public void updatePlanId(Long planId) {
-		this.planId = updateIfNotNull(this.planId, planId);
+	public void updateFamilyId(Long familyId) {
+		this.familyId = updateIfNotNull(this.familyId, familyId);
 	}
 
 	public void updateCountryName(String countryName) {

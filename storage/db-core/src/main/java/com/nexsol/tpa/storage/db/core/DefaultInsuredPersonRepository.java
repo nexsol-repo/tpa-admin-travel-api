@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
+public class DefaultInsuredPersonRepository implements InsuredPersonRepository {
 
 	private final InsuredPersonJpaRepository insuredPersonJpaRepository;
 
@@ -46,9 +46,9 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
 			people.stream()
 				.filter(p -> p.id().equals(entity.getId()))
 				.findFirst()
-				.ifPresent(person -> entity.updatePersonInfo(person.name(), person.englishName(),
-						person.residentNumber(), person.passportNumber(), person.gender(),
-						person.phone(), person.email()));
+				.ifPresent(
+						person -> entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
+								person.passportNumber(), person.gender(), person.phone(), person.email()));
 		}
 
 		insuredPersonJpaRepository.saveAll(entities);

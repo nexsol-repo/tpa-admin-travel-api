@@ -13,10 +13,10 @@ public interface TravelInsurancePlanFamilyJpaRepository extends JpaRepository<Tr
 	Optional<TravelInsurancePlanFamilyEntity> findByFamilyNameAndIsLoss(@Param("familyName") String familyName,
 			@Param("isLoss") boolean isLoss);
 
-	@Query("SELECT f FROM TravelInsurancePlanFamilyEntity f JOIN TravelInsurancePlanFamilyMapEntity m ON m.familyId = f.id WHERE m.planId = :planId")
+	@Query("SELECT f FROM TravelInsurancePlanFamilyEntity f JOIN TravelInsurancePlanEntity p ON p.familyId = f.id WHERE p.id = :planId")
 	Optional<TravelInsurancePlanFamilyEntity> findByPlanId(@Param("planId") Long planId);
 
-	@Query("SELECT f FROM TravelInsurancePlanFamilyEntity f JOIN TravelInsurancePlanFamilyMapEntity m ON m.familyId = f.id WHERE m.planId IN :planIds")
+	@Query("SELECT DISTINCT f FROM TravelInsurancePlanFamilyEntity f JOIN TravelInsurancePlanEntity p ON p.familyId = f.id WHERE p.id IN :planIds")
 	List<TravelInsurancePlanFamilyEntity> findByPlanIdIn(@Param("planIds") List<Long> planIds);
 
 }
