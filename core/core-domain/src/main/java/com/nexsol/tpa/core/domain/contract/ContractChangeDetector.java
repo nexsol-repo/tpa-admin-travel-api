@@ -1,6 +1,5 @@
 package com.nexsol.tpa.core.domain.contract;
 
-import com.nexsol.tpa.core.domain.applicant.Applicant;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
@@ -28,8 +27,8 @@ public class ContractChangeDetector {
 			changedFields.add("계약상태");
 		}
 
-		// 계약자 정보 변경 감지
-		detectApplicantChanges(existing.applicant(), command.applicant(), changedFields);
+		// 계약자 정보 변경 감지 (insuredPeople 중 contractor 기반)
+		detectApplicantChanges(existing.getContractor(), command.applicant(), changedFields);
 
 		// 보험기간 변경 감지
 		detectPeriodChanges(existing.metaInfo().period(), command.period(), changedFields);
@@ -46,19 +45,19 @@ public class ContractChangeDetector {
 		return String.join(", ", changedFields) + "을(를) 변경하였습니다.";
 	}
 
-	private void detectApplicantChanges(Applicant existing, ContractUpdateCommand.ApplicantUpdateCommand command,
+	private void detectApplicantChanges(InsuredPerson contractor, ContractUpdateCommand.ApplicantUpdateCommand command,
 			List<String> changedFields) {
-		if (command == null) {
+		if (command == null || contractor == null) {
 			return;
 		}
 
-		if (command.name() != null && !Objects.equals(command.name(), existing.name())) {
+		if (command.name() != null && !Objects.equals(command.name(), contractor.name())) {
 			changedFields.add("계약자명");
 		}
-		if (command.phoneNumber() != null && !Objects.equals(command.phoneNumber(), existing.phoneNumber())) {
+		if (command.phoneNumber() != null && !Objects.equals(command.phoneNumber(), contractor.phone())) {
 			changedFields.add("전화번호");
 		}
-		if (command.email() != null && !Objects.equals(command.email(), existing.email())) {
+		if (command.email() != null && !Objects.equals(command.email(), contractor.email())) {
 			changedFields.add("이메일");
 		}
 	}

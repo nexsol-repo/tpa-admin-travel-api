@@ -1,5 +1,6 @@
 package com.nexsol.tpa.core.domain.notification;
 
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.contract.ContractReader;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import com.nexsol.tpa.core.enums.NotificationType;
@@ -31,10 +32,10 @@ public class NotificationService {
 	public void sendEmail(NotificationSendCommand command) {
 		// 1. 계약 정보 조회 (수신자 정보 확인용)
 		InsuranceContract contract = contractReader.read(command.contractId());
+		InsuredPerson contractor = contract.getContractor();
 
 		// 2. 이메일 발송
-		notificationSender.sendEmail(contract.applicant().email(), command.type(), command.link(),
-				contract.applicant().name());
+		notificationSender.sendEmail(contractor.email(), command.type(), command.link(), contractor.name());
 
 		// 3. 알림 이력 등록
 		String message = generateMessage(command.type());
@@ -49,10 +50,10 @@ public class NotificationService {
 	public void sendSms(NotificationSendCommand command) {
 		// 1. 계약 정보 조회 (수신자 정보 확인용)
 		InsuranceContract contract = contractReader.read(command.contractId());
+		InsuredPerson contractor = contract.getContractor();
 
 		// 2. SMS 발송
-		notificationSender.sendSms(contract.applicant().phoneNumber(), command.type(), command.link(),
-				contract.applicant().name());
+		notificationSender.sendSms(contractor.phone(), command.type(), command.link(), contractor.name());
 
 		// 3. 알림 이력 등록
 		String message = generateMessage(command.type());
@@ -67,13 +68,14 @@ public class NotificationService {
 	public void sendAll(NotificationSendCommand command) {
 		// 1. 계약 정보 조회
 		InsuranceContract contract = contractReader.read(command.contractId());
-		String name = contract.applicant().name();
+		InsuredPerson contractor = contract.getContractor();
+		String name = contractor.name();
 
 		// 2. 이메일 발송
-		notificationSender.sendEmail(contract.applicant().email(), command.type(), command.link(), name);
+		notificationSender.sendEmail(contractor.email(), command.type(), command.link(), name);
 
 		// 3. SMS 발송
-		notificationSender.sendSms(contract.applicant().phoneNumber(), command.type(), command.link(), name);
+		notificationSender.sendSms(contractor.phone(), command.type(), command.link(), name);
 
 		// 4. 알림 이력 등록 (각각)
 		String message = generateMessage(command.type());

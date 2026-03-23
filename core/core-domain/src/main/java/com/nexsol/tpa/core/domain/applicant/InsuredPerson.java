@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record InsuredPerson(Long id, String name, String englishName, String residentNumber, String passportNumber,
-		String gender, BigDecimal individualPremium, String individualPolicyNumber) {
+public record InsuredPerson(Long id, Long planId, Boolean isContractor, String name, String englishName,
+		String residentNumber, String passportNumber, String gender, String phone, String email,
+		BigDecimal individualPremium, String individualPolicyNumber) {
 }

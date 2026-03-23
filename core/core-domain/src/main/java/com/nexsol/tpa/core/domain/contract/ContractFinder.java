@@ -11,14 +11,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContractFinder {
 
-	private final ContractRepository contractRepository;
+	private final ContractQueryRepository contractQueryRepository;
 
 	public PageResult<InsuranceContract> find(ContractSearchCriteria criteria, SortPage sortPage) {
-		return contractRepository.findAll(criteria, sortPage);
+		return contractQueryRepository.findAll(criteria, sortPage);
 	}
 
 	public List<InsuranceContract> findList(ContractSearchCriteria criteria) {
-		return contractRepository.findAll(criteria);
+		return contractQueryRepository.findAll(criteria);
 	}
 
 }

@@ -28,7 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContractUpdater {
 
-	private final ContractRepository contractRepository;
+	private final ContractQueryRepository contractQueryRepository;
+
+	private final ContractCommandRepository contractCommandRepository;
 
 	private final PlanReader planReader;
 
@@ -37,12 +39,12 @@ public class ContractUpdater {
 	private final InsuredPeopleUpdater insuredPeopleUpdater;
 
 	public Long update(ContractUpdateCommand command) {
-		InsuranceContract existing = contractRepository.findById(command.contractId())
+		InsuranceContract existing = contractQueryRepository.findById(command.contractId())
 			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
 
 		InsuranceContract updated = applyChanges(existing, command);
 
-		Long contractId = contractRepository.save(updated);
+		Long contractId = contractCommandRepository.save(updated);
 
 		// 동반자 수정은 별도 도구 클래스에 위임
 		insuredPeopleUpdater.update(contractId, updated.insuredPeople());
@@ -51,18 +53,55 @@ public class ContractUpdater {
 	}
 
 	private InsuranceContract applyChanges(InsuranceContract existing, ContractUpdateCommand command) {
+		Applicant updatedApplicant = updateApplicant(existing.applicant(), command.applicant());
+		List<InsuredPerson> updatedInsuredPeople = updateInsuredPeople(existing.insuredPeople(),
+				command.insuredPeople());
+
+		// applicant 변경이 있으면 contractor insured person에도 동기화
+		if (command.applicant() != null) {
+			updatedInsuredPeople = syncContractorFromApplicant(updatedInsuredPeople, updatedApplicant);
+		}
+
 		return InsuranceContract.builder()
 			.contractId(existing.contractId())
 			.status(resolveStatus(existing, command))
 			.metaInfo(updateMeta(existing.metaInfo(), command))
 			.productPlan(updateProductPlan(existing, command))
-			.applicant(updateApplicant(existing.applicant(), command.applicant()))
+			.applicant(updatedApplicant)
 			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment(), command.statusName()))
 			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
-			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
+			.insuredPeople(updatedInsuredPeople)
 			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
 			.totalPremium(command.totalPremium() != null ? command.totalPremium() : existing.totalPremium())
 			.build();
+	}
+
+	/**
+	 * applicant 변경 사항을 insuredPeople 중 contractor(isContractor=true)에 동기화
+	 */
+	private List<InsuredPerson> syncContractorFromApplicant(List<InsuredPerson> insuredPeople, Applicant applicant) {
+		if (applicant == null || insuredPeople == null) {
+			return insuredPeople;
+		}
+		return insuredPeople.stream().map(person -> {
+			if (Boolean.TRUE.equals(person.isContractor())) {
+				return InsuredPerson.builder()
+					.id(person.id())
+					.planId(person.planId())
+					.isContractor(true)
+					.name(applicant.name())
+					.residentNumber(applicant.residentNumber())
+					.phone(applicant.phoneNumber())
+					.email(applicant.email())
+					.englishName(person.englishName())
+					.passportNumber(person.passportNumber())
+					.gender(person.gender())
+					.individualPremium(person.individualPremium())
+					.individualPolicyNumber(person.individualPolicyNumber())
+					.build();
+			}
+			return person;
+		}).toList();
 	}
 
 	private ContractStatus resolveStatus(InsuranceContract existing, ContractUpdateCommand command) {
@@ -183,9 +222,9 @@ public class ContractUpdater {
 			productName = plan.fullName();
 			planName = plan.name();
 		}
-		else if (command.planName() != null && existing.applicant() != null
-				&& existing.applicant().residentNumber() != null) {
-			Plan plan = planResolver.resolve(command.planName(), existing.applicant().residentNumber(),
+		else if (command.planName() != null && existing.getContractor() != null
+				&& existing.getContractor().residentNumber() != null) {
+			Plan plan = planResolver.resolve(command.planName(), existing.getContractor().residentNumber(),
 					command.silsonExclude());
 			resolvedPlanId = plan.id();
 			productName = plan.fullName();

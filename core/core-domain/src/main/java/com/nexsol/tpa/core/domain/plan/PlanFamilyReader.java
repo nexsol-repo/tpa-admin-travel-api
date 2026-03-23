@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 /**
- * 플랜 패밀리 조회 도구 클래스 (Implement Layer)
- * 플랜명 + 실손여부로 패밀리명을 조회한다.
- * - 실손포함: "가뿐한플랜B" (is_loss=1)
+ * 플랜 패밀리 조회 도구 클래스 (Implement Layer) 플랜명 + 실손여부로 패밀리명을 조회한다. - 실손포함: "가뿐한플랜B" (is_loss=1)
  * - 실손제외: "가뿐한플랜B 실손제외" (is_loss=0)
  */
 @Component
