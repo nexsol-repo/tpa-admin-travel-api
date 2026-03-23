@@ -2,6 +2,7 @@ package com.nexsol.tpa.core.domain.contract;
 
 import com.nexsol.tpa.core.domain.admin.MemoRegistrar;
 import com.nexsol.tpa.core.domain.admin.SystemLogRegistrar;
+import com.nexsol.tpa.core.domain.applicant.InsuredPeopleUpdater;
 import com.nexsol.tpa.core.enums.ServiceType;
 import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;
@@ -30,7 +31,11 @@ public class ContractService {
 
 	private final ContractUpdater contractUpdater;
 
+	private final ContractWriter contractWriter;
+
 	private final ContractChangeDetector contractChangeDetector;
+
+	private final InsuredPeopleUpdater insuredPeopleUpdater;
 
 	private final MemoRegistrar memoRegistrar;
 
@@ -51,38 +56,43 @@ public class ContractService {
 	 * 등록 실패 시 전체 롤백
 	 */
 	@Transactional
-	public Long createContract(ContractCreateCommand command) {
-		// 1. 계약 생성
-		Long contractId = contractCreator.create(command);
+	public Long createContract(NewContract newContract) {
+		// 1. 도메인 객체 생성
+		InsuranceContract contract = contractCreator.create(newContract);
 
-		// 2. 메모 등록
-		memoRegistrar.register(contractId, command.memo(), DEFAULT_SERVICE_TYPE);
+		// 2. DB 저장
+		Long contractId = contractWriter.write(contract);
 
-		// 3. 시스템 로그 등록
+		// 3. 메모 등록
+		memoRegistrar.register(contractId, newContract.memo(), DEFAULT_SERVICE_TYPE);
+
+		// 4. 시스템 로그 등록
 		systemLogRegistrar.register(contractId, "계약 직접 등록", DEFAULT_SERVICE_TYPE);
 
 		return contractId;
 	}
 
-	/**
-	 * 계약 수정 + 메모 등록 + 시스템 로그 등록 비즈니스 흐름: 1. 기존 계약 조회 → 2. 변경 감지 → 3. 계약 수정 → 4. 메모 등록 →
-	 * 5. 시스템 로그 등록 메모/시스템로그 등록 실패 시 전체 롤백
-	 */
 	@Transactional
-	public Long updateContract(ContractUpdateCommand command) {
-		// 1. 기존 계약 조회 (변경 감지용)
-		InsuranceContract existing = contractReader.read(command.contractId());
+	public Long updateContract(ModifyContract modifyContract) {
+		// 1. 기존 계약 조회
+		InsuranceContract existing = contractReader.read(modifyContract.contractId());
 
 		// 2. 변경 감지 (수정 전에 비교)
-		String changeLog = contractChangeDetector.detectChanges(existing, command);
+		String changeLog = contractChangeDetector.detectChanges(existing, modifyContract);
 
-		// 3. 계약 수정
-		Long contractId = contractUpdater.update(command);
+		// 3. 도메인 객체 수정
+		InsuranceContract updated = contractUpdater.update(existing, modifyContract);
 
-		// 4. 메모 등록
-		memoRegistrar.register(contractId, command.memo(), DEFAULT_SERVICE_TYPE);
+		// 4. DB 저장
+		Long contractId = contractWriter.write(updated);
 
-		// 5. 시스템 로그 등록
+		// 5. 피보험자 수정
+		insuredPeopleUpdater.update(contractId, updated.insuredPeople());
+
+		// 6. 메모 등록
+		memoRegistrar.register(contractId, modifyContract.memo(), DEFAULT_SERVICE_TYPE);
+
+		// 7. 시스템 로그 등록
 		systemLogRegistrar.register(contractId, changeLog, DEFAULT_SERVICE_TYPE);
 
 		return contractId;

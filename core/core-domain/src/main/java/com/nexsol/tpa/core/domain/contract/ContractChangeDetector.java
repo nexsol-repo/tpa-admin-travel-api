@@ -10,33 +10,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 계약 변경 감지 도구 클래스 (Implement Layer) 기존 계약과 수정 명령을 비교하여 변경된 필드 목록 생성
+ * 계약 변경 감지 도구 클래스 (Implement Layer) 기존 계약과 수정 개념객체를 비교하여 변경된 필드 목록 생성
  */
 @Component
 public class ContractChangeDetector {
 
-	/**
-	 * 변경된 필드 목록을 한글 메시지로 반환
-	 * @return "성별, 한글이름을 변경하였습니다." 또는 null (변경 없음)
-	 */
-	public String detectChanges(InsuranceContract existing, ContractUpdateCommand command) {
+	public String detectChanges(InsuranceContract existing, ModifyContract mc) {
 		List<String> changedFields = new ArrayList<>();
 
-		// 상태 변경 감지
-		if (command.status() != null && !Objects.equals(command.status(), existing.status())) {
+		if (mc.status() != null && !Objects.equals(mc.status(), existing.status())) {
 			changedFields.add("계약상태");
 		}
 
-		// 계약자 정보 변경 감지 (insuredPeople 중 contractor 기반)
-		detectApplicantChanges(existing.getContractor(), command.applicant(), changedFields);
-
-		// 보험기간 변경 감지
-		detectPeriodChanges(existing.metaInfo().period(), command.period(), changedFields);
-
-		// 피보험자 정보 변경 감지
-		detectInsuredPeopleChanges(existing.insuredPeople(), command.insuredPeople(), changedFields);
-
-		detectPaymentChanges(existing.paymentInfo(), command.payment(), changedFields);
+		detectApplicantChanges(existing.getContractor(), mc.applicant(), changedFields);
+		detectPeriodChanges(existing.metaInfo().period(), mc.period(), changedFields);
+		detectInsuredPeopleChanges(existing.insuredPeople(), mc.insuredPeople(), changedFields);
+		detectPaymentChanges(existing.paymentInfo(), mc.payment(), changedFields);
 
 		if (changedFields.isEmpty()) {
 			return null;
@@ -45,45 +34,43 @@ public class ContractChangeDetector {
 		return String.join(", ", changedFields) + "을(를) 변경하였습니다.";
 	}
 
-	private void detectApplicantChanges(InsuredPerson contractor, ContractUpdateCommand.ApplicantUpdateCommand command,
+	private void detectApplicantChanges(InsuredPerson contractor, ContractApplicant applicant,
 			List<String> changedFields) {
-		if (command == null || contractor == null) {
+		if (applicant == null || contractor == null) {
 			return;
 		}
 
-		if (command.name() != null && !Objects.equals(command.name(), contractor.name())) {
+		if (applicant.name() != null && !Objects.equals(applicant.name(), contractor.name())) {
 			changedFields.add("계약자명");
 		}
-		if (command.phoneNumber() != null && !Objects.equals(command.phoneNumber(), contractor.phone())) {
+		if (applicant.phoneNumber() != null && !Objects.equals(applicant.phoneNumber(), contractor.phone())) {
 			changedFields.add("전화번호");
 		}
-		if (command.email() != null && !Objects.equals(command.email(), contractor.email())) {
+		if (applicant.email() != null && !Objects.equals(applicant.email(), contractor.email())) {
 			changedFields.add("이메일");
 		}
 	}
 
-	private void detectPeriodChanges(InsurancePeriod existing, ContractUpdateCommand.PeriodUpdateCommand command,
-			List<String> changedFields) {
-		if (command == null) {
+	private void detectPeriodChanges(InsurancePeriod existing, ContractPeriod period, List<String> changedFields) {
+		if (period == null) {
 			return;
 		}
 
-		if (command.startDate() != null && !Objects.equals(command.startDate(), existing.startDate())) {
+		if (period.startDate() != null && !Objects.equals(period.startDate(), existing.startDate())) {
 			changedFields.add("보험시작일");
 		}
-		if (command.endDate() != null && !Objects.equals(command.endDate(), existing.endDate())) {
+		if (period.endDate() != null && !Objects.equals(period.endDate(), existing.endDate())) {
 			changedFields.add("보험종료일");
 		}
 	}
 
-	private void detectInsuredPeopleChanges(List<InsuredPerson> existing,
-			List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands, List<String> changedFields) {
-		if (commands == null || commands.isEmpty()) {
+	private void detectInsuredPeopleChanges(List<InsuredPerson> existing, List<ModifyInsuredPerson> modifications,
+			List<String> changedFields) {
+		if (modifications == null || modifications.isEmpty()) {
 			return;
 		}
 
-		// 피보험자 목록이 변경되었으면 상세 비교
-		if (existing.size() != commands.size()) {
+		if (existing.size() != modifications.size()) {
 			changedFields.add("피보험자");
 			return;
 		}
@@ -96,21 +83,21 @@ public class ContractChangeDetector {
 
 		for (int i = 0; i < existing.size(); i++) {
 			InsuredPerson existingPerson = existing.get(i);
-			ContractUpdateCommand.InsuredPersonUpdateCommand commandPerson = commands.get(i);
+			ModifyInsuredPerson m = modifications.get(i);
 
-			if (!Objects.equals(commandPerson.name(), existingPerson.name())) {
+			if (!Objects.equals(m.name(), existingPerson.name())) {
 				hasNameChange = true;
 			}
-			if (!Objects.equals(commandPerson.englishName(), existingPerson.englishName())) {
+			if (!Objects.equals(m.englishName(), existingPerson.englishName())) {
 				hasEnglishNameChange = true;
 			}
-			if (!Objects.equals(commandPerson.gender(), existingPerson.gender())) {
+			if (!Objects.equals(m.gender(), existingPerson.gender())) {
 				hasGenderChange = true;
 			}
-			if (!Objects.equals(commandPerson.passportNumber(), existingPerson.passportNumber())) {
+			if (!Objects.equals(m.passportNumber(), existingPerson.passportNumber())) {
 				hasPassportChange = true;
 			}
-			if (!Objects.equals(commandPerson.residentNumber(), existingPerson.residentNumber())) {
+			if (!Objects.equals(m.residentNumber(), existingPerson.residentNumber())) {
 				hasResidentNumberChange = true;
 			}
 		}
@@ -132,16 +119,15 @@ public class ContractChangeDetector {
 		}
 	}
 
-	private void detectPaymentChanges(PaymentInfo existing, ContractUpdateCommand.PaymentUpdateCommand command,
-			List<String> changedFields) {
-		if (command == null || existing == null)
+	private void detectPaymentChanges(PaymentInfo existing, ContractPayment payment, List<String> changedFields) {
+		if (payment == null || existing == null)
 			return;
 
-		if (command.method() != null && !Objects.equals(command.method(), existing.method())) {
+		if (payment.method() != null && !Objects.equals(payment.method(), existing.method())) {
 			changedFields.add("결제수단");
 		}
-		if (command.canceledAt() != null && !Objects.equals(command.canceledAt(), existing.canceledAt())) {
-			changedFields.add("결제해지일"); // 혹은 결제취소일
+		if (payment.canceledAt() != null && !Objects.equals(payment.canceledAt(), existing.canceledAt())) {
+			changedFields.add("결제해지일");
 		}
 	}
 
