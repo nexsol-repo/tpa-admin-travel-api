@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContractCreator {
 
-	private final ContractRepository contractRepository;
+	private final ContractCommandRepository contractCommandRepository;
 
 	private final PlanReader planReader;
 
@@ -31,7 +31,7 @@ public class ContractCreator {
 
 	public Long create(ContractCreateCommand command) {
 		InsuranceContract newContract = buildContract(command);
-		return contractRepository.create(newContract);
+		return contractCommandRepository.create(newContract);
 	}
 
 	private InsuranceContract buildContract(ContractCreateCommand command) {
@@ -83,6 +83,7 @@ public class ContractCreator {
 
 		return ProductPlan.builder()
 			.planId(plan.id())
+			.familyId(plan.familyId())
 			.productName(plan.fullName())
 			.planName(plan.name())
 			.travelCountry(command.travelCountry())
@@ -141,21 +142,28 @@ public class ContractCreator {
 	}
 
 	private List<InsuredPerson> buildInsuredPeople(ContractCreateCommand command) {
-		if (command.companions() == null || command.companions().isEmpty()) {
-			// 동반자 정보가 없으면 가입자 본인을 피보험자로 등록
-			if (command.applicant() != null) {
-				BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
-						? command.payment().totalAmount() : BigDecimal.ZERO;
-				return List.of(InsuredPerson.builder()
-					.name(command.applicant().name())
-					.residentNumber(command.applicant().residentNumber())
-					.individualPremium(premium)
-					.build());
-			}
-			return List.of();
+		List<InsuredPerson> insuredPeople = new java.util.ArrayList<>();
+
+		// 대표계약자를 isContractor=true 로 등록
+		if (command.applicant() != null) {
+			BigDecimal premium = (command.payment() != null && command.payment().totalAmount() != null)
+					? command.payment().totalAmount() : BigDecimal.ZERO;
+			insuredPeople.add(InsuredPerson.builder()
+				.name(command.applicant().name())
+				.residentNumber(command.applicant().residentNumber())
+				.phone(command.applicant().phoneNumber())
+				.email(command.applicant().email())
+				.isContractor(true)
+				.individualPremium(premium)
+				.build());
 		}
 
-		return command.companions().stream().map(this::buildInsuredPerson).toList();
+		// 동반자 정보가 있으면 isContractor=false 로 추가
+		if (command.companions() != null && !command.companions().isEmpty()) {
+			command.companions().stream().map(this::buildInsuredPerson).forEach(insuredPeople::add);
+		}
+
+		return insuredPeople;
 	}
 
 	private InsuredPerson buildInsuredPerson(ContractCreateCommand.CompanionCommand companion) {
@@ -167,6 +175,7 @@ public class ContractCreator {
 			.residentNumber(companion.residentNumber())
 			.passportNumber(companion.passportNumber())
 			.gender(companion.gender())
+			.isContractor(false)
 			.individualPremium(companion.premium())
 			.individualPolicyNumber(companion.policyNumber())
 			.build();

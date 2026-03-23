@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class PlanFamilyReaderImpl implements PlanFamilyRepository {
+public class DefaultPlanFamilyRepository implements PlanFamilyRepository {
 
 	private final TravelInsurancePlanFamilyJpaRepository familyJpaRepository;
 

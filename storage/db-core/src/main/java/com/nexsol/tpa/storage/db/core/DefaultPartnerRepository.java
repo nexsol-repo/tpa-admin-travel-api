@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class PartnerRepositoryImpl implements PartnerRepository {
+public class DefaultPartnerRepository implements PartnerRepository {
 
 	private final PartnerJpaRepository partnerJpaRepository;
 

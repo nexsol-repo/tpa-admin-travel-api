@@ -5,10 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface PaymentJpaRepository extends JpaRepository<TravelInsurePaymentEntity, Long> {
+public interface PaymentJpaRepository extends JpaRepository<TravelPaymentEntity, Long> {
 
-	Optional<TravelInsurePaymentEntity> findByContractId(Long contractId);
+	Optional<TravelPaymentEntity> findByContractId(Long contractId);
 
-	List<TravelInsurePaymentEntity> findByContractIdIn(List<Long> contractIds);
+	List<TravelPaymentEntity> findByContractIdIn(List<Long> contractIds);
 
 }

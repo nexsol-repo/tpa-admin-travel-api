@@ -1,5 +1,6 @@
 package com.nexsol.tpa.core.api.controller.v1.response;
 
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import lombok.Builder;
 
@@ -15,6 +16,7 @@ public record ContractResponse(Long contractId, String contractStatus, String co
 	public static ContractResponse of(InsuranceContract domain) {
 		String displayStatus = resolveDisplayStatus(domain);
 		String displayStatusCode = resolveDisplayStatusCode(domain);
+		InsuredPerson contractor = domain.getContractor();
 		return ContractResponse.builder()
 			.contractId(domain.contractId())
 			.contractStatus(displayStatus)
@@ -23,10 +25,10 @@ public record ContractResponse(Long contractId, String contractStatus, String co
 			.partnerName(domain.metaInfo().origin().partnerName())
 			.channelName(domain.metaInfo().origin().channelName())
 			.insurerName(domain.metaInfo().origin().insurerName())
-			.applicantName(domain.applicant().name())
-			.applicantPhone(domain.applicant().phoneNumber())
+			.applicantName(contractor != null ? contractor.name() : null)
+			.applicantPhone(contractor != null ? contractor.phone() : null)
 			.insuredCount(domain.getTotalInsuredCount())
-			.totalPremium(domain.paymentInfo() != null ? domain.paymentInfo().totalAmount() : BigDecimal.ZERO)
+			.totalPremium(domain.totalPremium() != null ? domain.totalPremium() : BigDecimal.ZERO)
 			.applicationDate(domain.metaInfo().applicationDate())
 			.insuranceStartDate(domain.metaInfo().period().startDate())
 			.insuranceEndDate(domain.metaInfo().period().endDate())

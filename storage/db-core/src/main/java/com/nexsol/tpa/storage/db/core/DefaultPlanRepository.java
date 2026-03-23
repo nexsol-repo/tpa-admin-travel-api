@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class PlanRepositoryImpl implements PlanRepository {
+public class DefaultPlanRepository implements PlanRepository {
 
 	private final TravelInsurancePlanJpaRepository planJpaRepository;
 
@@ -41,7 +41,7 @@ public class PlanRepositoryImpl implements PlanRepository {
 
 	private Plan toDomain(TravelInsurancePlanEntity entity) {
 		return new Plan(entity.getId(), entity.getPlanCode(), entity.getPlanName(), entity.getProductName(),
-				entity.getPlanFullName(), entity.getAgeGroupId(), entity.getInsurerId());
+				entity.getPlanFullName(), entity.getAgeGroupId(), entity.getInsurerId(), entity.getFamilyId());
 	}
 
 }

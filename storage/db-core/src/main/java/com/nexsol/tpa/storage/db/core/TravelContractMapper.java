@@ -1,10 +1,10 @@
 package com.nexsol.tpa.storage.db.core;
 
 import com.nexsol.tpa.core.domain.applicant.Applicant;
+import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.contract.ContractMeta;
 import com.nexsol.tpa.core.domain.contract.InsuranceContract;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
-import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.InsurancePeriod;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.domain.subscription.SubscriptionOrigin;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class TravelContractMapper {
@@ -38,12 +39,9 @@ public class TravelContractMapper {
 			mapMetaInfo(entity, contract.metaInfo());
 		}
 
-		// 가입자 정보
-		entity.updateApplicant(contract.applicant());
-
-		// 플랜 정보
+		// 플랜 패밀리 정보
 		if (contract.productPlan() != null) {
-			entity.updatePlanId(contract.productPlan().planId());
+			entity.updateFamilyId(contract.productPlan().familyId());
 			entity.updateCountryName(contract.productPlan().travelCountry());
 			entity.updateCountryCode(contract.productPlan().countryCode());
 		}
@@ -52,9 +50,6 @@ public class TravelContractMapper {
 		if (contract.paymentInfo() != null) {
 			entity.updateTotalPremium(contract.paymentInfo().totalAmount());
 		}
-
-		// 피보험자 수 (동반자 수 기반으로 계산)
-		entity.updateInsuredCount(contract.calculateTotalInsuredCount());
 
 		// 담당자 ID
 		entity.updateEmployeeId(contract.employeeId());
@@ -65,32 +60,65 @@ public class TravelContractMapper {
 	/**
 	 * 엔티티 -> 도메인 모델 변환
 	 */
-	public InsuranceContract toDomain(TravelContractEntity entity, TravelInsurePaymentEntity payment,
-			TravelInsureRefundEntity refund, List<TravelInsurePeopleEntity> people, TravelInsurancePlanEntity plan,
+	public InsuranceContract toDomain(TravelContractEntity entity, TravelPaymentEntity payment,
+			TravelRefundEntity refund, List<TravelInsuredEntity> people, Map<Long, TravelInsurancePlanEntity> planMap,
 			TravelInsurancePlanFamilyEntity family) {
 		if (entity == null) {
 			return null;
 		}
 
-		List<TravelInsurePeopleEntity> safePeople = (people != null) ? people : Collections.emptyList();
+		List<TravelInsuredEntity> safePeople = (people != null) ? people : Collections.emptyList();
+		List<InsuredPerson> insuredPeople = safePeople.stream().map(TravelInsuredEntity::toDomain).toList();
+
+		// insuredPeople 중 isContractor=true 인 사람에서 applicant 추출
+		Applicant applicant = extractApplicant(insuredPeople);
+
+		// people의 planId로 plan 조회
+		TravelInsurancePlanEntity plan = findPlanFromPeople(safePeople, planMap);
 
 		return InsuranceContract.builder()
 			.contractId(entity.getId())
 			.status(determineStatus(entity, payment))
 			.metaInfo(toContractMeta(entity))
 			.productPlan(toProductPlan(entity, plan, family))
-			.applicant(toApplicant(entity))
+			.applicant(applicant)
 			.paymentInfo(toPaymentInfo(entity, payment))
 			.refundInfo(refund != null ? refund.toDomain() : null)
-			.insuredPeople(safePeople.stream().map(TravelInsurePeopleEntity::toDomain).toList())
+			.insuredPeople(insuredPeople)
 			.employeeId(entity.getEmployeeId())
-			.insuredCount(entity.getInsuredPeopleNumber())
+			.insuredCount(insuredPeople.size())
 			.totalPremium(entity.getTotalPremium())
 			.build();
 	}
 
 	public InsuranceContract toDomain(TravelContractEntity entity) {
-		return toDomain(entity, null, null, Collections.emptyList(), null, null);
+		return toDomain(entity, null, null, Collections.emptyList(), Collections.emptyMap(), null);
+	}
+
+	private Applicant extractApplicant(List<InsuredPerson> insuredPeople) {
+		return insuredPeople.stream()
+			.filter(p -> Boolean.TRUE.equals(p.isContractor()))
+			.findFirst()
+			.map(p -> Applicant.builder()
+				.name(p.name())
+				.residentNumber(p.residentNumber())
+				.phoneNumber(p.phone())
+				.email(p.email())
+				.build())
+			.orElse(null);
+	}
+
+	private TravelInsurancePlanEntity findPlanFromPeople(List<TravelInsuredEntity> people,
+			Map<Long, TravelInsurancePlanEntity> planMap) {
+		if (planMap == null || planMap.isEmpty()) {
+			return null;
+		}
+		return people.stream()
+			.map(TravelInsuredEntity::getPlanId)
+			.filter(planMap::containsKey)
+			.findFirst()
+			.map(planMap::get)
+			.orElse(null);
 	}
 
 	private void mapMetaInfo(TravelContractEntity entity, ContractMeta meta) {
@@ -128,7 +156,7 @@ public class TravelContractMapper {
 			TravelInsurancePlanFamilyEntity family) {
 		if (plan == null) {
 			return ProductPlan.builder()
-				.planId(entity.getPlanId())
+				.familyId(entity.getFamilyId())
 				.travelCountry(entity.getCountryName())
 				.countryCode(entity.getCountryCode())
 				.build();
@@ -140,6 +168,7 @@ public class TravelContractMapper {
 
 		return ProductPlan.builder()
 			.planId(plan.getId())
+			.familyId(entity.getFamilyId())
 			.productName(plan.getProductName())
 			.planName(plan.getPlanName())
 			.displayPlanName(displayPlanName)
@@ -158,16 +187,7 @@ public class TravelContractMapper {
 		return familyName.replace(" 실손제외", "").replaceAll("[A-Z]$", "");
 	}
 
-	private Applicant toApplicant(TravelContractEntity entity) {
-		return Applicant.builder()
-			.name(entity.getApplicantName())
-			.residentNumber(entity.getApplicantResidentNumber())
-			.phoneNumber(entity.getApplicantPhone())
-			.email(entity.getApplicantEmail())
-			.build();
-	}
-
-	private PaymentInfo toPaymentInfo(TravelContractEntity entity, TravelInsurePaymentEntity payment) {
+	private PaymentInfo toPaymentInfo(TravelContractEntity entity, TravelPaymentEntity payment) {
 		if (payment == null) {
 			return PaymentInfo.builder()
 				.totalAmount(entity.getTotalPremium() != null ? entity.getTotalPremium() : BigDecimal.ZERO)
@@ -176,7 +196,7 @@ public class TravelContractMapper {
 		return payment.toDomain(entity.getTotalPremium());
 	}
 
-	private ContractStatus determineStatus(TravelContractEntity entity, TravelInsurePaymentEntity payment) {
+	private ContractStatus determineStatus(TravelContractEntity entity, TravelPaymentEntity payment) {
 		if (payment != null && "CANCELED".equals(payment.getStatus())) {
 			return ContractStatus.CANCELED;
 		}

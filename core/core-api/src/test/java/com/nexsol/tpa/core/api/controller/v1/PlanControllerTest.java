@@ -34,9 +34,9 @@ public class PlanControllerTest extends RestDocsTest {
 	@DisplayName("플랜 목록 조회 API 문서화")
 	void getPlans() throws Exception {
 		// Given
-		List<Plan> mockPlans = List.of(new Plan(1L, "PLAN001", "알뜰 플랜", "해외여행자보험", "알뜰플랜(15~69세)", 2L, 1L),
-				new Plan(2L, "PLAN002", "표준 플랜", "해외여행자보험", "표준플랜(15~69세)", 2L, 1L),
-				new Plan(3L, "PLAN003", "프리미엄 플랜", "해외여행자보험", "프리미엄플랜(15~69세)", 2L, 1L));
+		List<Plan> mockPlans = List.of(new Plan(1L, "PLAN001", "알뜰 플랜", "해외여행자보험", "알뜰플랜(15~69세)", 2L, 1L, 1L),
+				new Plan(2L, "PLAN002", "표준 플랜", "해외여행자보험", "표준플랜(15~69세)", 2L, 1L, 1L),
+				new Plan(3L, "PLAN003", "프리미엄 플랜", "해외여행자보험", "프리미엄플랜(15~69세)", 2L, 1L, 1L));
 
 		given(planService.getActivePlans()).willReturn(mockPlans);
 
@@ -59,8 +59,8 @@ public class PlanControllerTest extends RestDocsTest {
 	void getPlansByInsurerId() throws Exception {
 		// Given
 		Long insurerId = 1L;
-		List<Plan> mockPlans = List.of(new Plan(1L, "PLAN001", "알뜰 플랜", "해외여행자보험", "알뜰플랜(15~69세)", 2L, insurerId),
-				new Plan(2L, "PLAN002", "표준 플랜", "해외여행자보험", "표준플랜(15~69세)", 2L, insurerId));
+		List<Plan> mockPlans = List.of(new Plan(1L, "PLAN001", "알뜰 플랜", "해외여행자보험", "알뜰플랜(15~69세)", 2L, insurerId, 1L),
+				new Plan(2L, "PLAN002", "표준 플랜", "해외여행자보험", "표준플랜(15~69세)", 2L, insurerId, 1L));
 
 		given(planService.getActivePlansByInsurerId(insurerId)).willReturn(mockPlans);
 

@@ -48,7 +48,6 @@ public class PlanResolver {
 					"플랜을 찾을 수 없습니다: " + planName + ", 나이: " + age));
 	}
 
-
 	/**
 	 * 주민번호에서 만나이를 계산한다.
 	 */

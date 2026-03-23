@@ -117,28 +117,35 @@ public class ContractControllerTest extends RestDocsTest {
 				.totalAmount(BigDecimal.valueOf(17000))
 				.paidAt(LocalDateTime.of(2025, 12, 24, 15, 1, 42))
 				.build())
-			// 5. 피보험자(동반자) 목록
+			// 5. 피보험자 목록 (대표계약자 + 동반자)
 			.insuredPeople(List.of(
 					InsuredPerson.builder()
 						.id(1L)
+						.isContractor(true)
 						.name("홍길동")
 						.englishName("Hong Gildong")
 						.residentNumber("910504-1******")
 						.passportNumber("M12345678")
 						.gender("남성")
+						.phone("010-0000-0000")
+						.email("contractor@abc.com")
 						.individualPremium(BigDecimal.valueOf(8000))
 						.individualPolicyNumber("15540-97222")
 						.build(),
 					InsuredPerson.builder()
 						.id(2L)
+						.isContractor(false)
 						.name("김영희")
 						.englishName("Kim Younghee")
 						.residentNumber("910504-2111111")
 						.passportNumber("M87654321")
 						.gender("여성")
+						.phone("010-1111-1111")
+						.email("younghee@abc.com")
 						.individualPremium(BigDecimal.valueOf(9000))
 						.individualPolicyNumber("15540-97222")
 						.build()))
+			.totalPremium(BigDecimal.valueOf(17000))
 			.build();
 
 		List<InsuranceContract> content = List.of(mockContract);
@@ -498,13 +505,17 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.refund.refundedAt").description("환불 처리 일시").optional(),
 
 				// 6. Companions
-				fieldWithPath("data.companions").description("동반자 목록"), // UI 용어 반영
+				fieldWithPath("data.companions").description("동반자 목록"),
 				fieldWithPath("data.companions[].id").description("동반자 ID"),
+				fieldWithPath("data.companions[].planId").description("플랜 ID").optional(),
+				fieldWithPath("data.companions[].isContractor").description("대표계약자 여부"),
 				fieldWithPath("data.companions[].name").description("이름"),
 				fieldWithPath("data.companions[].englishName").description("영문 이름"),
 				fieldWithPath("data.companions[].residentNumber").description("주민등록번호 (마스킹)"),
 				fieldWithPath("data.companions[].passportNumber").description("여권 번호"),
 				fieldWithPath("data.companions[].gender").description("성별"),
+				fieldWithPath("data.companions[].phone").description("연락처").optional(),
+				fieldWithPath("data.companions[].email").description("이메일").optional(),
 				fieldWithPath("data.companions[].premium").description("개별 보험료"),
 				fieldWithPath("data.companions[].policyNumber").description("개별 증권번호") };
 	}
@@ -684,24 +695,31 @@ public class ContractControllerTest extends RestDocsTest {
 			.insuredPeople(List.of(
 					InsuredPerson.builder()
 						.id(1L)
+						.isContractor(true)
 						.name("홍길동")
 						.englishName("Hong Gildong")
 						.residentNumber("910504-1******")
 						.passportNumber("M12345678")
 						.gender("남성")
+						.phone("010-0000-0000")
+						.email("contractor@abc.com")
 						.individualPremium(BigDecimal.valueOf(8000))
 						.individualPolicyNumber("15540-97222")
 						.build(),
 					InsuredPerson.builder()
 						.id(2L)
+						.isContractor(false)
 						.name("김영희")
 						.englishName("Kim Younghee")
 						.residentNumber("920101-2******")
 						.passportNumber("M87654321")
 						.gender("여성")
+						.phone("010-1111-1111")
+						.email("younghee@abc.com")
 						.individualPremium(BigDecimal.valueOf(9000))
 						.individualPolicyNumber("15540-97223")
 						.build()))
+			.totalPremium(BigDecimal.valueOf(17000))
 			.build();
 	}
 
