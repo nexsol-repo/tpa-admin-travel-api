@@ -12,8 +12,7 @@ import java.util.List;
 public record ContractUpdateRequest(ContractStatus status, String statusName, ApplicantRequest applicant,
 		PeriodRequest period, List<InsuredPersonRequest> insuredPeople, PaymentRequest payment, RefundRequest refund,
 		SubscriptionOriginRequest subscriptionOrigin, Long planId, String planName, Boolean silsonExclude,
-		String travelCountry, String countryCode, String policyNumber, String policyLink,
-		BigDecimal totalPremium,
+		String travelCountry, String countryCode, String policyNumber, String policyLink, BigDecimal totalPremium,
 		@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, String memo) {
 
 	/**

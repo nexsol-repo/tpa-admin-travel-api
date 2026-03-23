@@ -17,7 +17,7 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
 	public List<InsuredPerson> findAllByContractId(Long contractId) {
 		return insuredPersonJpaRepository.findAllByContractIdAndDeletedAtIsNull(contractId)
 			.stream()
-			.map(TravelInsurePeopleEntity::toDomain)
+			.map(TravelInsuredEntity::toDomain)
 			.toList();
 	}
 
@@ -27,8 +27,8 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
 			return;
 		}
 
-		List<TravelInsurePeopleEntity> entities = insuredPersonJpaRepository.findAllById(ids);
-		entities.forEach(TravelInsurePeopleEntity::softDelete);
+		List<TravelInsuredEntity> entities = insuredPersonJpaRepository.findAllById(ids);
+		entities.forEach(TravelInsuredEntity::softDelete);
 		insuredPersonJpaRepository.saveAll(entities);
 	}
 
@@ -40,14 +40,15 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
 
 		List<Long> ids = people.stream().map(InsuredPerson::id).toList();
 
-		List<TravelInsurePeopleEntity> entities = insuredPersonJpaRepository.findAllById(ids);
+		List<TravelInsuredEntity> entities = insuredPersonJpaRepository.findAllById(ids);
 
-		for (TravelInsurePeopleEntity entity : entities) {
+		for (TravelInsuredEntity entity : entities) {
 			people.stream()
 				.filter(p -> p.id().equals(entity.getId()))
 				.findFirst()
 				.ifPresent(person -> entity.updatePersonInfo(person.name(), person.englishName(),
-						person.residentNumber(), person.passportNumber(), person.gender()));
+						person.residentNumber(), person.passportNumber(), person.gender(),
+						person.phone(), person.email()));
 		}
 
 		insuredPersonJpaRepository.saveAll(entities);
@@ -59,8 +60,8 @@ public class InsuredPersonRepositoryImpl implements InsuredPersonRepository {
 			return;
 		}
 
-		List<TravelInsurePeopleEntity> entities = people.stream()
-			.map(person -> TravelInsurePeopleEntity.create(contractId, person))
+		List<TravelInsuredEntity> entities = people.stream()
+			.map(person -> TravelInsuredEntity.create(contractId, person))
 			.toList();
 
 		insuredPersonJpaRepository.saveAll(entities);
