@@ -518,8 +518,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.companions[].gender").description("성별"),
 				fieldWithPath("data.companions[].phone").description("연락처").optional(),
 				fieldWithPath("data.companions[].email").description("이메일").optional(),
-				fieldWithPath("data.companions[].premium").description("개별 보험료"),
-				fieldWithPath("data.companions[].policyNumber").description("개별 증권번호") };
+				fieldWithPath("data.companions[].premium").description("개별 보험료") };
 	}
 
 	/**

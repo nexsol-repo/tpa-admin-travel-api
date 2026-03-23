@@ -6,8 +6,7 @@ import java.math.BigDecimal;
 
 @Builder
 public record CompanionInfo(Long id, Long planId, Boolean isContractor, String name, String englishName,
-		String residentNumber, String passportNumber, String gender, String phone, String email, BigDecimal premium,
-		String policyNumber) {
+		String residentNumber, String passportNumber, String gender, String phone, String email, BigDecimal premium) {
 	public static CompanionInfo of(InsuredPerson person) {
 		return CompanionInfo.builder()
 			.id(person.id())
@@ -21,7 +20,6 @@ public record CompanionInfo(Long id, Long planId, Boolean isContractor, String n
 			.phone(person.phone())
 			.email(person.email())
 			.premium(person.individualPremium())
-			.policyNumber(person.individualPolicyNumber())
 			.build();
 	}
 
