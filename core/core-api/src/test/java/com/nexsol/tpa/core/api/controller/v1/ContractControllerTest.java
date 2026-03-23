@@ -399,7 +399,9 @@ public class ContractControllerTest extends RestDocsTest {
 				            "englishName": "Hong Gildong Updated",
 				            "residentNumber": "910504-1234567",
 				            "passportNumber": "M12345678",
-				            "gender": "남성"
+				            "gender": "남성",
+				            "policyNumber": "15540-97222",
+				            "premium": 8000
 				        }
 				    ],
 				    "payment": {
@@ -479,12 +481,12 @@ public class ContractControllerTest extends RestDocsTest {
 
 				// 3. Applicant Section
 				fieldWithPath("data.applicantSection").description("신청자 정보 섹션"),
-				fieldWithPath("data.applicantSection.name").description("가입자(피보험자) 대표 계약자 명"), // UI
-																								// 용어
-																								// 반영
+				fieldWithPath("data.applicantSection.name").description("대표 계약자명"),
+				fieldWithPath("data.applicantSection.englishName").description("영문 이름").optional(),
 				fieldWithPath("data.applicantSection.residentNumber").description("주민등록번호 (마스킹)"),
 				fieldWithPath("data.applicantSection.phoneNumber").description("연락처"),
 				fieldWithPath("data.applicantSection.email").description("이메일"),
+				fieldWithPath("data.applicantSection.premium").description("개별 보험료").optional(),
 
 				// 4. Payment Section
 				fieldWithPath("data.payment").description("결제 정보 섹션"),
@@ -635,6 +637,8 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("insuredPeople[].residentNumber").description("주민등록번호"),
 				fieldWithPath("insuredPeople[].passportNumber").description("여권번호"),
 				fieldWithPath("insuredPeople[].gender").description("성별"),
+				fieldWithPath("insuredPeople[].policyNumber").description("개별 증권번호").optional(),
+				fieldWithPath("insuredPeople[].premium").description("개별 보험료").optional(),
 
 				fieldWithPath("payment").description("결제 정보 (부분 수정 가능)").optional(),
 				fieldWithPath("payment.status").description("결제 상태 (COMPLETED, CANCELED) - 직접 수정 시 statusName보다 우선")

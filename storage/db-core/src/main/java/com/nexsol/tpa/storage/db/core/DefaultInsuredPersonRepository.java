@@ -46,9 +46,9 @@ public class DefaultInsuredPersonRepository implements InsuredPersonRepository {
 			people.stream()
 				.filter(p -> p.id().equals(entity.getId()))
 				.findFirst()
-				.ifPresent(
-						person -> entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
-								person.passportNumber(), person.gender(), person.phone(), person.email()));
+				.ifPresent(person -> entity.updatePersonInfo(person.name(), person.englishName(),
+						person.residentNumber(), person.passportNumber(), person.gender(), person.phone(),
+						person.email(), person.individualPremium()));
 		}
 
 		insuredPersonJpaRepository.saveAll(entities);
