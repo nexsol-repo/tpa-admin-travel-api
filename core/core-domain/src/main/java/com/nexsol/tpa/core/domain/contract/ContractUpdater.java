@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 계약 수정 도구 클래스 (Implement Layer)
@@ -252,12 +254,35 @@ public class ContractUpdater {
 		if (modifications.isEmpty()) {
 			return List.of();
 		}
-		return modifications.stream().map(this::toInsuredPerson).toList();
+
+		Map<Long, InsuredPerson> existingMap = existing.stream()
+			.filter(p -> p.id() != null)
+			.collect(java.util.stream.Collectors.toMap(InsuredPerson::id, p -> p));
+
+		List<InsuredPerson> result = modifications.stream()
+			.map(m -> toInsuredPerson(m, existingMap.get(m.id())))
+			.collect(java.util.ArrayList::new, java.util.ArrayList::add, java.util.ArrayList::addAll);
+
+		// 기존 contractor가 수정 목록에 없으면 보존
+		Set<Long> modifiedIds = modifications.stream()
+			.map(ModifyInsuredPerson::id)
+			.filter(java.util.Objects::nonNull)
+			.collect(java.util.stream.Collectors.toSet());
+
+		existing.stream()
+			.filter(p -> Boolean.TRUE.equals(p.isContractor()))
+			.filter(p -> !modifiedIds.contains(p.id()))
+			.findFirst()
+			.ifPresent(result::add);
+
+		return result;
 	}
 
-	private InsuredPerson toInsuredPerson(ModifyInsuredPerson m) {
+	private InsuredPerson toInsuredPerson(ModifyInsuredPerson m, InsuredPerson existingPerson) {
 		return InsuredPerson.builder()
 			.id(m.id())
+			.planId(existingPerson != null ? existingPerson.planId() : null)
+			.isContractor(existingPerson != null ? existingPerson.isContractor() : null)
 			.name(m.name())
 			.englishName(m.englishName())
 			.residentNumber(m.residentNumber())
