@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class ChannelRepositoryImpl implements ChannelRepository {
+public class DefaultChannelRepository implements ChannelRepository {
 
 	private final ChannelJpaRepository channelJpaRepository;
 

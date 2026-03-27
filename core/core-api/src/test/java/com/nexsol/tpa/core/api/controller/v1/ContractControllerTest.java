@@ -117,28 +117,35 @@ public class ContractControllerTest extends RestDocsTest {
 				.totalAmount(BigDecimal.valueOf(17000))
 				.paidAt(LocalDateTime.of(2025, 12, 24, 15, 1, 42))
 				.build())
-			// 5. 피보험자(동반자) 목록
+			// 5. 피보험자 목록 (대표계약자 + 동반자)
 			.insuredPeople(List.of(
 					InsuredPerson.builder()
 						.id(1L)
+						.isContractor(true)
 						.name("홍길동")
 						.englishName("Hong Gildong")
 						.residentNumber("910504-1******")
 						.passportNumber("M12345678")
 						.gender("남성")
+						.phone("010-0000-0000")
+						.email("contractor@abc.com")
 						.individualPremium(BigDecimal.valueOf(8000))
 						.individualPolicyNumber("15540-97222")
 						.build(),
 					InsuredPerson.builder()
 						.id(2L)
+						.isContractor(false)
 						.name("김영희")
 						.englishName("Kim Younghee")
 						.residentNumber("910504-2111111")
 						.passportNumber("M87654321")
 						.gender("여성")
+						.phone("010-1111-1111")
+						.email("younghee@abc.com")
 						.individualPremium(BigDecimal.valueOf(9000))
 						.individualPolicyNumber("15540-97222")
 						.build()))
+			.totalPremium(BigDecimal.valueOf(17000))
 			.build();
 
 		List<InsuranceContract> content = List.of(mockContract);
@@ -358,6 +365,7 @@ public class ContractControllerTest extends RestDocsTest {
 		String requestBody = """
 				{
 				    "status": "CANCELED",
+				    "statusName": "임의해지",
 				    "subscriptionOrigin": {
 				        "insurerId": 2,
 				        "insurerName": "삼성화재",
@@ -373,6 +381,7 @@ public class ContractControllerTest extends RestDocsTest {
 				    "countryCode": "US",
 				    "policyNumber": "15540-97223",
 				    "policyLink": "https://insurance.example.com/policy/15540-97223",
+				    "totalPremium": 17000,
 				    "applicant": {
 				        "name": "홍길동수정",
 				        "residentNumber": "910504-1234567",
@@ -390,11 +399,15 @@ public class ContractControllerTest extends RestDocsTest {
 				            "englishName": "Hong Gildong Updated",
 				            "residentNumber": "910504-1234567",
 				            "passportNumber": "M12345678",
-				            "gender": "남성"
+				            "gender": "남성",
+				            "policyNumber": "15540-97222",
+				            "premium": 8000
 				        }
 				    ],
 				    "payment": {
+				        "status": "CANCELED",
 				        "method": "카드 결제",
+				        "totalAmount": 17000,
 				        "paidAt": "2025-03-15T15:01:42",
 				        "canceledAt": "2025-03-16T15:01:42"
 				    },
@@ -445,7 +458,12 @@ public class ContractControllerTest extends RestDocsTest {
 				// 2. Insurance Section
 				fieldWithPath("data.insuranceSection").description("보험 가입 정보 섹션"),
 				fieldWithPath("data.insuranceSection.product.name").description("보험 상품명"),
-				fieldWithPath("data.insuranceSection.product.plan").description("플랜명"),
+				fieldWithPath("data.insuranceSection.product.plan").description("플랜명 (원본)"),
+				fieldWithPath("data.insuranceSection.product.displayPlanName")
+					.description("플랜 표시명 (가뿐한플랜, 가뿐한플랜(실손제외))")
+					.optional(),
+				fieldWithPath("data.insuranceSection.product.silsonExclude")
+					.description("실손제외 여부 (true: 실손제외, false: 실손포함)"),
 				fieldWithPath("data.insuranceSection.product.country").description("여행 국가"),
 				fieldWithPath("data.insuranceSection.product.countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("data.insuranceSection.subscription.partner").description("제휴사"),
@@ -463,12 +481,12 @@ public class ContractControllerTest extends RestDocsTest {
 
 				// 3. Applicant Section
 				fieldWithPath("data.applicantSection").description("신청자 정보 섹션"),
-				fieldWithPath("data.applicantSection.name").description("가입자(피보험자) 대표 계약자 명"), // UI
-																								// 용어
-																								// 반영
+				fieldWithPath("data.applicantSection.name").description("대표 계약자명"),
+				fieldWithPath("data.applicantSection.englishName").description("영문 이름").optional(),
 				fieldWithPath("data.applicantSection.residentNumber").description("주민등록번호 (마스킹)"),
 				fieldWithPath("data.applicantSection.phoneNumber").description("연락처"),
 				fieldWithPath("data.applicantSection.email").description("이메일"),
+				fieldWithPath("data.applicantSection.premium").description("개별 보험료").optional(),
 
 				// 4. Payment Section
 				fieldWithPath("data.payment").description("결제 정보 섹션"),
@@ -489,15 +507,18 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.refund.refundedAt").description("환불 처리 일시").optional(),
 
 				// 6. Companions
-				fieldWithPath("data.companions").description("동반자 목록"), // UI 용어 반영
+				fieldWithPath("data.companions").description("동반자 목록"),
 				fieldWithPath("data.companions[].id").description("동반자 ID"),
+				fieldWithPath("data.companions[].planId").description("플랜 ID").optional(),
+				fieldWithPath("data.companions[].isContractor").description("대표계약자 여부"),
 				fieldWithPath("data.companions[].name").description("이름"),
 				fieldWithPath("data.companions[].englishName").description("영문 이름"),
 				fieldWithPath("data.companions[].residentNumber").description("주민등록번호 (마스킹)"),
 				fieldWithPath("data.companions[].passportNumber").description("여권 번호"),
 				fieldWithPath("data.companions[].gender").description("성별"),
-				fieldWithPath("data.companions[].premium").description("개별 보험료"),
-				fieldWithPath("data.companions[].policyNumber").description("개별 증권번호") };
+				fieldWithPath("data.companions[].phone").description("연락처").optional(),
+				fieldWithPath("data.companions[].email").description("이메일").optional(),
+				fieldWithPath("data.companions[].premium").description("개별 보험료") };
 	}
 
 	/**
@@ -575,6 +596,8 @@ public class ContractControllerTest extends RestDocsTest {
 	private FieldDescriptor[] getContractUpdateRequestFields() {
 		return new FieldDescriptor[] {
 				fieldWithPath("status").description("계약 상태 (PENDING, COMPLETED, CANCELED 등)").optional(),
+				fieldWithPath("statusName").description("계약 표시 상태명 (가입완료, 임의해지) - 전송 시 payment.status 자동 연동")
+					.optional(),
 
 				fieldWithPath("subscriptionOrigin").description("가입 출처 정보 (보험사, 채널, 제휴사)").optional(),
 				fieldWithPath("subscriptionOrigin.insurerId").description("보험사 ID").optional(),
@@ -594,6 +617,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("countryCode").description("여행 국가 코드").optional(),
 				fieldWithPath("policyNumber").description("증권번호").optional(),
 				fieldWithPath("policyLink").description("증권주소").optional(),
+				fieldWithPath("totalPremium").description("납입보험료").optional(),
 
 				fieldWithPath("applicant").description("가입자(피보험자) 정보 (부분 수정 가능)").optional(),
 				fieldWithPath("applicant.name").description("가입자(피보험자) 대표 계약자 명").optional(),
@@ -612,9 +636,14 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("insuredPeople[].residentNumber").description("주민등록번호"),
 				fieldWithPath("insuredPeople[].passportNumber").description("여권번호"),
 				fieldWithPath("insuredPeople[].gender").description("성별"),
+				fieldWithPath("insuredPeople[].policyNumber").description("개별 증권번호").optional(),
+				fieldWithPath("insuredPeople[].premium").description("개별 보험료").optional(),
 
 				fieldWithPath("payment").description("결제 정보 (부분 수정 가능)").optional(),
+				fieldWithPath("payment.status").description("결제 상태 (COMPLETED, CANCELED) - 직접 수정 시 statusName보다 우선")
+					.optional(),
 				fieldWithPath("payment.method").description("결제 방법 (카드 결제 등)").optional(),
+				fieldWithPath("payment.totalAmount").description("결제 금액").optional(),
 				fieldWithPath("payment.paidAt").description("결제 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 				fieldWithPath("payment.canceledAt").description("해지 일시 (yyyy-MM-dd'T'HH:mm:ss)").optional(),
 
@@ -669,24 +698,31 @@ public class ContractControllerTest extends RestDocsTest {
 			.insuredPeople(List.of(
 					InsuredPerson.builder()
 						.id(1L)
+						.isContractor(true)
 						.name("홍길동")
 						.englishName("Hong Gildong")
 						.residentNumber("910504-1******")
 						.passportNumber("M12345678")
 						.gender("남성")
+						.phone("010-0000-0000")
+						.email("contractor@abc.com")
 						.individualPremium(BigDecimal.valueOf(8000))
 						.individualPolicyNumber("15540-97222")
 						.build(),
 					InsuredPerson.builder()
 						.id(2L)
+						.isContractor(false)
 						.name("김영희")
 						.englishName("Kim Younghee")
 						.residentNumber("920101-2******")
 						.passportNumber("M87654321")
 						.gender("여성")
+						.phone("010-1111-1111")
+						.email("younghee@abc.com")
 						.individualPremium(BigDecimal.valueOf(9000))
 						.individualPolicyNumber("15540-97223")
 						.build()))
+			.totalPremium(BigDecimal.valueOf(17000))
 			.build();
 	}
 

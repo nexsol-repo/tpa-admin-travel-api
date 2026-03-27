@@ -66,7 +66,7 @@ public class ContractController {
 	@PostMapping("/contract")
 	public ApiResponse<Long> createContract(@LoginAdmin AdminUser adminUser,
 			@RequestBody ContractCreateRequest request) {
-		Long contractId = contractService.createContract(request.toCommand(adminUser.userId()));
+		Long contractId = contractService.createContract(request.toNewContract(adminUser.userId()));
 
 		return ApiResponse.success(contractId);
 	}
@@ -75,7 +75,8 @@ public class ContractController {
 	public ApiResponse<Long> updateContract(@LoginAdmin AdminUser adminUser, @PathVariable Long contractId,
 			@RequestBody ContractUpdateRequest request) {
 
-		Long updatedContractId = contractService.updateContract(request.toCommand(contractId, adminUser.userId()));
+		Long updatedContractId = contractService
+			.updateContract(request.toModifyContract(contractId, adminUser.userId()));
 
 		return ApiResponse.success(updatedContractId);
 	}

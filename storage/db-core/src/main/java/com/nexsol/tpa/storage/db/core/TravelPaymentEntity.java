@@ -11,10 +11,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "travel_insure_payment")
+@Table(name = "travel_payment")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TravelInsurePaymentEntity extends BaseEntity {
+public class TravelPaymentEntity extends BaseEntity {
 
 	private Long contractId;
 
@@ -31,8 +31,8 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 	/**
 	 * 도메인 객체로부터 결제 엔티티 생성
 	 */
-	public static TravelInsurePaymentEntity create(Long contractId, PaymentInfo payment) {
-		TravelInsurePaymentEntity entity = new TravelInsurePaymentEntity();
+	public static TravelPaymentEntity create(Long contractId, PaymentInfo payment) {
+		TravelPaymentEntity entity = new TravelPaymentEntity();
 		entity.contractId = contractId;
 		entity.paymentMethod = payment.method();
 		entity.paidAmount = payment.totalAmount();
@@ -42,21 +42,23 @@ public class TravelInsurePaymentEntity extends BaseEntity {
 		return entity;
 	}
 
-	public void updatePaymentInfo(Long contractId, String paymentMethod, LocalDateTime paymentDate,
-			LocalDateTime cancelDate) {
+	public void updatePaymentInfo(Long contractId, String status, String paymentMethod, BigDecimal paidAmount,
+			LocalDateTime paymentDate, LocalDateTime cancelDate) {
 		if (contractId != null) {
 			this.contractId = contractId;
+		}
+		if (status != null) {
+			this.status = status;
 		}
 		if (paymentMethod != null) {
 			this.paymentMethod = paymentMethod;
 		}
-		// 날짜는 null 업데이트가 허용될 수 있음 (예: 취소 철회 등)
-		// 비즈니스 요건에 따라 null 체크 여부 결정. 여기서는 입력된 값으로 덮어쓰기 구현
+		if (paidAmount != null) {
+			this.paidAmount = paidAmount;
+		}
 		if (paymentDate != null) {
 			this.paymentDate = paymentDate;
 		}
-
-		// 해지일은 값이 들어올 때만 수정하거나, 로직에 따라 null로 초기화가 필요할 수도 있음
 		this.cancelDate = cancelDate;
 	}
 

@@ -5,18 +5,21 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record CompanionInfo(Long id, String name, String englishName, String residentNumber, String passportNumber,
-		String gender, BigDecimal premium, String policyNumber) {
+public record CompanionInfo(Long id, Long planId, Boolean isContractor, String name, String englishName,
+		String residentNumber, String passportNumber, String gender, String phone, String email, BigDecimal premium) {
 	public static CompanionInfo of(InsuredPerson person) {
 		return CompanionInfo.builder()
 			.id(person.id())
+			.planId(person.planId())
+			.isContractor(person.isContractor())
 			.name(person.name())
 			.englishName(person.englishName())
 			.residentNumber(person.residentNumber())
 			.passportNumber(person.passportNumber())
 			.gender(person.gender())
+			.phone(person.phone())
+			.email(person.email())
 			.premium(person.individualPremium())
-			.policyNumber(person.individualPolicyNumber())
 			.build();
 	}
 

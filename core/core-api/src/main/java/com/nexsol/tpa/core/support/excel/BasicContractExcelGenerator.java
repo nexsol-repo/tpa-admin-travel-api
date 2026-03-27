@@ -51,9 +51,11 @@ public class BasicContractExcelGenerator implements ContractExcelGenerator {
 	private void createDataRows(Sheet sheet, List<InsuranceContract> contracts) {
 		int rowIndex = 1;
 		DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		DateTimeFormatter dateTimeFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 		for (InsuranceContract contract : contracts) {
+			InsuredPerson contractor = contract.getContractor();
+			String contractorPhone = (contractor != null) ? contractor.phone() : "";
+
 			// [중요] 피보험자(동반자 포함) 수만큼 행 반복 생성
 			for (InsuredPerson person : contract.insuredPeople()) {
 				Row row = sheet.createRow(rowIndex++);
@@ -67,8 +69,8 @@ public class BasicContractExcelGenerator implements ContractExcelGenerator {
 				row.createCell(cellIdx++).setCellValue(person.name());
 				row.createCell(cellIdx++).setCellValue(person.residentNumber());
 
-				// 대표 계약자 연락처
-				row.createCell(cellIdx++).setCellValue(contract.applicant().phoneNumber());
+				// 대표 계약자 연락처 (insuredPeople 중 contractor 기반)
+				row.createCell(cellIdx++).setCellValue(contractorPhone);
 
 				row.createCell(cellIdx++).setCellValue(contract.metaInfo().applicationDate().format(dateFmt));
 				row.createCell(cellIdx++).setCellValue(contract.metaInfo().period().startDate().format(dateFmt));

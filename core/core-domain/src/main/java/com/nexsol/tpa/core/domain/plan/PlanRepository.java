@@ -16,4 +16,6 @@ public interface PlanRepository {
 
 	Optional<Plan> findByPlanNamePrefixAndAgeGroupId(String planNamePrefix, Long ageGroupId);
 
+	Optional<Plan> findByFamilyIdAndAgeGroupId(Long familyId, Long ageGroupId);
+
 }

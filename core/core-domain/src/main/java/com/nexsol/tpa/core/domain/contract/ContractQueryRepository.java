@@ -6,15 +6,11 @@ import com.nexsol.tpa.core.support.SortPage;
 import java.util.List;
 import java.util.Optional;
 
-public interface ContractRepository {
+public interface ContractQueryRepository {
 
 	Optional<InsuranceContract> findById(Long contractId);
 
 	PageResult<InsuranceContract> findAll(ContractSearchCriteria criteria, SortPage sortPage);
-
-	Long create(InsuranceContract contract);
-
-	Long save(InsuranceContract contract);
 
 	List<InsuranceContract> findAll(ContractSearchCriteria criteria);
 

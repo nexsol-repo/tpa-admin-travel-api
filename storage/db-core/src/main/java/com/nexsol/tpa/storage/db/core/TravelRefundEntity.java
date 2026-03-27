@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "travel_insure_refund")
+@Table(name = "travel_refund")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TravelInsureRefundEntity extends BaseEntity {
+public class TravelRefundEntity extends BaseEntity {
 
 	@Column(name = "payment_id")
 	private Long paymentId;
@@ -44,8 +44,8 @@ public class TravelInsureRefundEntity extends BaseEntity {
 	@Column(name = "refunded_at")
 	private LocalDateTime refundedAt;
 
-	public static TravelInsureRefundEntity create(Long paymentId, Long contractId, RefundInfo refund) {
-		TravelInsureRefundEntity entity = new TravelInsureRefundEntity();
+	public static TravelRefundEntity create(Long paymentId, Long contractId, RefundInfo refund) {
+		TravelRefundEntity entity = new TravelRefundEntity();
 		entity.paymentId = paymentId;
 		entity.contractId = contractId;
 		entity.refundAmount = refund.refundAmount();

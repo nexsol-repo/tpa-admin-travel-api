@@ -6,37 +6,46 @@ import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.payment.RefundInfo;
 import com.nexsol.tpa.core.domain.product.ProductPlan;
 import com.nexsol.tpa.core.enums.ContractStatus;
-import com.nexsol.tpa.core.error.CoreErrorType;
-import com.nexsol.tpa.core.error.CoreException;
 import lombok.Builder;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * 여행자 보험의 Aggregate Root
- *
  */
 @Builder
 public record InsuranceContract(Long contractId, ContractStatus status, ContractMeta metaInfo, ProductPlan productPlan,
 		Applicant applicant, PaymentInfo paymentInfo, RefundInfo refundInfo, List<InsuredPerson> insuredPeople,
-		Long employeeId, Integer insuredCount
+		Long employeeId, Integer insuredCount, BigDecimal totalPremium
 
 ) {
 
-	private static final int REPRESENTATIVE_COUNT = 1;
-
 	/**
-	 * 총 피보험자 수 (대표 피보험자 1명 + 동반자 수) - 저장 시 계산용
+	 * 총 피보험자 수 - insuredPeople에 대표계약자도 포함되어 있음
 	 */
-	public int calculateTotalInsuredCount() {
-		int companionCount = (insuredPeople != null) ? insuredPeople.size() : 0;
-		return REPRESENTATIVE_COUNT + companionCount;
+	public int getTotalInsuredCount() {
+		return (insuredPeople != null) ? insuredPeople.size() : 0;
 	}
 
 	/**
-	 * 총 피보험자 수 조회 - DB에 저장된 값 우선, 없으면 계산
+	 * insuredPeople 중 대표계약자(isContractor=true) 추출
 	 */
-	public int getTotalInsuredCount() {
-		return (insuredCount != null) ? insuredCount : calculateTotalInsuredCount();
+	public InsuredPerson getContractor() {
+		if (insuredPeople == null) {
+			return null;
+		}
+		return insuredPeople.stream().filter(p -> Boolean.TRUE.equals(p.isContractor())).findFirst().orElse(null);
+	}
+
+	/**
+	 * insuredPeople 중 동반자(isContractor=false) 목록
+	 */
+	public List<InsuredPerson> getCompanions() {
+		if (insuredPeople == null) {
+			return Collections.emptyList();
+		}
+		return insuredPeople.stream().filter(p -> !Boolean.TRUE.equals(p.isContractor())).toList();
 	}
 }

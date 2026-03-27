@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class InsurerRepositoryImpl implements InsurerRepository {
+public class DefaultInsurerRepository implements InsurerRepository {
 
 	private final TravelInsurerJpaRepository travelInsurerJpaRepository;
 

@@ -1,6 +1,6 @@
 package com.nexsol.tpa.core.api.controller.v1.request;
 
-import com.nexsol.tpa.core.domain.contract.ContractCreateCommand;
+import com.nexsol.tpa.core.domain.contract.*;
 import com.nexsol.tpa.core.enums.ContractStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -12,35 +12,16 @@ import java.util.List;
 /**
  * 보험 가입 직접등록 요청 DTO
  */
-public record ContractCreateRequest(
-		// 보험 가입 정보
-		ContractStatus status, SubscriptionOriginRequest subscriptionOrigin, Long planId, String planName,
-		Boolean silsonExclude, String travelCountry, String countryCode,
+public record ContractCreateRequest(ContractStatus status, SubscriptionOriginRequest subscriptionOrigin, Long planId,
+		String planName, Boolean silsonExclude, String travelCountry, String countryCode,
 		@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime applicationDate, PeriodRequest period,
-		String policyNumber,
+		String policyNumber, ApplicantRequest applicant, PaymentRequest payment, RefundRequest refund,
+		List<CompanionRequest> companions, String memo) {
 
-		// 가입자(피보험자) 정보
-		ApplicantRequest applicant,
-
-		// 결제 정보
-		PaymentRequest payment,
-
-		// 환불 정보
-		RefundRequest refund,
-
-		// 동반자 정보
-		List<CompanionRequest> companions,
-
-		// 메모
-		String memo) {
-
-	/**
-	 * 가입 출처 정보 (제휴사, 채널, 보험사)
-	 */
 	public record SubscriptionOriginRequest(Long partnerId, String partnerName, Long channelId, String channelName,
 			Long insurerId, String insurerName) {
-		public ContractCreateCommand.SubscriptionOriginCommand toCommand() {
-			return ContractCreateCommand.SubscriptionOriginCommand.builder()
+		public ContractOrigin toOrigin() {
+			return ContractOrigin.builder()
 				.partnerId(partnerId)
 				.partnerName(partnerName)
 				.channelId(channelId)
@@ -51,22 +32,16 @@ public record ContractCreateRequest(
 		}
 	}
 
-	/**
-	 * 보험 기간 정보 (출발일/시간, 도착일/시간)
-	 */
 	public record PeriodRequest(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
 			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-		public ContractCreateCommand.PeriodCommand toCommand() {
-			return ContractCreateCommand.PeriodCommand.builder().startDate(startDate).endDate(endDate).build();
+		public ContractPeriod toPeriod() {
+			return ContractPeriod.builder().startDate(startDate).endDate(endDate).build();
 		}
 	}
 
-	/**
-	 * 가입자(피보험자) 정보 - 대표 계약자
-	 */
 	public record ApplicantRequest(String name, String residentNumber, String phoneNumber, String email) {
-		public ContractCreateCommand.ApplicantCommand toCommand() {
-			return ContractCreateCommand.ApplicantCommand.builder()
+		public ContractApplicant toApplicant() {
+			return ContractApplicant.builder()
 				.name(name)
 				.residentNumber(residentNumber)
 				.phoneNumber(phoneNumber)
@@ -75,14 +50,11 @@ public record ContractCreateRequest(
 		}
 	}
 
-	/**
-	 * 결제 정보
-	 */
 	public record PaymentRequest(String method, BigDecimal totalAmount,
 			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime paidAt,
 			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime canceledAt) {
-		public ContractCreateCommand.PaymentCommand toCommand() {
-			return ContractCreateCommand.PaymentCommand.builder()
+		public ContractPayment toPayment() {
+			return ContractPayment.builder()
 				.method(method)
 				.totalAmount(totalAmount)
 				.paidAt(paidAt)
@@ -91,14 +63,11 @@ public record ContractCreateRequest(
 		}
 	}
 
-	/**
-	 * 환불 정보
-	 */
 	public record RefundRequest(BigDecimal refundAmount, String refundMethod, String bankName, String accountNumber,
 			String depositorName, String refundReason,
 			@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime refundedAt) {
-		public ContractCreateCommand.RefundCommand toCommand() {
-			return ContractCreateCommand.RefundCommand.builder()
+		public ContractRefund toRefund() {
+			return ContractRefund.builder()
 				.refundAmount(refundAmount)
 				.refundMethod(refundMethod)
 				.bankName(bankName)
@@ -110,41 +79,39 @@ public record ContractCreateRequest(
 		}
 	}
 
-	/**
-	 * 동반자 정보
-	 */
 	public record CompanionRequest(String residentNumber, String gender, String name, String englishName,
 			String englishLastName, String passportNumber, String policyNumber, BigDecimal premium) {
-		public ContractCreateCommand.CompanionCommand toCommand() {
-			return ContractCreateCommand.CompanionCommand.builder()
+		public ContractCompanion toCompanion() {
+			return ContractCompanion.builder()
 				.residentNumber(residentNumber)
 				.gender(gender)
 				.name(name)
 				.englishName(englishName)
 				.englishLastName(englishLastName)
 				.passportNumber(passportNumber)
-				.policyNumber(policyNumber)
 				.premium(premium)
 				.build();
 		}
 	}
 
-	public ContractCreateCommand toCommand(Long employeeId) {
-		return ContractCreateCommand.builder()
+	public NewContract toNewContract(Long employeeId) {
+		return NewContract.builder()
 			.status(status)
-			.subscriptionOrigin(subscriptionOrigin != null ? subscriptionOrigin.toCommand() : null)
-			.planId(planId)
-			.planName(planName)
-			.silsonExclude(silsonExclude)
-			.travelCountry(travelCountry)
-			.countryCode(countryCode)
+			.origin(subscriptionOrigin != null ? subscriptionOrigin.toOrigin() : null)
+			.plan(PlanSelection.builder()
+				.planId(planId)
+				.planName(planName)
+				.silsonExclude(silsonExclude)
+				.travelCountry(travelCountry)
+				.countryCode(countryCode)
+				.build())
 			.applicationDate(applicationDate)
-			.period(period != null ? period.toCommand() : null)
+			.period(period != null ? period.toPeriod() : null)
 			.policyNumber(policyNumber)
-			.applicant(applicant != null ? applicant.toCommand() : null)
-			.payment(payment != null ? payment.toCommand() : null)
-			.refund(refund != null ? refund.toCommand() : null)
-			.companions(companions != null ? companions.stream().map(CompanionRequest::toCommand).toList() : null)
+			.applicant(applicant != null ? applicant.toApplicant() : null)
+			.payment(payment != null ? payment.toPayment() : null)
+			.refund(refund != null ? refund.toRefund() : null)
+			.companions(companions != null ? companions.stream().map(CompanionRequest::toCompanion).toList() : null)
 			.memo(memo)
 			.employeeId(employeeId)
 			.build();

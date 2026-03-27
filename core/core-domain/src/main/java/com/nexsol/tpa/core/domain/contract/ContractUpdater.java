@@ -1,7 +1,6 @@
 package com.nexsol.tpa.core.domain.contract;
 
 import com.nexsol.tpa.core.domain.applicant.Applicant;
-import com.nexsol.tpa.core.domain.applicant.InsuredPeopleUpdater;
 import com.nexsol.tpa.core.domain.applicant.InsuredPerson;
 import com.nexsol.tpa.core.domain.payment.PaymentInfo;
 import com.nexsol.tpa.core.domain.payment.RefundInfo;
@@ -18,222 +17,278 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * 계약 수정 도구 클래스 (Implement Layer) 수정 로직의 상세 구현을 담당
+ * 계약 수정 도구 클래스 (Implement Layer)
  */
 @Component
 @RequiredArgsConstructor
 public class ContractUpdater {
 
-	private final ContractRepository contractRepository;
-
 	private final PlanReader planReader;
 
 	private final PlanResolver planResolver;
 
-	private final InsuredPeopleUpdater insuredPeopleUpdater;
-
-	public Long update(ContractUpdateCommand command) {
-		InsuranceContract existing = contractRepository.findById(command.contractId())
-			.orElseThrow(() -> new CoreException(CoreErrorType.INSURANCE_NOT_FOUND_DATA));
-
-		InsuranceContract updated = applyChanges(existing, command);
-
-		Long contractId = contractRepository.save(updated);
-
-		// 동반자 수정은 별도 도구 클래스에 위임
-		insuredPeopleUpdater.update(contractId, updated.insuredPeople());
-
-		return contractId;
+	public InsuranceContract update(InsuranceContract existing, ModifyContract mc) {
+		return applyChanges(existing, mc);
 	}
 
-	private InsuranceContract applyChanges(InsuranceContract existing, ContractUpdateCommand command) {
+	private InsuranceContract applyChanges(InsuranceContract existing, ModifyContract mc) {
+		Applicant updatedApplicant = updateApplicant(existing.applicant(), mc.applicant());
+		List<InsuredPerson> updatedInsuredPeople = updateInsuredPeople(existing.insuredPeople(), mc.insuredPeople());
+
+		if (mc.applicant() != null) {
+			updatedInsuredPeople = syncContractorFromApplicant(updatedInsuredPeople, updatedApplicant);
+		}
+
 		return InsuranceContract.builder()
 			.contractId(existing.contractId())
-			.status(resolveStatus(existing, command))
-			.metaInfo(updateMeta(existing.metaInfo(), command))
-			.productPlan(updateProductPlan(existing, command))
-			.applicant(updateApplicant(existing.applicant(), command.applicant()))
-			.paymentInfo(updatePayment(existing.paymentInfo(), command.payment()))
-			.refundInfo(updateRefund(existing.refundInfo(), command.refund()))
-			.insuredPeople(updateInsuredPeople(existing.insuredPeople(), command.insuredPeople()))
-			.employeeId(command.employeeId() != null ? command.employeeId() : existing.employeeId())
+			.status(resolveStatus(existing, mc))
+			.metaInfo(updateMeta(existing.metaInfo(), mc))
+			.productPlan(updateProductPlan(existing, mc))
+			.applicant(updatedApplicant)
+			.paymentInfo(updatePayment(existing.paymentInfo(), mc.payment(), mc.statusName()))
+			.refundInfo(updateRefund(existing.refundInfo(), mc.refund()))
+			.insuredPeople(updatedInsuredPeople)
+			.employeeId(mc.employeeId() != null ? mc.employeeId() : existing.employeeId())
+			.totalPremium(mc.totalPremium() != null ? mc.totalPremium() : existing.totalPremium())
 			.build();
 	}
 
-	private ContractStatus resolveStatus(InsuranceContract existing, ContractUpdateCommand command) {
-		return command.status() != null ? command.status() : existing.status();
+	private List<InsuredPerson> syncContractorFromApplicant(List<InsuredPerson> insuredPeople, Applicant applicant) {
+		if (applicant == null || insuredPeople == null) {
+			return insuredPeople;
+		}
+		return insuredPeople.stream().map(person -> {
+			if (Boolean.TRUE.equals(person.isContractor())) {
+				return InsuredPerson.builder()
+					.id(person.id())
+					.planId(person.planId())
+					.isContractor(true)
+					.name(applicant.name())
+					.residentNumber(applicant.residentNumber())
+					.phone(applicant.phoneNumber())
+					.email(applicant.email())
+					.englishName(person.englishName())
+					.passportNumber(person.passportNumber())
+					.gender(person.gender())
+					.individualPremium(person.individualPremium())
+					.build();
+			}
+			return person;
+		}).toList();
 	}
 
-	private PaymentInfo updatePayment(PaymentInfo existing, ContractUpdateCommand.PaymentUpdateCommand command) {
-		if (command == null) {
+	private ContractStatus resolveStatus(InsuranceContract existing, ModifyContract mc) {
+		if (mc.status() != null) {
+			return mc.status();
+		}
+		if (mc.statusName() != null) {
+			return ContractStatus.COMPLETED;
+		}
+		return existing.status();
+	}
+
+	private PaymentInfo updatePayment(PaymentInfo existing, ContractPayment payment, String statusName) {
+		if (payment == null && statusName == null) {
 			return existing;
 		}
 
-		// existing이 null인 경우(결제정보가 없는 상태에서 수정) 대비
+		String currentStatus = (existing != null) ? existing.status() : null;
 		String currentMethod = (existing != null) ? existing.method() : null;
-		BigDecimal currentAmount = (existing != null) ? existing.totalAmount() : java.math.BigDecimal.ZERO;
+		BigDecimal currentAmount = (existing != null) ? existing.totalAmount() : BigDecimal.ZERO;
+		LocalDateTime currentPaidAt = (existing != null) ? existing.paidAt() : null;
+		LocalDateTime currentCanceledAt = (existing != null) ? existing.canceledAt() : null;
+
+		String resolvedStatus = currentStatus;
+		if (payment != null && payment.status() != null) {
+			resolvedStatus = payment.status();
+		}
+		else if (statusName != null) {
+			resolvedStatus = resolvePaymentStatusByName(statusName, currentStatus);
+		}
 
 		return PaymentInfo.builder()
-			.method(command.method() != null ? command.method() : currentMethod)
-			.totalAmount(currentAmount) // 금액 변경 로직은 별도로 없다면 기존 유지
-			.paidAt(command.paidAt() != null ? command.paidAt() : (existing != null ? existing.paidAt() : null))
-			.canceledAt(command.canceledAt()) // 취소일은 null이 올 수 있음 (취소 철회 등 고려)
+			.status(resolvedStatus)
+			.method(payment != null && payment.method() != null ? payment.method() : currentMethod)
+			.totalAmount(payment != null && payment.totalAmount() != null ? payment.totalAmount() : currentAmount)
+			.paidAt(payment != null && payment.paidAt() != null ? payment.paidAt() : currentPaidAt)
+			.canceledAt(payment != null ? payment.canceledAt() : currentCanceledAt)
 			.build();
 	}
 
-	private ContractMeta updateMeta(ContractMeta existing, ContractUpdateCommand command) {
+	private String resolvePaymentStatusByName(String statusName, String currentStatus) {
+		return switch (statusName) {
+			case "임의해지" -> "CANCELED";
+			case "가입완료" -> "COMPLETED";
+			default -> currentStatus;
+		};
+	}
+
+	private ContractMeta updateMeta(ContractMeta existing, ModifyContract mc) {
 		InsurancePeriod updatedPeriod = existing.period();
-		if (command.period() != null) {
+		ContractPeriod period = mc.period();
+		if (period != null) {
 			updatedPeriod = InsurancePeriod.builder()
-				.startDate(command.period().startDate() != null ? command.period().startDate()
-						: existing.period().startDate())
-				.endDate(command.period().endDate() != null ? command.period().endDate() : existing.period().endDate())
+				.startDate(period.startDate() != null ? period.startDate() : existing.period().startDate())
+				.endDate(period.endDate() != null ? period.endDate() : existing.period().endDate())
 				.build();
 		}
 
-		SubscriptionOrigin updatedOrigin = updateSubscriptionOrigin(existing.origin(), command.subscriptionOrigin());
+		SubscriptionOrigin updatedOrigin = updateSubscriptionOrigin(existing.origin(), mc.origin());
 
 		return ContractMeta.builder()
-			.policyNumber(command.policyNumber() != null ? command.policyNumber() : existing.policyNumber())
-			.policyLink(command.policyLink() != null ? command.policyLink() : existing.policyLink())
+			.policyNumber(mc.policyNumber() != null ? mc.policyNumber() : existing.policyNumber())
+			.policyLink(mc.policyLink() != null ? mc.policyLink() : existing.policyLink())
 			.origin(updatedOrigin)
-			.applicationDate(command.applicationDate() != null ? command.applicationDate() : existing.applicationDate())
+			.applicationDate(mc.applicationDate() != null ? mc.applicationDate() : existing.applicationDate())
 			.period(updatedPeriod)
 			.build();
 	}
 
-	/**
-	 * 가입 출처 정보 수정 (보험사, 채널, 제휴사 - id와 name 함께 수정)
-	 */
-	private SubscriptionOrigin updateSubscriptionOrigin(SubscriptionOrigin existing,
-			ContractUpdateCommand.SubscriptionOriginUpdateCommand command) {
-		if (command == null) {
+	private SubscriptionOrigin updateSubscriptionOrigin(SubscriptionOrigin existing, ContractOrigin origin) {
+		if (origin == null) {
 			return existing;
 		}
 
 		return SubscriptionOrigin.builder()
-			.insurerId(command.insurerId() != null ? command.insurerId() : existing.insurerId())
-			.insurerName(command.insurerName() != null ? command.insurerName() : existing.insurerName())
+			.insurerId(origin.insurerId() != null ? origin.insurerId() : existing.insurerId())
+			.insurerName(origin.insurerName() != null ? origin.insurerName() : existing.insurerName())
 			.insurerCode(existing.insurerCode())
-			.channelId(command.channelId() != null ? command.channelId() : existing.channelId())
-			.channelName(command.channelName() != null ? command.channelName() : existing.channelName())
+			.channelId(origin.channelId() != null ? origin.channelId() : existing.channelId())
+			.channelName(origin.channelName() != null ? origin.channelName() : existing.channelName())
 			.channelCode(existing.channelCode())
-			.partnerId(command.partnerId() != null ? command.partnerId() : existing.partnerId())
-			.partnerName(command.partnerName() != null ? command.partnerName() : existing.partnerName())
+			.partnerId(origin.partnerId() != null ? origin.partnerId() : existing.partnerId())
+			.partnerName(origin.partnerName() != null ? origin.partnerName() : existing.partnerName())
 			.partnerCode(existing.partnerCode())
 			.build();
 	}
 
-	/**
-	 * 플랜 정보 수정 - planName이 있으면 가입자 주민번호로 플랜 resolve, 없으면 planId로 직접 조회
-	 */
-	private ProductPlan updateProductPlan(InsuranceContract existing, ContractUpdateCommand command) {
+	private ProductPlan updateProductPlan(InsuranceContract existing, ModifyContract mc) {
 		ProductPlan existingPlan = existing.productPlan();
-		Long planId = command.planId();
-		String travelCountry = command.travelCountry();
-		String countryCode = command.countryCode();
+		PlanSelection ps = mc.plan();
+		Long planId = (ps != null) ? ps.planId() : null;
+		String travelCountry = (ps != null) ? ps.travelCountry() : null;
+		String countryCode = (ps != null) ? ps.countryCode() : null;
+		String planName = (ps != null) ? ps.planName() : null;
+		Boolean silsonExclude = (ps != null) ? ps.silsonExclude() : null;
 
-		if (planId == null && command.planName() == null && travelCountry == null && countryCode == null) {
+		if (planId == null && planName == null && travelCountry == null && countryCode == null) {
 			return existingPlan;
 		}
 
-		String productName = existingPlan.productName();
-		String planName = existingPlan.planName();
+		String productNameResult = existingPlan.productName();
+		String planNameResult = existingPlan.planName();
 		Long resolvedPlanId = existingPlan.planId();
 
-		// planName이 있으면 가입자 주민번호로 플랜 resolve
-		if (command.planName() != null && command.applicant() != null && command.applicant().residentNumber() != null) {
-			Plan plan = planResolver.resolve(command.planName(), command.applicant().residentNumber(),
-					command.silsonExclude());
+		if (planName != null && mc.applicant() != null && mc.applicant().residentNumber() != null) {
+			Plan plan = planResolver.resolve(planName, mc.applicant().residentNumber(), silsonExclude);
 			resolvedPlanId = plan.id();
-			productName = plan.fullName();
-			planName = plan.name();
+			productNameResult = plan.fullName();
+			planNameResult = plan.name();
 		}
-		else if (command.planName() != null && existing.applicant() != null
-				&& existing.applicant().residentNumber() != null) {
-			Plan plan = planResolver.resolve(command.planName(), existing.applicant().residentNumber(),
-					command.silsonExclude());
+		else if (planName != null && existing.getContractor() != null
+				&& existing.getContractor().residentNumber() != null) {
+			Plan plan = planResolver.resolve(planName, existing.getContractor().residentNumber(), silsonExclude);
 			resolvedPlanId = plan.id();
-			productName = plan.fullName();
-			planName = plan.name();
+			productNameResult = plan.fullName();
+			planNameResult = plan.name();
 		}
 		else if (planId != null) {
 			Plan plan = planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
 			resolvedPlanId = plan.id();
-			productName = plan.fullName();
-			planName = plan.name();
+			productNameResult = plan.fullName();
+			planNameResult = plan.name();
 		}
 
 		return ProductPlan.builder()
 			.planId(resolvedPlanId)
-			.productName(productName)
-			.planName(planName)
+			.productName(productNameResult)
+			.planName(planNameResult)
 			.travelCountry(travelCountry != null ? travelCountry : existingPlan.travelCountry())
 			.countryCode(countryCode != null ? countryCode : existingPlan.countryCode())
 			.coverageLink(existingPlan.coverageLink())
 			.build();
 	}
 
-	private RefundInfo updateRefund(RefundInfo existing, ContractUpdateCommand.RefundUpdateCommand command) {
-		if (command == null) {
+	private RefundInfo updateRefund(RefundInfo existing, ContractRefund refund) {
+		if (refund == null) {
 			return existing;
 		}
 		return RefundInfo.builder()
-			.refundAmount(command.refundAmount() != null ? command.refundAmount()
+			.refundAmount(refund.refundAmount() != null ? refund.refundAmount()
 					: (existing != null ? existing.refundAmount() : null))
-			.refundMethod(command.refundMethod() != null ? command.refundMethod()
+			.refundMethod(refund.refundMethod() != null ? refund.refundMethod()
 					: (existing != null ? existing.refundMethod() : null))
-			.bankName(command.bankName())
-			.accountNumber(command.accountNumber())
-			.depositorName(command.depositorName())
-			.refundReason(command.refundReason())
-			.refundedAt(command.refundedAt() != null ? command.refundedAt()
+			.bankName(refund.bankName())
+			.accountNumber(refund.accountNumber())
+			.depositorName(refund.depositorName())
+			.refundReason(refund.refundReason())
+			.refundedAt(refund.refundedAt() != null ? refund.refundedAt()
 					: (existing != null ? existing.refundedAt() : null))
 			.build();
 	}
 
-	private Applicant updateApplicant(Applicant existing, ContractUpdateCommand.ApplicantUpdateCommand command) {
-		if (command == null) {
+	private Applicant updateApplicant(Applicant existing, ContractApplicant applicant) {
+		if (applicant == null) {
 			return existing;
 		}
 
 		return Applicant.builder()
-			.name(command.name() != null ? command.name() : existing.name())
-			.residentNumber(command.residentNumber() != null ? command.residentNumber() : existing.residentNumber())
-			.phoneNumber(command.phoneNumber() != null ? command.phoneNumber() : existing.phoneNumber())
-			.email(command.email() != null ? command.email() : existing.email())
+			.name(applicant.name() != null ? applicant.name() : existing.name())
+			.residentNumber(applicant.residentNumber() != null ? applicant.residentNumber() : existing.residentNumber())
+			.phoneNumber(applicant.phoneNumber() != null ? applicant.phoneNumber() : existing.phoneNumber())
+			.email(applicant.email() != null ? applicant.email() : existing.email())
 			.build();
 	}
 
 	private List<InsuredPerson> updateInsuredPeople(List<InsuredPerson> existing,
-			List<ContractUpdateCommand.InsuredPersonUpdateCommand> commands) {
-
-		// null이면 기존 유지 (수정 안 함)
-		if (commands == null) {
+			List<ModifyInsuredPerson> modifications) {
+		if (modifications == null) {
 			return existing;
 		}
-
-		// 빈 리스트면 빈 리스트 반환 (모든 동반자 삭제)
-		if (commands.isEmpty()) {
+		if (modifications.isEmpty()) {
 			return List.of();
 		}
 
-		return commands.stream().map(this::toInsuredPerson).toList();
+		Map<Long, InsuredPerson> existingMap = existing.stream()
+			.filter(p -> p.id() != null)
+			.collect(java.util.stream.Collectors.toMap(InsuredPerson::id, p -> p));
+
+		List<InsuredPerson> result = modifications.stream()
+			.map(m -> toInsuredPerson(m, existingMap.get(m.id())))
+			.collect(java.util.ArrayList::new, java.util.ArrayList::add, java.util.ArrayList::addAll);
+
+		// 기존 contractor가 수정 목록에 없으면 보존
+		Set<Long> modifiedIds = modifications.stream()
+			.map(ModifyInsuredPerson::id)
+			.filter(java.util.Objects::nonNull)
+			.collect(java.util.stream.Collectors.toSet());
+
+		existing.stream()
+			.filter(p -> Boolean.TRUE.equals(p.isContractor()))
+			.filter(p -> !modifiedIds.contains(p.id()))
+			.findFirst()
+			.ifPresent(result::add);
+
+		return result;
 	}
 
-	private InsuredPerson toInsuredPerson(ContractUpdateCommand.InsuredPersonUpdateCommand command) {
+	private InsuredPerson toInsuredPerson(ModifyInsuredPerson m, InsuredPerson existingPerson) {
 		return InsuredPerson.builder()
-			.id(command.id())
-			.name(command.name())
-			.englishName(command.englishName())
-			.residentNumber(command.residentNumber())
-			.passportNumber(command.passportNumber())
-			.individualPolicyNumber(command.policyNumber())
-			.gender(command.gender())
-			.individualPremium(command.premium())
+			.id(m.id())
+			.planId(existingPerson != null ? existingPerson.planId() : null)
+			.isContractor(existingPerson != null ? existingPerson.isContractor() : null)
+			.name(m.name())
+			.englishName(m.englishName())
+			.residentNumber(m.residentNumber())
+			.passportNumber(m.passportNumber())
+			.gender(m.gender())
+			.individualPremium(m.premium())
 			.build();
 	}
 
