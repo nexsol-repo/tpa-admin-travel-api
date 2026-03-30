@@ -203,3 +203,17 @@ include::{snippets}/plan-list-by-insurer/response-fields.adoc[]
 ==== HTTP 예시
 include::{snippets}/plan-list-by-insurer/http-request.adoc[]
 include::{snippets}/plan-list-by-insurer/http-response.adoc[]
+
+=== 여행 도시/국가 검색
+
+키워드로 여행 도시 또는 국가를 검색합니다.
+
+==== 요청 파라미터
+include::{snippets}/city-search/query-parameters.adoc[]
+
+==== 응답 필드
+include::{snippets}/city-search/response-fields.adoc[]
+
+==== HTTP 예시
+include::{snippets}/city-search/http-request.adoc[]
+include::{snippets}/city-search/http-response.adoc[]
