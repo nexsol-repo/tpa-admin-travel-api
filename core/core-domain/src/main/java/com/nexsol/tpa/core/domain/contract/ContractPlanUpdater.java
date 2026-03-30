@@ -126,6 +126,7 @@ public class ContractPlanUpdater {
 
 		return ProductPlan.builder()
 			.planId(plan.id())
+			.familyId(plan.familyId())
 			.productName(plan.fullName())
 			.planName(plan.name())
 			.travelCountry(travelCountry)
