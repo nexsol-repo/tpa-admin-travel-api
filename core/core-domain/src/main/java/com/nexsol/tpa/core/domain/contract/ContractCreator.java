@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -80,10 +81,34 @@ public class ContractCreator {
 	private Plan resolvePlan(NewContract nc) {
 		PlanSelection ps = nc.plan();
 		if (ps != null && ps.planName() != null && nc.applicant() != null && nc.applicant().residentNumber() != null) {
-			return planResolver.resolve(ps.planName(), nc.applicant().residentNumber(), ps.silsonExclude());
+			LocalDate baseDate = toBaseDate(nc);
+			return planResolver.resolve(ps.planName(), nc.applicant().residentNumber(), ps.silsonExclude(),
+					ps.planGrade(), baseDate);
 		}
-		Long planId = (ps != null) ? ps.planId() : null;
-		return planReader.read(planId).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+		if (ps == null) {
+			return planReader.read(null).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+		}
+		return planReader.read(ps.planId()).orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA));
+	}
+
+	/**
+	 * 주민번호로 해당 피보험자에게 맞는 개별 플랜을 resolve한다. (신청일 기준 만나이 계산)
+	 */
+	private Long resolveInsuredPersonPlanId(NewContract nc, String residentNumber) {
+		PlanSelection ps = nc.plan();
+		if (ps == null || ps.planName() == null || residentNumber == null) {
+			return null;
+		}
+		LocalDate baseDate = toBaseDate(nc);
+		Plan plan = planResolver.resolve(ps.planName(), residentNumber, ps.silsonExclude(), ps.planGrade(), baseDate);
+		return plan.id();
+	}
+
+	private LocalDate toBaseDate(NewContract nc) {
+		if (nc.applicationDate() != null) {
+			return nc.applicationDate().toLocalDate();
+		}
+		return LocalDate.now();
 	}
 
 	private Applicant buildApplicant(ContractApplicant applicant) {
@@ -131,25 +156,28 @@ public class ContractCreator {
 		if (nc.applicant() != null) {
 			BigDecimal premium = (nc.payment() != null && nc.payment().totalAmount() != null)
 					? nc.payment().totalAmount() : BigDecimal.ZERO;
+			Long planId = resolveInsuredPersonPlanId(nc, nc.applicant().residentNumber());
 			insuredPeople.add(InsuredPerson.builder()
 				.name(nc.applicant().name())
 				.residentNumber(nc.applicant().residentNumber())
 				.phone(nc.applicant().phoneNumber())
 				.email(nc.applicant().email())
 				.isContractor(true)
+				.planId(planId)
 				.individualPremium(premium)
 				.build());
 		}
 
 		if (nc.companions() != null && !nc.companions().isEmpty()) {
-			nc.companions().stream().map(this::buildInsuredPerson).forEach(insuredPeople::add);
+			nc.companions().stream().map(c -> buildInsuredPerson(nc, c)).forEach(insuredPeople::add);
 		}
 
 		return insuredPeople;
 	}
 
-	private InsuredPerson buildInsuredPerson(ContractCompanion companion) {
+	private InsuredPerson buildInsuredPerson(NewContract nc, ContractCompanion companion) {
 		String fullEnglishName = buildFullEnglishName(companion.englishLastName(), companion.englishName());
+		Long planId = resolveInsuredPersonPlanId(nc, companion.residentNumber());
 		return InsuredPerson.builder()
 			.name(companion.name())
 			.englishName(fullEnglishName)
@@ -157,6 +185,7 @@ public class ContractCreator {
 			.passportNumber(companion.passportNumber())
 			.gender(companion.gender())
 			.isContractor(false)
+			.planId(planId)
 			.individualPremium(companion.premium())
 			.build();
 	}
