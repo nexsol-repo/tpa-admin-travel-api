@@ -1,0 +1,75 @@
+package com.nexsol.tpa.client.meritz.quote;
+
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nexsol.tpa.client.meritz.bridge.MeritzBridgeFeignClient;
+import com.nexsol.tpa.client.meritz.bridge.dto.MeritzBridgeApiResponse;
+import com.nexsol.tpa.client.meritz.config.CompaniesConfigsProperties;
+import com.nexsol.tpa.client.meritz.config.CompaniesConfigsProperties.CompanyConfig;
+import com.nexsol.tpa.client.meritz.dto.quote.MeritzHndyPremCmptBody;
+import com.nexsol.tpa.core.domain.client.InsuranceQuoteClient;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class MeritzQuoteClient implements InsuranceQuoteClient {
+
+    private final MeritzBridgeFeignClient bridgeClient;
+    private final CompaniesConfigsProperties companies;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public String calculatePremium(PremiumCommand command) {
+        CompanyConfig cfg = companies.resolve(command.company());
+
+        MeritzHndyPremCmptBody body =
+                new MeritzHndyPremCmptBody(
+                        cfg.getCompanyCode(),
+                        cfg.getGnrAflcoCd(),
+                        cfg.getAflcoDivCd(),
+                        cfg.getBizpeNo(),
+                        cfg.getPolNo(),
+                        command.productCode(),
+                        command.unitProductCode(),
+                        command.sbcpDt(),
+                        command.insBgnDt(),
+                        command.insEdDt(),
+                        command.trvArCd(),
+                        command.insuredList().size(),
+                        command.insuredList().stream()
+                                .map(
+                                        i ->
+                                                new MeritzHndyPremCmptBody.Insured(
+                                                        i.planGroupCode(),
+                                                        i.planCode(),
+                                                        i.birth(),
+                                                        i.gender(),
+                                                        i.name(),
+                                                        i.nameEng()))
+                                .toList());
+
+        MeritzBridgeApiResponse res = bridgeClient.premiumCalculate(body);
+        if (!res.isSuccess()) {
+            log.warn(
+                    "[QUOTE] bridge API failed. errCd={}, errMsg={}",
+                    res.getErrCd(),
+                    res.getErrMsg());
+            return null;
+        }
+        if (res.getData() == null) {
+            log.warn("[QUOTE] bridge API returned null data");
+            return null;
+        }
+
+        try {
+            return objectMapper.writeValueAsString(res.getData());
+        } catch (Exception e) {
+            log.error("[QUOTE] 응답 직렬화 실패", e);
+            return null;
+        }
+    }
+}
