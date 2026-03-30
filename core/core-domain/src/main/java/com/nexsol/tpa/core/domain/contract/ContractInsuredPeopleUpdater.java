@@ -87,7 +87,7 @@ public class ContractInsuredPeopleUpdater {
 
 	private InsuredPerson toInsuredPerson(ModifyInsuredPerson m, InsuredPerson existingPerson) {
 		Long planId = null;
-		Boolean isContractor = null;
+		Boolean isContractor = false;
 		if (existingPerson != null) {
 			planId = existingPerson.planId();
 			isContractor = existingPerson.isContractor();

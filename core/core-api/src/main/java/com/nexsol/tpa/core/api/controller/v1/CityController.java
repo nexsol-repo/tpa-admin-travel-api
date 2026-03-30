@@ -22,7 +22,7 @@ public class CityController {
 
 	@GetMapping("/cities")
 	public ApiResponse<List<CityResponse>> searchCities(@RequestParam String keyword,
-			@RequestParam(defaultValue = "1") String type) {
+			@RequestParam(defaultValue = "2") String type) {
 
 		List<CityResponse> cities = citySearchService.search(keyword, type).stream().map(CityResponse::of).toList();
 
