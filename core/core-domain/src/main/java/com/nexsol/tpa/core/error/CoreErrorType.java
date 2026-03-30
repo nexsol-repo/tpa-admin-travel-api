@@ -22,7 +22,13 @@ public enum CoreErrorType {
 
 	// 결제
 	PAYMENT_NOT_FOUND_DATA(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T5000, "결제 내역이 없습니다.", CoreErrorLevel.INFO),
-	PAYMENT_ALREADY_CANCELLED(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T5001, "이미 취소된 결제건 입니다.", CoreErrorLevel.INFO);
+	PAYMENT_ALREADY_CANCELLED(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T5001, "이미 취소된 결제건 입니다.", CoreErrorLevel.INFO),
+
+	// 레퍼런스 (도시/국가 코드 등)
+	REFERENCE_API_FAILED(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T6000, "레퍼런스 API 호출에 실패했습니다.",
+			CoreErrorLevel.ERROR),
+	REFERENCE_PARSE_FAILED(CoreErrorKind.SERVER_ERROR, CoreErrorCode.T6001, "레퍼런스 응답 파싱에 실패했습니다.",
+			CoreErrorLevel.ERROR);
 
 	private final CoreErrorKind kind;
 
