@@ -7,6 +7,7 @@ spring:
       - optional:file:.env[.properties]
       - logging.yml
       - db-core.yml
+      - client-meritz.yml
   web.resources.add-mappings: false
   mail:
     host: smtp.gmail.com
