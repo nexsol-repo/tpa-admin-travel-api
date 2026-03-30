@@ -19,6 +19,7 @@ COPY core/core-domain/build.gradle ./core/core-domain/
 COPY core/core-enum/build.gradle ./core/core-enum/
 COPY clients/client-aligo/build.gradle ./clients/client-aligo/
 COPY clients/client-memo/build.gradle ./clients/client-memo/
+COPY clients/client-meritz/build.gradle ./clients/client-meritz/
 COPY storage/db-core/build.gradle ./storage/db-core/
 COPY support/logging/build.gradle ./support/logging/
 COPY support/monitoring/build.gradle ./support/monitoring/
