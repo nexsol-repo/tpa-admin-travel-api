@@ -43,12 +43,12 @@ public class DefaultInsuredPersonRepository implements InsuredPersonRepository {
 		List<TravelInsuredEntity> entities = insuredPersonJpaRepository.findAllById(ids);
 
 		for (TravelInsuredEntity entity : entities) {
-			people.stream()
-				.filter(p -> p.id().equals(entity.getId()))
-				.findFirst()
-				.ifPresent(person -> entity.updatePersonInfo(person.name(), person.englishName(),
-						person.residentNumber(), person.passportNumber(), person.gender(), person.phone(),
-						person.email(), person.individualPremium()));
+			people.stream().filter(p -> p.id().equals(entity.getId())).findFirst().ifPresent(person -> {
+				entity.updatePlanId(person.planId());
+				entity.updatePersonInfo(person.name(), person.englishName(), person.residentNumber(),
+						person.passportNumber(), person.gender(), person.phone(), person.email(),
+						person.individualPremium());
+			});
 		}
 
 		insuredPersonJpaRepository.saveAll(entities);
