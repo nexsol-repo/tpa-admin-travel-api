@@ -386,7 +386,8 @@ public class ContractControllerTest extends RestDocsTest {
 				        "name": "홍길동수정",
 				        "residentNumber": "910504-1234567",
 				        "phoneNumber": "010-1111-2222",
-				        "email": "updated@abc.com"
+				        "email": "updated@abc.com",
+				        "premium": 9000
 				    },
 				    "period": {
 				        "startDate": "2024-04-01",
@@ -627,6 +628,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("applicant.residentNumber").description("주민등록번호").optional(),
 				fieldWithPath("applicant.phoneNumber").description("연락처").optional(),
 				fieldWithPath("applicant.email").description("이메일").optional(),
+				fieldWithPath("applicant.premium").description("대표 계약자 보험료").optional(),
 
 				fieldWithPath("period").description("보험 기간 (부분 수정 가능)").optional(),
 				fieldWithPath("period.startDate").description("보험 시작일 (yyyy-MM-dd)").optional(),

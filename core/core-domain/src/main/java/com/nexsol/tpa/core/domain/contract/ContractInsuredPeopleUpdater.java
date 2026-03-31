@@ -62,7 +62,7 @@ public class ContractInsuredPeopleUpdater {
 				.englishName(person.englishName())
 				.passportNumber(person.passportNumber())
 				.gender(person.gender())
-				.individualPremium(person.individualPremium())
+				.individualPremium(applicant.premium() != null ? applicant.premium() : person.individualPremium())
 				.build();
 		}).toList();
 	}

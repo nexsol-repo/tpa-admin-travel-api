@@ -122,6 +122,7 @@ public class ContractUpdater {
 			.residentNumber(nvl(applicant.residentNumber(), existing.residentNumber()))
 			.phoneNumber(nvl(applicant.phoneNumber(), existing.phoneNumber()))
 			.email(nvl(applicant.email(), existing.email()))
+			.premium(nvl(applicant.premium(), existing.premium()))
 			.build();
 	}
 
