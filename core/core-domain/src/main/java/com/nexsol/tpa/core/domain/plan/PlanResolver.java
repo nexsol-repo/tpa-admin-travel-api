@@ -1,5 +1,6 @@
 package com.nexsol.tpa.core.domain.plan;
 
+import com.nexsol.tpa.core.enums.PlanGrade;
 import com.nexsol.tpa.core.error.CoreErrorType;
 import com.nexsol.tpa.core.error.CoreException;
 import lombok.RequiredArgsConstructor;
@@ -26,26 +27,44 @@ public class PlanResolver {
 	private final PlanFamilyReader planFamilyReader;
 
 	/**
-	 * 플랜명과 주민번호로 적합한 플랜을 찾는다.
+	 * 플랜명과 주민번호로 적합한 플랜을 찾는다. (기본 등급: B, 기준일: 오늘)
+	 */
+	public Plan resolve(String planName, String residentNumber, Boolean silsonExclude) {
+		return resolve(planName, residentNumber, silsonExclude, PlanGrade.defaultGrade(), LocalDate.now());
+	}
+
+	/**
+	 * 플랜명, 주민번호, 등급으로 적합한 플랜을 찾는다. (기준일: 오늘)
+	 */
+	public Plan resolve(String planName, String residentNumber, Boolean silsonExclude, PlanGrade grade) {
+		return resolve(planName, residentNumber, silsonExclude, grade, LocalDate.now());
+	}
+
+	/**
+	 * 플랜명, 주민번호, 등급, 기준일로 적합한 플랜을 찾는다.
 	 * @param planName 플랜 표시명 (예: "가뿐한플랜")
 	 * @param residentNumber 주민번호 (YYMMDD-XXXXXXX 형식)
 	 * @param silsonExclude 실손제외 여부 (true: 실손제외, false: 실손포함)
+	 * @param grade 플랜 등급 (A 또는 B, null이면 기본값 B)
+	 * @param baseDate 만나이 계산 기준일 (null이면 오늘)
 	 * @return 해당 나이대의 플랜
 	 */
-	public Plan resolve(String planName, String residentNumber, Boolean silsonExclude) {
-		int age = calculateAge(residentNumber, LocalDate.now());
+	public Plan resolve(String planName, String residentNumber, Boolean silsonExclude, PlanGrade grade,
+			LocalDate baseDate) {
+		LocalDate resolvedBaseDate = (baseDate != null) ? baseDate : LocalDate.now();
+		PlanGrade resolvedGrade = (grade != null) ? grade : PlanGrade.defaultGrade();
+
+		int age = calculateAge(residentNumber, resolvedBaseDate);
 		Long ageGroupId = determineAgeGroup(age);
 		boolean isLoss = silsonExclude == null || !silsonExclude;
 
-		// 1. family 테이블에서 is_loss 조건으로 패밀리 ID 조회
-		Long familyId = planFamilyReader.findFamilyId(planName, isLoss)
+		Long familyId = planFamilyReader.findFamilyId(planName, isLoss, resolvedGrade)
 			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA,
-					"플랜 패밀리를 찾을 수 없습니다: " + planName + ", 실손제외: " + silsonExclude));
+					"플랜 패밀리를 찾을 수 없습니다: " + planName + resolvedGrade.getSuffix() + ", 실손제외: " + silsonExclude));
 
-		// 2. family_map + age_group_id로 플랜 조회
 		return planReader.readByFamilyIdAndAgeGroupId(familyId, ageGroupId)
 			.orElseThrow(() -> new CoreException(CoreErrorType.NOT_FOUND_DATA,
-					"플랜을 찾을 수 없습니다: " + planName + ", 나이: " + age));
+					"플랜을 찾을 수 없습니다: " + planName + resolvedGrade.getSuffix() + ", 나이: " + age));
 	}
 
 	/**

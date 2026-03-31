@@ -68,7 +68,7 @@ public class TravelContractMapper {
 		}
 
 		List<TravelInsuredEntity> safePeople = (people != null) ? people : Collections.emptyList();
-		List<InsuredPerson> insuredPeople = safePeople.stream().map(TravelInsuredEntity::toDomain).toList();
+		List<InsuredPerson> insuredPeople = safePeople.stream().map(p -> p.toDomain(planMap)).toList();
 
 		// insuredPeople 중 isContractor=true 인 사람에서 applicant 추출
 		Applicant applicant = extractApplicant(insuredPeople);
@@ -197,9 +197,6 @@ public class TravelContractMapper {
 	}
 
 	private ContractStatus determineStatus(TravelContractEntity entity, TravelPaymentEntity payment) {
-		if (payment != null && "CANCELED".equals(payment.getStatus())) {
-			return ContractStatus.CANCELED;
-		}
 		if (entity.getStatus() != null) {
 			try {
 				return ContractStatus.valueOf(entity.getStatus());

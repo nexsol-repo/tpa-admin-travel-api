@@ -386,7 +386,8 @@ public class ContractControllerTest extends RestDocsTest {
 				        "name": "홍길동수정",
 				        "residentNumber": "910504-1234567",
 				        "phoneNumber": "010-1111-2222",
-				        "email": "updated@abc.com"
+				        "email": "updated@abc.com",
+				        "premium": 9000
 				    },
 				    "period": {
 				        "startDate": "2024-04-01",
@@ -481,6 +482,8 @@ public class ContractControllerTest extends RestDocsTest {
 
 				// 3. Applicant Section
 				fieldWithPath("data.applicantSection").description("신청자 정보 섹션"),
+				fieldWithPath("data.applicantSection.planId").description("플랜 ID").optional(),
+				fieldWithPath("data.applicantSection.planName").description("플랜 전체명 (예: 가뿐한플랜B_15~69세)").optional(),
 				fieldWithPath("data.applicantSection.name").description("대표 계약자명"),
 				fieldWithPath("data.applicantSection.englishName").description("영문 이름").optional(),
 				fieldWithPath("data.applicantSection.residentNumber").description("주민등록번호 (마스킹)"),
@@ -510,6 +513,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("data.companions").description("동반자 목록"),
 				fieldWithPath("data.companions[].id").description("동반자 ID"),
 				fieldWithPath("data.companions[].planId").description("플랜 ID").optional(),
+				fieldWithPath("data.companions[].planName").description("플랜 전체명 (예: 맘편한플랜B_15~69세)").optional(),
 				fieldWithPath("data.companions[].isContractor").description("대표계약자 여부"),
 				fieldWithPath("data.companions[].name").description("이름"),
 				fieldWithPath("data.companions[].englishName").description("영문 이름"),
@@ -624,6 +628,7 @@ public class ContractControllerTest extends RestDocsTest {
 				fieldWithPath("applicant.residentNumber").description("주민등록번호").optional(),
 				fieldWithPath("applicant.phoneNumber").description("연락처").optional(),
 				fieldWithPath("applicant.email").description("이메일").optional(),
+				fieldWithPath("applicant.premium").description("대표 계약자 보험료").optional(),
 
 				fieldWithPath("period").description("보험 기간 (부분 수정 가능)").optional(),
 				fieldWithPath("period.startDate").description("보험 시작일 (yyyy-MM-dd)").optional(),

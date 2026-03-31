@@ -29,13 +29,15 @@ public record ContractUpdateRequest(ContractStatus status, String statusName, Ap
 		}
 	}
 
-	public record ApplicantRequest(String name, String residentNumber, String phoneNumber, String email) {
+	public record ApplicantRequest(String name, String residentNumber, String phoneNumber, String email,
+			BigDecimal premium) {
 		public ContractApplicant toApplicant() {
 			return ContractApplicant.builder()
 				.name(name)
 				.residentNumber(residentNumber)
 				.phoneNumber(phoneNumber)
 				.email(email)
+				.premium(premium)
 				.build();
 		}
 	}

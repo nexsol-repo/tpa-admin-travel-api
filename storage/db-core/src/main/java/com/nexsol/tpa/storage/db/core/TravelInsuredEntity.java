@@ -89,6 +89,12 @@ public class TravelInsuredEntity extends BaseEntity {
 			.build();
 	}
 
+	public void updatePlanId(Long planId) {
+		if (planId != null) {
+			this.planId = planId;
+		}
+	}
+
 	public void updatePersonInfo(String name, String englishName, String residentNumber, String passportNumber,
 			String gender, String phone, String email, BigDecimal insurePremium) {
 		if (name != null) {
@@ -118,9 +124,19 @@ public class TravelInsuredEntity extends BaseEntity {
 	}
 
 	public InsuredPerson toDomain() {
+		return toDomain(java.util.Collections.emptyMap());
+	}
+
+	public InsuredPerson toDomain(java.util.Map<Long, TravelInsurancePlanEntity> planMap) {
+		String resolvedPlanName = null;
+		if (this.planId != null && planMap.containsKey(this.planId)) {
+			resolvedPlanName = planMap.get(this.planId).getPlanFullName();
+		}
+
 		return InsuredPerson.builder()
 			.id(this.getId())
 			.planId(this.planId)
+			.planName(resolvedPlanName)
 			.isContractor(this.isContractor)
 			.name(this.name)
 			.englishName(this.englishName)
